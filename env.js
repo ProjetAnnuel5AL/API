@@ -1,7 +1,7 @@
-var env = process.argv[2] || "dev";
+var env = process.argv[2] || "development";
 
 switch (env) {
-    case "dev" :
+    case "development" :
         process.env.NODE_ENV = "development";
         break;
     case "production" :

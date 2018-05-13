@@ -1,9 +1,9 @@
   {
-  "test": {
-    "username": "",
-    "password": "",
-    "database": "",
-    "host": "",
-    "dialect": ""
-  }
+    "test": {
+      "username": "root",
+      "password": "root",
+      "database": "projetannuel5a_test",
+      "host": "127.0.0.1",
+      "dialect": "mysql"
+    }
 }
