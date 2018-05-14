@@ -1,0 +1,7 @@
+#!/bin/sh
+ 
+cd /home/app/projetAnnuel/API
+git pull
+npm config set unsafe-perm true
+npm install --production
+forever restartall

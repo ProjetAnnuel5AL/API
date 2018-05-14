@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "mocha": "mocha --exit"
+    "mocha": "mocha --exit",
+    "deploy": "./script/deploy"
   },
   "author": "",
   "license": "ISC",
