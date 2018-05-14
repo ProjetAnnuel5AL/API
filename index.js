@@ -28,7 +28,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + "/ressources"));
 require("./routes")(app, models, TokenUtils);
 
-var port = process.env.PORT;
+var port = process.env.PORT || 80;
 
 if (process.env.NODE_ENV === "test")
     port = 8888;
