@@ -3,7 +3,7 @@ var app = require('../index.js');
 
  
 describe('GET /', function() {
-  it('Respond with Hello ESGI !', function(done) {
+  it('Respond with Hello on API !', function(done) {
     request(app).get('/').expect('Hello ESGI !', done);
   });
 });
