@@ -1,7 +1,7 @@
 module.exports = function(app, models, TokenUtils) {
 
 	app.get('/', function (req, res) {
-		res.send('Hello World !');
+		res.send('Hello ESGI !');
 	});
 
 	require("./user")(app, models, TokenUtils);
