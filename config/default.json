@@ -3,7 +3,7 @@
     "username": "admin",
     "password": "ESGI-projet-annuel-2018",
     "database": "projetannuel5a",
-    "host": "51.38.36.241",
+    "host": "localhost",
     "dialect": "mysql"
 
   },
@@ -18,7 +18,7 @@
     "username": "admin",
     "password": "ESGI-projet-annuel-2018",
     "database": "projetannuel5a_test",
-    "host": "51.38.36.241",
+    "host": "localhost",
     "dialect": "mysql"
   }
 

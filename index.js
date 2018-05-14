@@ -6,7 +6,6 @@ var TokenUtils = utils.TokenUtils;
 
 var config = require("config");  // we use node-config to handle environments
 require("./env.js");
-console.log('test pipeline');
 var bodyParser = require("body-parser");
 
 
