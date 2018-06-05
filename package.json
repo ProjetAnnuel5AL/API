@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "mocha": "mocha --exit",
-    "deploy": "./script/deploy"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
@@ -14,17 +13,16 @@
     "body-parser": "^1.18.2",
     "chai": "^4.1.2",
     "config": "^1.30.0",
+    "empty-folder": "^2.0.2",
     "express": "^4.16.3",
     "fs": "0.0.1-security",
+    "jshint": "^2.9.5",
     "jsonwebtoken": "^8.2.1",
+    "mocha": "^5.1.1",
     "mysql": "^2.15.0",
     "mysql2": "^1.5.3",
-    "sequelize": "^4.37.5"
-  },
-  "devDependencies": {
-    "mocha": "5.1.1",
-    "supertest": "3.0.0",
-    "supertest-session": "^3.2.0",
-    "jshint": "^2.9.5"
+    "sequelize": "^4.37.5",
+    "supertest": "^3.0.0",
+    "supertest-session": "^3.2.0"
   }
 }

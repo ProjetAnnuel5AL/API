@@ -57,3 +57,6 @@ typings/
 # dotenv environment variables file
 .env
 
+ressources/producerAvatar/*
+config/development.json
+ressources/itemPhotos/*

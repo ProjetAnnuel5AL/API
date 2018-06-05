@@ -1,8 +1,10 @@
 var models=require("../models");
 var jwt = require('jsonwebtoken');
 
-
-
+//UserType: 0
+//ProducerType: 1
+//AdminType: 2
+var secret = "kukjhifksd489745dsf87d79+62dsfAD_-=";
 
 var findIdUser = function(login) {
     var request = {
@@ -16,6 +18,16 @@ var findIdUser = function(login) {
             return result.dataValues;     
         }else{        
             return null;
+        }
+    });
+};
+
+var getIdAndType = function(token){
+    return jwt.verify(token,secret, function(err, decoded) {
+        if (err) {
+            return false;
+        }else{
+            return {id: decoded.id, type: decoded.admin};
         }
     });
 };
@@ -35,8 +47,47 @@ var verifSimpleToken = function(token, secret, idUser){
     });      
 };
 
+var verifProducerToken = function(token, secret, idUser){
+    return jwt.verify(token,secret, function(err, decoded) {
+        if (err) {
+            return false;
+        }else{
+            if(!idUser || idUser!=decoded.id){
+                return false;
+             }else{
+                 if(decoded.admin == 1){
+                    return true;
+                 }else{
+                    return false;
+                 }
+             }
+        }
+    });      
+};
+
+var verifAdminToken = function(token, secret, idUser){
+    return jwt.verify(token,secret, function(err, decoded) {
+        if (err) {
+            return false;
+        }else{
+            if(!idUser || idUser!=decoded.id){
+                return false;
+             }else{
+                 if(decoded.admin == 2){
+                    return true;
+                 }else{
+                    return false;
+                 }
+             }
+        }
+    });      
+};
+
 
 module.exports={
     "findIdUser" : findIdUser,
-    "verifSimpleToken" : verifSimpleToken
-    };
+    "getIdAndType": getIdAndType,
+    "verifSimpleToken" : verifSimpleToken,
+    "verifProducerToken": verifProducerToken,
+    "verifAdminToken": verifAdminToken
+};

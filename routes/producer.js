@@ -81,7 +81,8 @@ module.exports = function(app, models, TokenUtils) {
                             "code" : 0,
                             "message" : "producer"
                         });
-                    }).catch(function(err){             
+                    }).catch(function(err){    
+                        console.log(err);         
                         res.json({
                             "code" : 2,
                             "message" : "Sequelize error"

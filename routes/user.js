@@ -332,7 +332,6 @@ module.exports = function(app, models, TokenUtils) {
                             "loginUser" : result.loginUser,
                             "emailUser" : result.emailUser,
                             "typeUser" : result.typeUser,
-                            "idUser" : result.idUser,
                             "token" : token
                         });
                     }else{
