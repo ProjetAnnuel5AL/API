@@ -16,6 +16,9 @@ module.exports = sequelize.import("user", function(sequelize, Datatypes) {
 		passwordUser : {
 			type : Datatypes.STRING
 		},
+		codeResetPasswordUser : {
+			type : Datatypes.STRING
+		},
 		saltUser : {
 			type : Datatypes.STRING
 		},

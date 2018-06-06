@@ -196,14 +196,6 @@ module.exports = function(app, models, TokenUtils) {
                     res.json({
                         "code" : 0,
                         "loginUser" : result.loginUser,
-                        "emailUser" : result.emailUser,
-                        "firstNameUser" : result.firstNameUser,
-                        "lastNameUser" : result.lastNameUser,
-                        "birthUser" : result.birthUser,
-                        "sexUser" : result.sexUser,
-                        "addressUser" : result.addressUser,
-                        "cityUser" : result.cityUser,
-                        "cpUser" : result.cpUser
                     });
                 } else {
                     res.json({
@@ -452,7 +444,7 @@ module.exports = function(app, models, TokenUtils) {
                                 "message":"User updated"
                             });
                         }).catch(function (err) {
-                            //le.log(err);
+                           
                             res.json({
                                 "code": 2,
                                 "message": "Sequelize error",
@@ -568,4 +560,43 @@ module.exports = function(app, models, TokenUtils) {
         }
     });
 
+    app.post("/user/resetPassword", function (req, res, next) {
+
+        if (req.body.emailUser && req.body.passwordUser && req.body.saltUser) {
+            
+            var request = {
+                "where": {
+                    emailUser: req.body.emailUser
+                }
+            };
+            var attributes = {};
+            attributes.passwordUser = req.body.passwordUser;
+            attributes.saltUser = req.body.saltUser;
+            var User = models.User;
+
+            User.update(attributes, request).then(function (results) {
+                console.log(results[0])
+                if(results[0] !=0){
+                    res.json({
+                        "code": 0,
+                        "message":"User updated"
+                    });
+                }else{
+                    res.json({
+                        "code": 3,
+                        "message": "User not found"
+                    });
+                }
+            }).catch(function (err) {
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });
+
+        }else{
+            
+        }
+    });
 };
