@@ -26,7 +26,7 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/ressources"));
-require("./routes")(app, models, TokenUtils);
+require("./routes")(app, models, TokenUtils, utils);
 
 var port=process.env.PORT || 8888;
 

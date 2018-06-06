@@ -7,7 +7,7 @@
 // 5 : account not validated 
 // 6 : no token /token invalid
 
-module.exports = function(app, models, TokenUtils) {
+module.exports = function(app, models, TokenUtils, utils) {
 
     var bcrypt = require("bcrypt-nodejs");
     var jwt    = require('jsonwebtoken');
@@ -15,28 +15,66 @@ module.exports = function(app, models, TokenUtils) {
 
 	//CREATE USER
     app.post("/user", function(req, res, next) {
-        if (req.body.loginUser && req.body.emailUser && req.body.passwordUser) {
+        if (req.body.loginUser &&  req.body.emailUser && req.body.passwordUser) {
+
+            var requestVerifyLogin = {
+                where: {
+                    loginUser : req.body.loginUser
+                }
+            };
             var User = models.User;
-            var id = null;
-            if(req.body.idUser){
-                id = req.body.idUser;
-            }
-            User.create({
-                "idUser" : id,
-                "loginUser" : req.body.loginUser,
-                "emailUser" : req.body.emailUser,
-                "passwordUser" : req.body.passwordUser,
-                "saltUser" : req.body.saltUser,
-                "mailValidationUser" : false,
-                "validationCodeUser" : req.body.validationCodeUser,
-                "typeUser" : 3
-            }).then(function(result){
-                res.json({
-                    "code" : 0,
-                    "loginUser" : result.loginUser,
-                    "emailUser" : result.emailUser
-                });
+
+            User.find(requestVerifyLogin).then(function(result) {
+                if(result){
+                    res.json({
+                        "code" : 4,
+                        "message" : "login already used"
+                    });
+                }else{
+                    var FinderUtils = utils.FinderUtils;
+                    var CryptoUtils = utils.CryptoUtils;
+                    var crpt = new CryptoUtils();
+                  
+                    FinderUtils.CheckEmailUser(req.body.emailUser).then(function(result) {  
+                       if(result == null){
+                            var id = null;
+                            if(req.body.idUser){
+                                id = req.body.idUser;
+                            }
+                            User.create({
+                                "idUser" : id,
+                                "loginUser" : req.body.loginUser,
+                                "emailUser" : crpt.encryptAES(req.body.emailUser),
+                                "passwordUser" : req.body.passwordUser,
+                                "saltUser" : req.body.saltUser,
+                                "mailValidationUser" : false,
+                                "validationCodeUser" : req.body.validationCodeUser,
+                                "typeUser" : 3
+                            }).then(function(result){
+                                res.json({
+                                    "code" : 0,
+                                    "loginUser" : result.loginUser,
+                                    "emailUser" : result.emailUser
+                                });
+                            }).catch(function(err){
+                                console.log(err)
+                                res.json({
+                                    "code" : 2,
+                                    "message" : "Sequelize error",
+                                    "error" : err
+                                });
+                            });
+                       }else{
+                            res.json({
+                                "code" : 5,
+                                "message" : "email already used"
+                            });
+                       }
+                    })    
+                }
+
             }).catch(function(err){
+                console.log(err)
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
@@ -213,52 +251,7 @@ module.exports = function(app, models, TokenUtils) {
     });
 
 
-    //GET USER BY Login
-    app.get("/user/checkExist", function(req, res, next) {
-        if (req.body.emailUser && req.body.loginUser){
-            var User = models.User;
-            var request = {
-                where: {
-                    emailUser : req.body.emailUser
-                }
-            };
-            var request2 = {
-                where: {
-                    loginUser : req.body.loginUser
-                }
-            };
-            User.find(request).then(function(result) {
-                if (result){
-                    res.json({
-                        "code" : 0,
-                        "emailUser" : result.emailUser,
-                        "loginUser" :"",
-                    });
-                } else {
-                    User.find(request2).then(function(result) {
-                        if (result){
-                            res.json({
-                                "code" : 0,
-                                "emailUser" : "",
-                                "loginUser" :result.loginUser,
-                            });
-                        }else{
-                            res.json({
-                                "code" : 3,
-                                "message" : "User not found with this email and login"
-                            });
-                        }  
-                    });
-                }   
-
-            });
-        } else {
-            res.json({
-                "code" : 1,
-                "message" : "Missing required parameters"
-            });
-        }
-    });
+   
 
     app.get("/user/checkValidate", function(req, res, next) {
         if (req.body.loginUser){
@@ -419,8 +412,8 @@ module.exports = function(app, models, TokenUtils) {
                         };
                 
                         var attributes = {};
-                        if (req.body.emailUser) {
-                            attributes.emailUser = req.body.emailUser;
+                        if (ailUser) {
+                            attributes.emailUser = ailUser;
                         }
                         if (req.body.passwordUser && req.body.saltUser) {
                             attributes.passwordUser = req.body.passwordUser;
@@ -473,7 +466,7 @@ module.exports = function(app, models, TokenUtils) {
      //On récupère les infos persos
      app.get("/user/resend", function (req, res, next) {
         var code ="";
-        if (req.body.loginUser && req.body.emailUser) {
+        if (req.body.loginUser && ailUser) {
             var User = models.User;
             var request = {
                 attributes: ["loginUser", "emailUser", "mailValidationUser", "validationCodeUser"],
@@ -491,12 +484,12 @@ module.exports = function(app, models, TokenUtils) {
                     }else{
                         code = result.validationCodeUser
                         //on change le mail si différent
-                        if(result.emailUser != req.body.emailUser){
+                        if(result.emailUser != ailUser){
                             //on vérifie que l'email n'est pas déjà utilisé
                             var request2 = {
                                 attributes: ["loginUser", "validationCodeUser"],
                                 where: {
-                                    emailUser: req.body.emailUser
+                                    emailUser: ailUser
                                 }
                             };
                             User.find(request2).then(function (result) {
@@ -507,7 +500,7 @@ module.exports = function(app, models, TokenUtils) {
                                     });
                                 }else{
                                     var attributes = {};
-                                    attributes.emailUser = req.body.emailUser;
+                                    attributes.emailUser = ailUser;
                                     var User = models.User;
                                     User.update(attributes, request).then(function(results){
                                         
@@ -562,11 +555,11 @@ module.exports = function(app, models, TokenUtils) {
 
     app.post("/user/resetPassword", function (req, res, next) {
 
-        if (req.body.emailUser && req.body.passwordUser && req.body.saltUser) {
+        if (ailUser && req.body.passwordUser && req.body.saltUser) {
             
             var request = {
                 "where": {
-                    emailUser: req.body.emailUser
+                    emailUser: ailUser
                 }
             };
             var attributes = {};
@@ -575,7 +568,7 @@ module.exports = function(app, models, TokenUtils) {
             var User = models.User;
 
             User.update(attributes, request).then(function (results) {
-                console.log(results[0])
+               
                 if(results[0] !=0){
                     res.json({
                         "code": 0,
