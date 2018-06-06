@@ -1,7 +1,7 @@
 module.exports = function(app, models, TokenUtils) {
 
 	app.get('/', function (req, res) {
-		res.send('Hello on API V2 !');
+		res.send('Hello on API V3 !');
 	});
 
 	require("./user")(app, models, TokenUtils);
