@@ -31,10 +31,10 @@ module.exports = function(app, models, TokenUtils, utils) {
                         "message" : "login already used"
                     });
                 }else{
-                    var FinderUtils = utils.FinderUtils;
+                   
                     var CryptoUtils = utils.CryptoUtils;
                     var crpt = new CryptoUtils();
-                  
+                    var FinderUtils = utils.FinderUtils;
                     FinderUtils.CheckEmailUser(req.body.emailUser).then(function(result) {  
                        if(result == null){
                             var id = null;
@@ -332,7 +332,6 @@ module.exports = function(app, models, TokenUtils, utils) {
                     });
                 }
             }).catch(function(err){
-                //le.log(err);
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
@@ -387,12 +386,13 @@ module.exports = function(app, models, TokenUtils, utils) {
 
     app.post("/user/update", function (req, res, next) {
 
-        if(!req.body.token){
+
+        if(!req.body.token && !req.body.code){
             res.json({
                 "code" : 6,
                 "message" : "Missing token"
             });
-        }else{
+        }else if(req.body.token){
 
             // verifies secret and checks exp
             
@@ -412,8 +412,8 @@ module.exports = function(app, models, TokenUtils, utils) {
                         };
                 
                         var attributes = {};
-                        if (ailUser) {
-                            attributes.emailUser = ailUser;
+                        if (req.body.emailUser) {
+                            attributes.emailUser = req.body.emailUser;
                         }
                         if (req.body.passwordUser && req.body.saltUser) {
                             attributes.passwordUser = req.body.passwordUser;
@@ -459,6 +459,35 @@ module.exports = function(app, models, TokenUtils, utils) {
                 });
             })  ;      
         }
+        //Pour reset pwd
+        else{
+            var request = {
+                "where": {
+                    codeResetPasswordUser: req.body.code
+                }
+            };
+
+            var attributes = {};
+            if (req.body.passwordUser && req.body.saltUser) {
+                attributes.passwordUser = req.body.passwordUser;
+                attributes.saltUser = req.body.saltUser;
+                attributes.codeResetPasswordUser = null;
+            }
+            var User = models.User;
+            User.update(attributes, request).then(function (results) {
+                res.json({
+                    "code":0,
+                    "message":"User updated"
+                });
+            }).catch(function (err) {
+               
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });
+        }
     
     });
 
@@ -466,7 +495,7 @@ module.exports = function(app, models, TokenUtils, utils) {
      //On récupère les infos persos
      app.get("/user/resend", function (req, res, next) {
         var code ="";
-        if (req.body.loginUser && ailUser) {
+        if (req.body.emailUser) {
             var User = models.User;
             var request = {
                 attributes: ["loginUser", "emailUser", "mailValidationUser", "validationCodeUser"],
@@ -484,15 +513,13 @@ module.exports = function(app, models, TokenUtils, utils) {
                     }else{
                         code = result.validationCodeUser
                         //on change le mail si différent
-                        if(result.emailUser != ailUser){
+                        var CryptoUtils = utils.CryptoUtils;
+                        var crpt = new CryptoUtils();
+
+                        if(crpt.decryptAES(result.emailUser) != req.body.emailUser){
                             //on vérifie que l'email n'est pas déjà utilisé
-                            var request2 = {
-                                attributes: ["loginUser", "validationCodeUser"],
-                                where: {
-                                    emailUser: ailUser
-                                }
-                            };
-                            User.find(request2).then(function (result) {
+                            var FinderUtils = utils.FinderUtils;
+                            FinderUtils.CheckEmailUser(req.body.emailUser).then(function(result) {  
                                 if(result){
                                     res.json({
                                         "code": 4,
@@ -500,10 +527,10 @@ module.exports = function(app, models, TokenUtils, utils) {
                                     });
                                 }else{
                                     var attributes = {};
-                                    attributes.emailUser = ailUser;
+                                    attributes.emailUser = crpt.encryptAES(req.body.emailUser);
                                     var User = models.User;
+
                                     User.update(attributes, request).then(function(results){
-                                        
                                         res.json({
                                             "code": 0,
                                             "message": "ok",
@@ -539,6 +566,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                     });
                 }
             }).catch(function (err) {
+                
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
@@ -553,43 +581,92 @@ module.exports = function(app, models, TokenUtils, utils) {
         }
     });
 
+
+    //On enregistre la demande de reset
     app.post("/user/resetPassword", function (req, res, next) {
 
-        if (ailUser && req.body.passwordUser && req.body.saltUser) {
+        if (req.body.emailUser) {
             
-            var request = {
-                "where": {
-                    emailUser: ailUser
-                }
-            };
-            var attributes = {};
-            attributes.passwordUser = req.body.passwordUser;
-            attributes.saltUser = req.body.saltUser;
-            var User = models.User;
-
-            User.update(attributes, request).then(function (results) {
+            var FinderUtils = utils.FinderUtils;
+            FinderUtils.CheckEmailUser(req.body.emailUser).then(function(result) {  
+                if(result){
+                    
+                    var link = "";
+                    var ListeCar = new Array("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","0","1","2","3","4","5","6","7","8","9");
                
-                if(results[0] !=0){
-                    res.json({
-                        "code": 0,
-                        "message":"User updated"
+                    for (var i = 0; i<256; i++){
+                        link += ListeCar[Math.floor(Math.random()*ListeCar.length)];
+                    }
+
+                    var attributes = {};
+                    attributes.codeResetPasswordUser = link;
+                    var request = {
+                        where: {
+                            emailUser: result.emailUser
+                        }
+                    };
+                    var User = models.User;
+                    User.update(attributes, request).then(function (results) {
+                        res.json({
+                            "code":0,
+                            "link":link
+                        });
+                    }).catch(function (err) {
+                        console.log(err)
+                        res.json({
+                            "code": 2,
+                            "message": "Sequelize error",
+                            "error": err
+                        });
                     });
                 }else{
                     res.json({
-                        "code": 3,
-                        "message": "User not found"
-                    });
+                        "code" : 5,
+                        "message" : "email already used"
+                    });   
                 }
             }).catch(function (err) {
+               console.log(err)
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
                     "error": err
                 });
             });
-
         }else{
-            
+            res.json({
+                "code": 1,
+                "message": "Missing required parameters"
+            });
         }
     });
+
+    app.get("/user/findForResetPassword", function(req, res, next) {
+        if (req.body.codeResetPasswordUser){
+            var User = models.User;
+            var request = {
+                where: {
+                    codeResetPasswordUser : req.body.codeResetPasswordUser
+                }
+            };
+            User.find(request).then(function(result) {
+                if (result){          
+                    res.json({
+                        "code" : 0,  
+                    });
+                } else {
+                    res.json({
+                        "code" : 3,
+                        "message" : "No password reset"
+                    });
+                }
+            });
+        } else {
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters"
+            });
+        }
+    });
+
 };

@@ -29,7 +29,7 @@ module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 			type : Datatypes.STRING
 		},
 		description : {
-			type : Datatypes.STRING
+			type : Datatypes.TEXT
 		},
 		//kg, unité, litres, etc
 		unitId : {

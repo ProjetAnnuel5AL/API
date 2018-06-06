@@ -17,7 +17,7 @@ module.exports = sequelize.import("user", function(sequelize, Datatypes) {
 			type : Datatypes.STRING
 		},
 		codeResetPasswordUser : {
-			type : Datatypes.STRING
+			type : Datatypes.TEXT
 		},
 		saltUser : {
 			type : Datatypes.STRING
@@ -29,7 +29,7 @@ module.exports = sequelize.import("user", function(sequelize, Datatypes) {
 			type : Datatypes.BOOLEAN
 		},
 		validationCodeUser : {
-			type : Datatypes.STRING
+			type : Datatypes.TEXT
 		},
 		lastNameUser : {
 			type : Datatypes.STRING
