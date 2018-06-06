@@ -20,7 +20,7 @@ module.exports = sequelize.import("user", function(sequelize, Datatypes) {
 			type : Datatypes.STRING
 		},
 		typeUser : {
-			type : Datatypes.STRING
+			type : Datatypes.INTEGER
 		},
 		mailValidationUser : {
 			type : Datatypes.BOOLEAN

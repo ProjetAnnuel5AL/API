@@ -29,7 +29,7 @@ module.exports = function(app, models, TokenUtils) {
                 "saltUser" : req.body.saltUser,
                 "mailValidationUser" : false,
                 "validationCodeUser" : req.body.validationCodeUser,
-                "typeUser" : "user"
+                "typeUser" : 3
             }).then(function(result){
                 res.json({
                     "code" : 0,
@@ -305,7 +305,7 @@ module.exports = function(app, models, TokenUtils) {
     });
 
 	//
-    app.get("/user/auth", function(req, res, next) {
+    app.post("/user/auth", function(req, res, next) {
         if (req.body.loginUser && req.body.passwordUser) {
             var User = models.User;
             var request = {
@@ -347,7 +347,7 @@ module.exports = function(app, models, TokenUtils) {
                     });
                 }
             }).catch(function(err){
-                //console.log(err);
+                //le.log(err);
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
@@ -387,7 +387,7 @@ module.exports = function(app, models, TokenUtils) {
                             });
                         }
                     }).catch(function(err){
-                        console.log(err);
+                        le.log(err);
                     });
                 }else{
                     res.json({
@@ -452,7 +452,7 @@ module.exports = function(app, models, TokenUtils) {
                                 "message":"User updated"
                             });
                         }).catch(function (err) {
-                            //console.log(err);
+                            //le.log(err);
                             res.json({
                                 "code": 2,
                                 "message": "Sequelize error",
@@ -478,40 +478,94 @@ module.exports = function(app, models, TokenUtils) {
     });
 
 
-        /*var findIdUser = function(login) {
+     //On récupère les infos persos
+     app.get("/user/resend", function (req, res, next) {
+        var code ="";
+        if (req.body.loginUser && req.body.emailUser) {
+            var User = models.User;
             var request = {
+                attributes: ["loginUser", "emailUser", "mailValidationUser", "validationCodeUser"],
                 where: {
-                    loginUser : login
+                    loginUser: req.body.loginUser
                 }
             };
-            var User = models.User;
-            return User.find(request).then(function(result) {
-                if (result){ 
-                    return result.dataValues;     
-                }else{
-                  
-                    return null;
+            User.find(request).then(function (result) {
+                if (result) {
+                    if(result.mailValidationUser == 1){
+                        res.json({
+                            "code" : 5,
+                            "message" : "account is already validate"   
+                        })
+                    }else{
+                        code = result.validationCodeUser
+                        //on change le mail si différent
+                        if(result.emailUser != req.body.emailUser){
+                            //on vérifie que l'email n'est pas déjà utilisé
+                            var request2 = {
+                                attributes: ["loginUser", "validationCodeUser"],
+                                where: {
+                                    emailUser: req.body.emailUser
+                                }
+                            };
+                            User.find(request2).then(function (result) {
+                                if(result){
+                                    res.json({
+                                        "code": 4,
+                                        "message": "email already used",
+                                    });
+                                }else{
+                                    var attributes = {};
+                                    attributes.emailUser = req.body.emailUser;
+                                    var User = models.User;
+                                    User.update(attributes, request).then(function(results){
+                                        
+                                        res.json({
+                                            "code": 0,
+                                            "message": "ok",
+                                            "validationCodeUser":code         
+                                        });
+                                    }).catch(function (err) {
+                                        res.json({
+                                            "code": 2,
+                                            "message": "Sequelize error",
+                                            "error": err
+                                        });
+                                    });  
+                                }
+                            }).catch(function (err) {
+                                res.json({
+                                    "code": 2,
+                                    "message": "Sequelize error",
+                                    "error": err
+                                });
+                            });
+                        }else{
+                            res.json({
+                                "code": 0,
+                                "message": "ok", 
+                                "validationCodeUser": result.validationCodeUser        
+                            });
+                        }
+                    }
+                } else {
+                    res.json({
+                        "code": 3,
+                        "message": "User not found"
+                    });
+                }
+            }).catch(function (err) {
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });
+        } else {
+            res.json({
+                "code": 1,
+                "message": "Missing required parameters"
+            });
+        }
+    });
 
-                }
-            })
-        } 
-        
-        
-        var verifSimpleToken = function(token, secret, idUser){
-          
-            console.log(idUser);
-            console.log(idUser);
-            return jwt.verify(token,secret, function(err, decoded) {
-                if (err) {
-                    return false;
-                }else{
-                    if(!idUser || idUser!=decoded.id){
-                        return false;
-                     }else{
-                         return true;
-                     }
-                }
-            });      
-        }*/
-    
 };

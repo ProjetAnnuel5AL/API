@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": "",
+    "username": "admin",
+    "password": "ESGI-projet-annuel-2018",
     "database": "projetannuel5a",
-    "host": "127.0.0.1",
+    "host": "51.38.36.241",
     "dialect": "mysql"
 
   },
@@ -15,10 +15,10 @@
     "dialect": ""
   },
   "test": {
-    "username": "root",
-    "password": "",
+    "username": "admin",
+    "password": "ESGI-projet-annuel-2018",
     "database": "projetannuel5a_test",
-    "host": "127.0.0.1",
+    "host": "51.38.36.241",
     "dialect": "mysql"
   }
 
