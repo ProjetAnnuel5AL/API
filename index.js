@@ -28,7 +28,10 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + "/ressources"));
 require("./routes")(app, models, TokenUtils);
 
-var port=process.env.PORT || 8888;
+var port=process.env.PORT || 80;
+
+if (process.env.NODE_ENV === "test")
+    port = 8888;
 
 var server = app.listen(port, function() {
     console.log("Server started port "+port+"...");
