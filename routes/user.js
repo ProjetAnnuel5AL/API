@@ -50,7 +50,7 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal) {
                                 "loginUser" : req.body.loginUser,
                                 "emailUser" : crpt.encryptAES(req.body.emailUser),
                                 "passwordUser" : bcrypt.hashSync(pwdSalty, null, null),
-                                "saltUser" : req.body.saltUser,
+                                "saltUser" : salt,
                                 "mailValidationUser" : false,
                                 "validationCodeUser" : validationCodeUser,
                                 "typeUser" : 3
