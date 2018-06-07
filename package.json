@@ -21,8 +21,9 @@
     "mocha": "^5.1.1",
     "mysql": "^2.15.0",
     "mysql2": "^1.5.3",
+    "nodemailer": "^4.6.5",
     "sequelize": "^4.37.5",
     "supertest": "^3.0.0",
-    "supertest-session": "^3.2.0"
+    "supertest-session": "^3.3.0"
   }
 }

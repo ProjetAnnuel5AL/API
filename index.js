@@ -9,6 +9,9 @@ require("./env.js");
 
 var bodyParser = require("body-parser");
 
+var urlApi = "http://localhost:8082";
+var urlLocal = "http://localhost:8888"
+
 module.exports = app;
 /*app.use(
     session({
@@ -26,7 +29,7 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/ressources"));
-require("./routes")(app, models, TokenUtils, utils);
+require("./routes")(app, models, TokenUtils, utils, urlLocal);
 
 var port=process.env.PORT || 8888;
 

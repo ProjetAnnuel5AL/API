@@ -7,7 +7,7 @@
 // 5 : account not validated 
 // 6 : no token /token invalid
 
-module.exports = function(app, models, TokenUtils, utils) {
+module.exports = function(app, models, TokenUtils, utils, urlLocal) {
 
     var bcrypt = require("bcrypt-nodejs");
     var jwt    = require('jsonwebtoken');
@@ -41,16 +41,25 @@ module.exports = function(app, models, TokenUtils, utils) {
                             if(req.body.idUser){
                                 id = req.body.idUser;
                             }
+                            var salt = utils.OtherUtils.GenerateCode(50);
+                            var validationCodeUser = utils.OtherUtils.GenerateCode(256);
+                            var pwdSalty = req.body.passwordUser + salt;
+
                             User.create({
                                 "idUser" : id,
                                 "loginUser" : req.body.loginUser,
                                 "emailUser" : crpt.encryptAES(req.body.emailUser),
-                                "passwordUser" : req.body.passwordUser,
+                                "passwordUser" : bcrypt.hashSync(pwdSalty, null, null),
                                 "saltUser" : req.body.saltUser,
                                 "mailValidationUser" : false,
-                                "validationCodeUser" : req.body.validationCodeUser,
+                                "validationCodeUser" : validationCodeUser,
                                 "typeUser" : 3
                             }).then(function(result){
+                                
+                                var SendMailUtils = utils.SendMailUtils;
+                                var myMail = new SendMailUtils();
+                                myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlLocal+"/registrationValidation/" +validationCodeUser);
+                                
                                 res.json({
                                     "code" : 0,
                                     "loginUser" : result.loginUser,
@@ -512,6 +521,10 @@ module.exports = function(app, models, TokenUtils, utils) {
                         })
                     }else{
                         code = result.validationCodeUser
+
+
+                        var SendMailUtils = utils.SendMailUtils;
+                        var myMail = new SendMailUtils();
                         //on change le mail si différent
                         var CryptoUtils = utils.CryptoUtils;
                         var crpt = new CryptoUtils();
@@ -531,10 +544,10 @@ module.exports = function(app, models, TokenUtils, utils) {
                                     var User = models.User;
 
                                     User.update(attributes, request).then(function(results){
+                                        myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlLocal+"/registrationValidation/" +result.validationCodeUser );
                                         res.json({
                                             "code": 0,
-                                            "message": "ok",
-                                            "validationCodeUser":code         
+                                            "message": "ok"   
                                         });
                                     }).catch(function (err) {
                                         res.json({
@@ -552,10 +565,10 @@ module.exports = function(app, models, TokenUtils, utils) {
                                 });
                             });
                         }else{
+                            myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlLocal+"/registrationValidation/" +result.validationCodeUser );     
                             res.json({
                                 "code": 0,
-                                "message": "ok", 
-                                "validationCodeUser": result.validationCodeUser        
+                                "message": "ok"      
                             });
                         }
                     }
@@ -591,13 +604,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             FinderUtils.CheckEmailUser(req.body.emailUser).then(function(result) {  
                 if(result){
                     
-                    var link = "";
-                    var ListeCar = new Array("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","0","1","2","3","4","5","6","7","8","9");
-               
-                    for (var i = 0; i<256; i++){
-                        link += ListeCar[Math.floor(Math.random()*ListeCar.length)];
-                    }
-
+                    var link = utils.OtherUtils.GenerateCode(256);
+                   
                     var attributes = {};
                     attributes.codeResetPasswordUser = link;
                     var request = {
@@ -607,9 +615,11 @@ module.exports = function(app, models, TokenUtils, utils) {
                     };
                     var User = models.User;
                     User.update(attributes, request).then(function (results) {
+                        var SendMailUtils = utils.SendMailUtils;
+                        var myMail = new SendMailUtils();
+                        myMail.sendMail(req.body.mail,"Réinitialisation de mot de passe", "Pour réinitialiser votre mot de passe, cliquez ici : " +urlLocal+"/login/resetPassword/" +link);
                         res.json({
-                            "code":0,
-                            "link":link
+                            "code":0
                         });
                     }).catch(function (err) {
                         console.log(err)
