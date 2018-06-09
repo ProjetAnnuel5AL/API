@@ -7,7 +7,7 @@
 // 5 : account not validated 
 // 6 : no token /token invalid
 
-module.exports = function(app, models, TokenUtils, utils, urlLocal) {
+module.exports = function(app, models, TokenUtils, utils, urlApi) {
 
     var bcrypt = require("bcrypt-nodejs");
     var jwt    = require('jsonwebtoken');
@@ -58,7 +58,7 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal) {
                                 
                                 var SendMailUtils = utils.SendMailUtils;
                                 var myMail = new SendMailUtils();
-                                myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlLocal+"/registrationValidation/" +validationCodeUser);
+                                myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +validationCodeUser);
                                 
                                 res.json({
                                     "code" : 0,
@@ -480,7 +480,7 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal) {
             if (req.body.passwordUser) {
                 var salt = utils.OtherUtils.GenerateCode(50);
                 var pwdSalty = req.body.passwordUser + salt;
-                attributes.passwordUser = pwdSalty;
+                attributes.passwordUser = bcrypt.hashSync(pwdSalty, null, null),
                 attributes.saltUser = salt;
                 attributes.codeResetPasswordUser = null;
             }
@@ -546,7 +546,7 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal) {
                                     var User = models.User;
 
                                     User.update(attributes, request).then(function(results){
-                                        myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlLocal+"/registrationValidation/" +result.validationCodeUser );
+                                        myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +result.validationCodeUser );
                                         res.json({
                                             "code": 0,
                                             "message": "ok"   
@@ -567,7 +567,7 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal) {
                                 });
                             });
                         }else{
-                            myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlLocal+"/registrationValidation/" +result.validationCodeUser );     
+                            myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +result.validationCodeUser );     
                             res.json({
                                 "code": 0,
                                 "message": "ok"      
@@ -619,7 +619,7 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal) {
                     User.update(attributes, request).then(function (results) {
                         var SendMailUtils = utils.SendMailUtils;
                         var myMail = new SendMailUtils();
-                        myMail.sendMail(req.body.mail,"Réinitialisation de mot de passe", "Pour réinitialiser votre mot de passe, cliquez ici : " +urlLocal+"/login/resetPassword/" +link);
+                        myMail.sendMail(req.body.emailUser,"Réinitialisation de mot de passe", "Pour réinitialiser votre mot de passe, cliquez ici : " +urlApi+"/login/resetPassword/" +link);
                         res.json({
                             "code":0
                         });
