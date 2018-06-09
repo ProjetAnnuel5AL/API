@@ -477,9 +477,11 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal) {
             };
 
             var attributes = {};
-            if (req.body.passwordUser && req.body.saltUser) {
-                attributes.passwordUser = req.body.passwordUser;
-                attributes.saltUser = req.body.saltUser;
+            if (req.body.passwordUser) {
+                var salt = utils.OtherUtils.GenerateCode(50);
+                var pwdSalty = req.body.passwordUser + salt;
+                attributes.passwordUser = pwdSalty;
+                attributes.saltUser = salt;
                 attributes.codeResetPasswordUser = null;
             }
             var User = models.User;
