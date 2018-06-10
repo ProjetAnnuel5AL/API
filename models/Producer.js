@@ -43,7 +43,10 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 		},
 		descriptionProducer : {
 			type : Datatypes.TEXT
-		}
+		},
+		paypalProducer : {
+			type : Datatypes.STRING
+        },
 	}, {
 		paranoid : true,
 		freezeTab : true,

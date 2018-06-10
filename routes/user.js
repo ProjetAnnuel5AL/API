@@ -16,7 +16,6 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
 	//CREATE USER
     app.post("/user", function(req, res, next) {
         if (req.body.loginUser &&  req.body.emailUser && req.body.passwordUser) {
-
             var requestVerifyLogin = {
                 where: {
                     loginUser : req.body.loginUser

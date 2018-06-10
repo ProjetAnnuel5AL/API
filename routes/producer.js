@@ -1,13 +1,15 @@
-module.exports = function(app, models, TokenUtils) {
+module.exports = function(app, models, TokenUtils, utils) {
     var fs = require("fs");
 
 
     //CREATE Producer
     app.post("/producer", function(req, res, next) {
-        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.token) {
+        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.token && req.body.paypalProducer) {
             var Producer = models.Producer;
             var User = models.User;
             var idUser = null;
+            var CryptoUtils = utils.CryptoUtils;
+            var crpt = new CryptoUtils();
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
                 idUser = result.idUser;
                   
@@ -26,17 +28,18 @@ module.exports = function(app, models, TokenUtils) {
                     }
                     Producer.create({
                         "idUserProducer" : idUser,
-                        "lastNameProducer" : req.body.lastNameProducer,
-                        "firstNameProducer" : req.body.firstNameProducer,
-                        "emailProducer" : req.body.emailProducer,
-                        "phoneProducer" : req.body.phoneProducer,
+                        "lastNameProducer" : crpt.encryptAES(req.body.lastNameProducer),
+                        "firstNameProducer" : crpt.encryptAES(req.body.firstNameProducer),
+                        "emailProducer" : crpt.encryptAES(req.body.emailProducer),
+                        "phoneProducer" : crpt.encryptAES(req.body.phoneProducer),
                         "birthProducer" : req.body.birthProducer,
-                        "sexProducer" : req.body.sexProducer,
-                        "addressProducer" : req.body.addressProducer,
-                        "cityProducer" : req.body.cityProducer,
-                        "cpProducer" : req.body.cpProducer,
+                        "sexProducer" : crpt.encryptAES(req.body.sexProducer),
+                        "addressProducer" : crpt.encryptAES(req.body.addressProducer),
+                        "cityProducer" : crpt.encryptAES(req.body.cityProducer),
+                        "cpProducer" : crpt.encryptAES(req.body.cpProducer),
                         "descriptionProducer" : req.body.descriptionProducer,
-                        "avatarProducer" : avatar
+                        "avatarProducer" : avatar,
+                        "paypalProducer" : crpt.encryptAES(req.body.paypalProducer)
                     }).then(function(result){
                         var request = {
                             "where": {
@@ -44,8 +47,7 @@ module.exports = function(app, models, TokenUtils) {
                             }
                         };
                         var attributes = {};
-                        attributes.typeUser = "producer"
-                        User
+                        attributes.typeUser = "1"
 
                         User.update(attributes, request).then(function (results) {                      
                         }).catch(function (err) {
@@ -79,7 +81,8 @@ module.exports = function(app, models, TokenUtils) {
 
                         res.json({
                             "code" : 0,
-                            "message" : "producer"
+                            "message" : "producer",
+                            "id" : result.idProducer
                         });
                     }).catch(function(err){    
                         console.log(err);         
