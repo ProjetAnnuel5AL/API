@@ -125,11 +125,14 @@ module.exports = function(app, models, TokenUtils, utils) {
                 }
             };
             var jsonResult = {};
+            var CryptoUtils = utils.CryptoUtils;
+            var crpt = new CryptoUtils();
+            var utf8 = require('utf8');
             Producer.find(request).then(function(result){
                 if(result){
                     jsonResult.code =0;
-                    jsonResult.lastNameProducer = result.lastNameProducer;
-                    jsonResult.firstNameProducer = result.firstNameProducer;
+                    jsonResult.lastNameProducer = utf8.decode(crpt.decryptAES(result.lastNameProducer));
+                    jsonResult.firstNameProducer = utf8.decode(crpt.decryptAES(result.firstNameProducer));
                     jsonResult.descriptionProducer = result.descriptionProducer;
                     jsonResult.avatarProducer = result.avatarProducer;
 
