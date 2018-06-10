@@ -2,9 +2,11 @@ module.exports = function (app, models, TokenUtils) {
   var fs = require("fs");
   const empty = require('empty-folder');
   app.post("/item", function (req, res, next) {
-    //console.log(req.body);
-    if (req.body.token && req.body.productId && req.body.name && req.body.description && req.body.adress &&
-    req.body.location && req.body.photo && req.body.price && req.body.unitId && req.body.quantity && req.body.city) {
+    
+    if(req.body.productId && req.body.name && req.body.description && req.body.adress && req.body.location && req.body.city){
+      console.log("test")
+    }
+    if (req.body.productId && req.body.name && req.body.description && req.body.adress && req.body.location && req.body.city && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
       var Item = models.Item;
       var id = null;
       var userId;
