@@ -122,8 +122,6 @@ module.exports = function (app, models, TokenUtils) {
         {where: {id: item.id} }
       )
       .then(function(result) {
-        console.log(result);
-        console.log(result[0]);
         var filePath=null;
         if (req.body.photo[0].size != 0) {
           for(var imageIndex = 0; imageIndex < req.body.photo.length; imageIndex++){
@@ -157,6 +155,50 @@ module.exports = function (app, models, TokenUtils) {
             })(imageIndex);
           }
         }
+        res.json({
+          "code": 0,
+          "id": result[0]
+        });
+      }).catch(function (err) {
+        console.log(err);
+        res.json({
+          "code": 2,
+          "message": "Sequelize error",
+          "error": err
+        });
+      });
+    } else {
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+  });
+
+  app.post("/item/delete", function (req, res, next) {
+    console.log(req.body);
+    if (req.body.id && req.body.token) {
+      var Item = models.Item;
+      //console.log(photosExtensions);
+      userId = TokenUtils.getIdAndType(req.body.token).id;
+      Item.destroy({
+        force: true,
+        where: {
+          id: req.body.id, 
+          idUser: userId
+        } 
+      })
+      .then(function(result) {
+        var filePath = null;
+        filePath = "ressources/itemPhotos/" + req.body.id + "/";
+        if (!fs.existsSync(filePath)) {
+          fs.mkdirSync(filePath);
+        }
+        empty(filePath, true, (o) => {
+          if (o.error) console.error(err);
+          //console.log(o.removed);
+          //console.log(o.failed);
+        });
         res.json({
           "code": 0,
           "id": result[0]
