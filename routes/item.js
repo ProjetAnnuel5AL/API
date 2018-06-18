@@ -1,4 +1,4 @@
-module.exports = function (app, models, TokenUtils) {
+module.exports = function (app, models, TokenUtils, utils) {
   var fs = require("fs");
   const empty = require('empty-folder');
   app.post("/item", function (req, res, next) {
@@ -10,6 +10,7 @@ module.exports = function (app, models, TokenUtils) {
       var Item = models.Item;
       var id = null;
       var userId;
+      
       if (req.body.id) {
         id = req.body.id;
       }
@@ -88,7 +89,7 @@ module.exports = function (app, models, TokenUtils) {
   });
 
   app.post("/item/edit", function (req, res, next) {
-    console.log(req.body);
+
     var item = req.body.item;
     if (item.id && req.body.token && item.productId && item.name && item.description && item.adress &&
     item.location && req.body.photo && item.price && item.unitId && item.quantity && item.city) {
