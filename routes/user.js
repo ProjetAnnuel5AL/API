@@ -98,7 +98,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
     });
 
 	//GET ALL USER
-    app.get("/users", function(req, res, next) {
+    /*app.get("/users", function(req, res, next) {
         
         var User = models.User;
         var request = {
@@ -115,7 +115,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
             }
         });
     
-    });
+    });*/
 
 	//pas fini
 	//GET USER BY ID

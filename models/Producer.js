@@ -38,6 +38,9 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 		cityProducer : {
 			type : Datatypes.STRING
 		},
+		locationProducer : {
+			type : Datatypes.STRING
+		},
 		cpProducer : {
 			type : Datatypes.STRING
 		},
