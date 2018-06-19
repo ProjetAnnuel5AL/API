@@ -37,9 +37,6 @@ module.exports = sequelize.import("user", function(sequelize, Datatypes) {
 		firstNameUser : {
 			type : Datatypes.STRING
 		},
-		birthUser : {
-			type : Datatypes.DATEONLY
-		},
 		sexUser : {
 			type : Datatypes.STRING
 		},

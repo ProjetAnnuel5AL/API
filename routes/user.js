@@ -392,6 +392,84 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
         }
     });
 
+
+
+    app.get("/user/findAddress", function (req, res, next) {
+        if(req.body.token && req.body.loginUser){ 
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       
+                if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token"
+                    });
+                } else {   
+                    var User = models.User;
+                    var request = {
+                        where: {
+                            loginUser : req.body.loginUser
+                        }
+                    };
+                    var CryptoUtils = utils.CryptoUtils;
+                    var crpt = new CryptoUtils();
+                    
+                    User.find(request).then(function(result) { 
+                        if(result){   
+                            //si un champ null : aucune adresse préenregistrée
+                            if(result.lastNameUser == null){
+                                res.json({
+                                    "code" : 0,
+                                    "lastNameUser" : null,
+                                    "firstNameUser" : null,
+                                    "sexUser" : null,
+                                    "addressUser" : null,
+                                    "cityUser" : null,
+                                    "cpUser" : null
+                                })
+                            }else{
+                                res.json({
+                                    "code" : 0,
+                                    "lastNameUser" : crpt.decryptAES(result.lastNameUser),
+                                    "firstNameUser" : crpt.decryptAES(result.firstNameUser),
+                                    "sexUser" : crpt.decryptAES(result.sexUser),
+                                    "addressUser" : crpt.decryptAES(result.addressUser),
+                                    "cityUser" : crpt.decryptAES(result.cityUser),
+                                    "cpUser" : crpt.decryptAES(result.cpUser)
+                                })
+                            }
+
+                            
+                        }else{
+                            res.json({
+                                "code": 3,
+                                "message": "User not found"
+                            });
+                        }
+                    }).catch(function (err) {
+                        //console.log(err)
+                        res.json({
+                            "code": 2,
+                            "message": "Sequelize error",
+                            "error": err
+                        });
+                    });  
+                }  
+            }).catch(function (err) {
+                //console.log(err)
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });         
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters"
+            });
+        }
+    })
+
+
     app.post("/user/update", function (req, res, next) {
 
 
@@ -428,10 +506,9 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                             attributes.saltUser = req.body.saltUser;
                         }
                         
-                        if (req.body.firstNameUser && req.body.lastNameUser && req.body.birthUser && req.body.sexUser && req.body.addressUser && req.body.cityUser && req.body.cpUser) {
+                        if (req.body.firstNameUser && req.body.lastNameUser && req.body.sexUser && req.body.addressUser && req.body.cityUser && req.body.cpUser) {
                             attributes.firstNameUser = req.body.firstNameUser;
                             attributes.lastNameUser = req.body.lastNameUser;
-                            attributes.birthUser = req.body.birthUser;
                             attributes.sexUser = req.body.sexUser;
                             attributes.addressUser = req.body.addressUser;
                             attributes.cityUser = req.body.cityUser;
