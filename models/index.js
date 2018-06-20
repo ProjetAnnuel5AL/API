@@ -6,6 +6,7 @@ var ProductModel = require("./Product");
 var UnitModel = require("./Unit");
 var ProducerModel = require("./Producer");
 var CommentProducerModel = require("./CommentProducer");
+var PaypalTransact = require("./PaypalTransact");
 
 
 seq.sync();
@@ -19,4 +20,5 @@ module.exports = {
     "Unit": UnitModel,
     "Producer": ProducerModel,
     "CommentProducer": CommentProducerModel,
+    "PaypalTransact": PaypalTransact,
 };

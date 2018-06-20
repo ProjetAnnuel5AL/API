@@ -345,4 +345,38 @@ module.exports = function (app, models, TokenUtils, utils) {
       });
     }
   });
+
+  
+  app.get("/item/verifyQuantity/:itemId", function(req, res, next) {
+
+    if (req.params.itemId){
+      var Item = models.Item;
+      var request = {
+        where: {
+          id : req.params.itemId
+        }
+      };
+      Item.find(request).then(function(result) { 
+        if(result){
+          res.json({
+            "code": 0,
+            "quantity" : result.quantity
+          });
+        }else{
+          res.json({
+            "code": 2,
+            "message": "Item does t exist"
+          });
+        }
+      });
+    }else{
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+
+  })
+
+
 }
