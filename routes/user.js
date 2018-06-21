@@ -11,7 +11,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
 
     var bcrypt = require("bcrypt-nodejs");
     var jwt    = require('jsonwebtoken');
- 
+    var utf8 = require('utf8');
 
 	//CREATE USER
     app.post("/user", function(req, res, next) {
@@ -97,57 +97,6 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
         }
     });
 
-	//GET ALL USER
-    /*app.get("/users", function(req, res, next) {
-        
-        var User = models.User;
-        var request = {
-            attributes: ["loginUser", "emailUser", "typeUser"],  
-        };
-        User.findAll(request).then(function(result){
-            if(result){
-                res.json(result);
-            }else{
-                res.json({
-                    "code" : 3,
-                    "message" : "User not found"
-                });
-            }
-        });
-    
-    });*/
-
-	//pas fini
-	//GET USER BY ID
-    app.get("/user/findById", function(req, res, next) {
-        if (req.body.idUser){
-            var User = models.User;
-            var request = {
-                where: {
-                    idUser : req.body.idUser
-                }
-            };
-            User.find(request).then(function(result) {
-                if (result){
-                    res.json({
-                        "code" : 0,
-                        "loginUser" : result.loginUser
-                    });
-                } else {
-                    res.json({
-                        "code" : 3,
-                        "message" : "User not found"
-                    });
-                }
-            });
-        } else {
-            res.json({
-                "code" : 1,
-                "message" : "Missing required parameters"
-            });
-        }
-    });
-    
     app.get("/user/findForValidation", function(req, res, next) {
         if (req.body.validationCodeUser){
             var User = models.User;
@@ -194,32 +143,50 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
             });
         }
     });
-	    //On récupère les infos persos
-	   app.get("/user/find", function (req, res, next) {
-        if (req.body.loginUser) {
-            var User = models.User;
-            var request = {
-                attributes: ["loginUser", "passwordUser", "emailUser", "typeUser"],
-                where: {
-                    loginUser: req.body.loginUser
-                }
-            };
-            User.find(request).then(function (result) {
-                if (result) {
+
+	//On récupère les infos persos
+	app.get("/user/findEmail", function (req, res, next) {
+        if(req.body.token && req.body.loginUser){ 
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       
+                if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
                     res.json({
-                        "code": 0,
-                        "idUser": result.idUser,
-                        "loginUser": result.loginUser,
-                        "emailUser": result.emailUser,
-                        "typeUser": result.typeUser
+                        "code" : 6,
+                        "message" : "Failed to authenticate token"
                     });
-                } else {
-                    res.json({
-                        "code": 3,
-                        "message": "User not found"
+                } else {   
+                    var CryptoUtils = utils.CryptoUtils;
+                    var crpt = new CryptoUtils();
+                    
+
+                    var User = models.User;
+                    var request = {
+                        attributes: ["emailUser"],
+                        where: {
+                            loginUser: req.body.loginUser
+                        }
+                    };
+                    User.find(request).then(function (result) {
+                        if (result) {
+                            res.json({
+                                "code": 0,
+                                "emailUser": utf8.decode(crpt.decryptAES(result.emailUser)),
+                            });
+                        } else {
+                            res.json({
+                                "code": 3,
+                                "message": "User not found"
+                            });
+                        }
                     });
                 }
-            });
+            }).catch(function (err) {
+                //console.log(err)
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });    
         } else {
             res.json({
                 "code": 1,
@@ -428,12 +395,12 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                             }else{
                                 res.json({
                                     "code" : 0,
-                                    "lastNameUser" : crpt.decryptAES(result.lastNameUser),
-                                    "firstNameUser" : crpt.decryptAES(result.firstNameUser),
+                                    "lastNameUser" : utf8.decode(crpt.decryptAES(result.lastNameUser)),
+                                    "firstNameUser" : utf8.decode(crpt.decryptAES(result.firstNameUser)),
                                     "sexUser" : crpt.decryptAES(result.sexUser),
-                                    "addressUser" : crpt.decryptAES(result.addressUser),
-                                    "cityUser" : crpt.decryptAES(result.cityUser),
-                                    "cpUser" : crpt.decryptAES(result.cpUser)
+                                    "addressUser" : utf8.decode(crpt.decryptAES(result.addressUser)),
+                                    "cityUser" : utf8.decode(crpt.decryptAES(result.cityUser)),
+                                    "cpUser" : utf8.decode(crpt.decryptAES(result.cpUser))
                                 })
                             }
 
@@ -491,6 +458,9 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                     
                 } else {             
                     if(req.body.loginUser){
+                        var CryptoUtils = utils.CryptoUtils;
+                        var crpt = new CryptoUtils();
+
                         var request = {
                             "where": {
                                 loginUser: req.body.loginUser
@@ -499,20 +469,25 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 
                         var attributes = {};
                         if (req.body.emailUser) {
-                            attributes.emailUser = req.body.emailUser;
+                            attributes.emailUser = crpt.encryptAES(req.body.emailUser);
                         }
-                        if (req.body.passwordUser && req.body.saltUser) {
-                            attributes.passwordUser = req.body.passwordUser;
-                            attributes.saltUser = req.body.saltUser;
+
+                        if (req.body.passwordUser) {
+
+                            var salt = utils.OtherUtils.GenerateCode(50);
+                            var pwdSalty = req.body.passwordUser + salt;
+
+                            attributes.passwordUser = bcrypt.hashSync(pwdSalty, null, null);
+                            attributes.saltUser = salt;
                         }
                         
                         if (req.body.firstNameUser && req.body.lastNameUser && req.body.sexUser && req.body.addressUser && req.body.cityUser && req.body.cpUser) {
-                            attributes.firstNameUser = req.body.firstNameUser;
-                            attributes.lastNameUser = req.body.lastNameUser;
-                            attributes.sexUser = req.body.sexUser;
-                            attributes.addressUser = req.body.addressUser;
-                            attributes.cityUser = req.body.cityUser;
-                            attributes.cpUser = req.body.cpUser;
+                            attributes.firstNameUser = crpt.encryptAES(req.body.firstNameUser);
+                            attributes.lastNameUser = crpt.encryptAES(req.body.lastNameUser);
+                            attributes.sexUser = crpt.encryptAES(req.body.sexUser);
+                            attributes.addressUser = crpt.encryptAES(req.body.addressUser);
+                            attributes.cityUser = crpt.encryptAES(req.body.cityUser);
+                            attributes.cpUser = crpt.encryptAES(req.body.cpUser);
                         }
             
                         var User = models.User;
@@ -522,7 +497,6 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                 "message":"User updated"
                             });
                         }).catch(function (err) {
-                           
                             res.json({
                                 "code": 2,
                                 "message": "Sequelize error",
@@ -578,8 +552,6 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
     
     });
 
-
-     //On récupère les infos persos
      app.get("/user/resend", function (req, res, next) {
         var code ="";
         if (req.body.emailUser) {
@@ -607,7 +579,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                         var CryptoUtils = utils.CryptoUtils;
                         var crpt = new CryptoUtils();
 
-                        if(crpt.decryptAES(result.emailUser) != req.body.emailUser){
+                        if(utf8.decode(crpt.decryptAES(result.emailUser)) != req.body.emailUser){
                             //on vérifie que l'email n'est pas déjà utilisé
                             var FinderUtils = utils.FinderUtils;
                             FinderUtils.CheckEmailUser(req.body.emailUser).then(function(result) {  
