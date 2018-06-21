@@ -33,12 +33,27 @@ var FindProducerIdWithCart = function(cart){
             return null;
         }
     }).catch(function(err){
-        console.log(err)
+        //console.log(err)
         return null;
+    });
+}
+ 
+var FindStatusOrder = function(order, i){
+    var sequelize = models.sequelize;
+    return sequelize.query("SELECT DISTINCT(statusPaypalTransact) FROM paypalTransact, ligneOrder WHERE ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND idOrderLigneOrder ="+order.idOrder+" AND statusPaypalTransact=\"PENDING\"", { type: sequelize.QueryTypes.SELECT  }).then(function (results) { 
+        if(results.length>0){
+            return { "i": i, "statusOrder" :"En attente de reception" }
+        }else{
+            return { "i": i, "statusOrder" :"Terminé" }
+        }
+        
+    }).catch(function(err){
+        return { "i": i};
     });
 }
 
 module.exports={
     "CheckEmailUser" : CheckEmailUser,
-    "FindProducerIdWithCart" : FindProducerIdWithCart
+    "FindProducerIdWithCart" : FindProducerIdWithCart,
+    "FindStatusOrder" : FindStatusOrder
 };

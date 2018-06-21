@@ -31,6 +31,9 @@ module.exports = sequelize.import("order", function(sequelize, Datatypes) {
 		cpOrder : {
 			type : Datatypes.STRING
 		},
+		totalOrder : {
+			type : Datatypes.FLOAT
+		},
 		//Dans le cas ou l'on doit effectuer un remboursement, on doit enregistré l'id du paiement a refound 
 		idPaypalPaiement : {
 			type : Datatypes.STRING

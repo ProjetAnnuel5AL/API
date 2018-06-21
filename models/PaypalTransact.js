@@ -7,7 +7,7 @@ module.exports = sequelize.import("paypalTransact", function(sequelize, Datatype
 			primaryKey : true,
 			autoIncrement : true
         },
-        idOrderLignePaypalTransact : {
+        idLigneOrderPaypalTransact : {
             type : Datatypes.INTEGER,
         },
         //date a laquelle la transactionle paiement user a été fait

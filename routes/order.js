@@ -37,6 +37,12 @@ module.exports = function (app, models, TokenUtils, utils) {
             var PaypalTransact = models.PaypalTransact 
             var idOrder;
             var FinderUtils = utils.FinderUtils;
+
+            var totalOrder = 0.00;
+            for(var i = 0; i<req.body.cart.length; i++){
+                totalOrder += (req.body.cart[i].prixU*parseInt(req.body.cart[i].qte));
+            }
+
             rp({
                 url : url+"/v1/oauth2/token",
                 method: "POST",
@@ -67,13 +73,14 @@ module.exports = function (app, models, TokenUtils, utils) {
                                 Order.create({
                                     "idUserOrder": result.idUser,
                                     "dateOrder": new Date(),
-                                    "lastNameOrder": req.body.address.lastNameUser,
-                                    "firstNameOrder": req.body.address.firstNameUser,
-                                    "sexOrder": req.body.address.sexUser,
-                                    "addressOrder": req.body.address.addressUser,
-                                    "cityOrder": req.body.address.cityUser,
-                                    "cpOrder": req.body.address.cpUser,
-                                    "idPaypalPaiement": req.body.payementDetail.paymentID
+                                    "lastNameOrder": crpt.encryptAES(req.body.address.lastNameUser),
+                                    "firstNameOrder": crpt.encryptAES(req.body.address.firstNameUser),
+                                    "sexOrder": crpt.encryptAES(req.body.address.sexUser),
+                                    "addressOrder": crpt.encryptAES(req.body.address.addressUser),
+                                    "cityOrder": crpt.encryptAES(req.body.address.cityUser),
+                                    "cpOrder": crpt.encryptAES(req.body.address.cpUser),
+                                    "totalOrder" : totalOrder.toFixed(2),
+                                    "idPaypalPaiement": crpt.encryptAES(req.body.payementDetail.paymentID)
                                 }).then(function (result) { 
                                     idOrder = result.idOrder;
                                     
@@ -91,23 +98,22 @@ module.exports = function (app, models, TokenUtils, utils) {
                                                 "productLigneOrder": result.cart.product,
                                                 "titleLigneOrder": result.cart.title,
                                                 "quantiteLigneOrder": result.cart.qte,
-                                                "prixUnitaireLigneOrder": result.cart.prixU
-                                            })
-                                        }).then(function(result){
-                                            //Création d'une transaction de redistribution paypal
-                                            console.log(req.body.payementDetail)
-                                            PaypalTransact.create({
-                                                "idOrderLignePaypalTransact": result.idLigneOrder,
-                                                "datePaypalTransact": new Date(),
-                                                "dateRediPaypalTransact": null,
-                                                "payerIDPaypalTransact": req.body.payementDetail.payerID,
-                                                "valuePaypalTransact": (result.quantiteLigneOrder*result.prixUnitaireLigneOrder).toFixed(2),
-                                                //batch et item id sera update lors de la transaction 
-                                                "batchIdPaypalTransact": null,
-                                                "itemIdPaypalTransact": null,
-                                                "statusPaypalTransact": "PENDING",
-                                            })
-                                        })  
+                                                "prixUnitaireLigneOrder": (result.cart.prixU*1).toFixed(2),
+                                            }).then(function(result){
+                                                //Création d'une transaction de redistribution paypal
+                                                PaypalTransact.create({
+                                                    "idLigneOrderPaypalTransact": result.idLigneOrder,
+                                                    "datePaypalTransact": new Date(),
+                                                    "dateRediPaypalTransact": null,
+                                                    "payerIDPaypalTransact": crpt.encryptAES(req.body.payementDetail.payerID),
+                                                    "valuePaypalTransact": (result.quantiteLigneOrder*result.prixUnitaireLigneOrder).toFixed(2),
+                                                    //batch et item id sera update lors de la transaction 
+                                                    "batchIdPaypalTransact": null,
+                                                    "itemIdPaypalTransact": null,
+                                                    "statusPaypalTransact": "PENDING",
+                                                })
+                                            })  
+                                        })
                                     }
                                 })
 
@@ -143,5 +149,87 @@ module.exports = function (app, models, TokenUtils, utils) {
         }
     })
 
+    
+    app.get("/order/user", function (req, res, next) { 
+        if(req.body.loginUser && req.body.token){
+            var orders;
+            var status = [];
+            var FinderUtils = utils.FinderUtils;
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       
+                if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token"
+                    });
+                    
+                } else {  
+                    
+                    var Order = models.Order;
+                    var sequelize = models.sequelize;
+                    var request = {
+                        attributes: ["idOrder", "dateOrder", "totalOrder"],
+                        where: {
+                            idUserOrder : result.idUser
+                        },
+                        order: [
+                            ['dateOrder', 'DESC'],
+                        ]
+                    };
+                    Order.findAll(request).then(function(result){ 
+                        if(result && result.length>0){
+                            orders=result
+                           
+                            //On recup le status
+                            //Si encore des lignes en PENDIG : statut = attente de reception reste a valider sinon statut = receptionner
+                            for(var i=0; i<orders.length; i++){
+                                orders[i].statusOrder="";
+                                FinderUtils.FindStatusOrder(orders[i], i).then(function(result2){
+                                    if(result2.statusOrder){
+                                        status[result2.i] = result2.statusOrder
+                                    }else{
+                                        status[result2.i] = "Statut temporairement indisponible."
+                                    }
+                                    
+                                   if((result2.i+1) == orders.length){
+                                      
+                                        res.json({
+                                            "code" :0,
+                                            "orders" : orders,
+                                            "status" : status,
+                                        });
+                                   }
+                                })
+                               
+                            }
+                            
+                           
+                        }else{
+                            res.json({
+                                "code": 1,
+                                "message": "No Order",
+                                "orders" : null
+                            });
+                        }
+                    })
+                    
+    
+                }
+            }).catch(function (err) {
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });  
+
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters"
+            });
+        }
+
+        
+    })
 
 };
