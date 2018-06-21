@@ -376,7 +376,49 @@ module.exports = function (app, models, TokenUtils, utils) {
       });
     }
 
-  })
+  });
+
+  app.post("/item/updateQuantity", function(req, res, next) {
+      if(req.body.quantity && req.body.id && req.body.loginUser && req.body.token){
+        TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       
+          if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+              res.json({
+                  "code" : 6,
+                  "message" : "Failed to authenticate token"
+              });
+          } else {
+            var sequelize = models.sequelize;
+            sequelize.query("UPDATE item SET quantity = quantity - "+req.body.quantity+" WHERE id = "+req.body.id, { type: sequelize.QueryTypes.UPDATE  }).then(function (results) {
+                res.json({
+                    "code":0,
+                    "message":"Item updated"
+                });
+            }).catch(function (err) {
+               //console.log(err)
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });
+
+
+          }   
+        }).catch(function (err) {
+          res.json({
+              "code": 2,
+              "message": "Sequelize error",
+              "error": err
+          });
+        });            
+      }else{
+        res.json({
+          "code": 1,
+          "message": "Missing required parameters"
+        });
+      }
+     
+   })
 
 
 }

@@ -7,7 +7,8 @@ var UnitModel = require("./Unit");
 var ProducerModel = require("./Producer");
 var CommentProducerModel = require("./CommentProducer");
 var PaypalTransact = require("./PaypalTransact");
-
+var Order = require("./Order");
+var LigneOrder = require("./LigneOrder");
 
 seq.sync();
 
@@ -21,4 +22,6 @@ module.exports = {
     "Producer": ProducerModel,
     "CommentProducer": CommentProducerModel,
     "PaypalTransact": PaypalTransact,
+    "Order": Order,
+    "LigneOrder" : LigneOrder
 };

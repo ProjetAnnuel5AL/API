@@ -23,6 +23,22 @@ var CheckEmailUser = function(email) {
     });
 };
 
+var FindProducerIdWithCart = function(cart){
+    var sequelize = models.sequelize;
+    return sequelize.query("SELECT idProducer FROM producer, item, user WHERE item.idUser = user.idUser AND user.idUser = producer.idUserProducer AND item.id = "+cart.id,  { type: sequelize.QueryTypes.SELECT  }).then(function (result) {
+        if(result && result.length>0){
+            result[0].cart = cart;
+            return result[0];
+        }else{
+            return null;
+        }
+    }).catch(function(err){
+        console.log(err)
+        return null;
+    });
+}
+
 module.exports={
     "CheckEmailUser" : CheckEmailUser,
+    "FindProducerIdWithCart" : FindProducerIdWithCart
 };

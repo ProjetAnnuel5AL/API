@@ -24,6 +24,7 @@
     "nodemailer": "^4.6.5",
     "querystring": "^0.2.0",
     "request": "^2.87.0",
+    "request-promise": "^4.2.2",
     "sequelize": "^4.37.5",
     "supertest": "^3.0.0",
     "supertest-session": "^3.3.0",
