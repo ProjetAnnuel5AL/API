@@ -1,13 +1,16 @@
-module.exports = function (app, models, TokenUtils) {
+module.exports = function (app, models, TokenUtils, utils) {
   var fs = require("fs");
   const empty = require('empty-folder');
   app.post("/item", function (req, res, next) {
-    //console.log(req.body);
-    if (req.body.token && req.body.productId && req.body.name && req.body.description && req.body.adress &&
-    req.body.location && req.body.photo && req.body.price && req.body.unitId && req.body.quantity && req.body.city) {
+    
+    if(req.body.productId && req.body.name && req.body.description && req.body.adress && req.body.location && req.body.city){
+      console.log("test")
+    }
+    if (req.body.productId && req.body.name && req.body.description && req.body.adress && req.body.location && req.body.city && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
       var Item = models.Item;
       var id = null;
       var userId;
+      
       if (req.body.id) {
         id = req.body.id;
       }
@@ -86,7 +89,7 @@ module.exports = function (app, models, TokenUtils) {
   });
 
   app.post("/item/edit", function (req, res, next) {
-    console.log(req.body);
+
     var item = req.body.item;
     if (item.id && req.body.token && item.productId && item.name && item.description && item.adress &&
     item.location && req.body.photo && item.price && item.unitId && item.quantity && item.city) {
@@ -120,8 +123,6 @@ module.exports = function (app, models, TokenUtils) {
         {where: {id: item.id} }
       )
       .then(function(result) {
-        console.log(result);
-        console.log(result[0]);
         var filePath=null;
         if (req.body.photo[0].size != 0) {
           for(var imageIndex = 0; imageIndex < req.body.photo.length; imageIndex++){
@@ -155,6 +156,50 @@ module.exports = function (app, models, TokenUtils) {
             })(imageIndex);
           }
         }
+        res.json({
+          "code": 0,
+          "id": result[0]
+        });
+      }).catch(function (err) {
+        console.log(err);
+        res.json({
+          "code": 2,
+          "message": "Sequelize error",
+          "error": err
+        });
+      });
+    } else {
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+  });
+
+  app.post("/item/delete", function (req, res, next) {
+    console.log(req.body);
+    if (req.body.id && req.body.token) {
+      var Item = models.Item;
+      //console.log(photosExtensions);
+      userId = TokenUtils.getIdAndType(req.body.token).id;
+      Item.destroy({
+        force: true,
+        where: {
+          id: req.body.id, 
+          idUser: userId
+        } 
+      })
+      .then(function(result) {
+        var filePath = null;
+        filePath = "ressources/itemPhotos/" + req.body.id + "/";
+        if (!fs.existsSync(filePath)) {
+          fs.mkdirSync(filePath);
+        }
+        empty(filePath, true, (o) => {
+          if (o.error) console.error(err);
+          //console.log(o.removed);
+          //console.log(o.failed);
+        });
         res.json({
           "code": 0,
           "id": result[0]
@@ -236,8 +281,8 @@ module.exports = function (app, models, TokenUtils) {
 
   app.get("/item/filter", function(req, res, next) {
     var query = "SELECT item.id, price, location, city, quantity, item.name as itemName, item.fileExtensions, description, loginUser, category.name as categoryName, product.name as productName,"
-        +"category.id as categId, product.id as productId, unit.name as unitName, idProducer, producer.lastNameProducer as producerName, producer.firstNameProducer as producerFirstName, user.loginUser as login FROM item, product, category, unit, user, producer WHERE item.idUser = producer.idUserProducer "
-        +"AND item.idUser = user.idUser AND item.idProduct = product.id AND item.unitId = unit.id AND product.categoryId = category.id and item.deletedAt IS NULL ORDER BY Item.createdAt DESC ";
+        +"category.id as categId, product.id as productId, unit.name as unitName, idProducer, user.loginUser as login FROM item, product, category, unit, user, producer WHERE item.idUser = producer.idUserProducer "
+        +"AND item.idUser = user.idUser AND item.idProduct = product.id AND item.unitId = unit.id AND product.categoryId = category.id and item.deletedAt IS NULL AND quantity>0 ORDER BY Item.createdAt DESC ";
     
     if (req.query.productId){
       query += " AND item.idProduct = "+ req.query.productId;
@@ -272,6 +317,7 @@ module.exports = function (app, models, TokenUtils) {
       
       sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
+
             if(result){    
               jsonResult.code = 0;
               jsonResult.list = result;          
@@ -299,4 +345,80 @@ module.exports = function (app, models, TokenUtils) {
       });
     }
   });
+
+  
+  app.get("/item/verifyQuantity/:itemId", function(req, res, next) {
+
+    if (req.params.itemId){
+      var Item = models.Item;
+      var request = {
+        where: {
+          id : req.params.itemId
+        }
+      };
+      Item.find(request).then(function(result) { 
+        if(result){
+          res.json({
+            "code": 0,
+            "quantity" : result.quantity
+          });
+        }else{
+          res.json({
+            "code": 2,
+            "message": "Item does t exist"
+          });
+        }
+      });
+    }else{
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+
+  });
+
+  app.post("/item/updateQuantity", function(req, res, next) {
+      if(req.body.quantity && req.body.id && req.body.loginUser && req.body.token){
+        TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       
+          if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+              res.json({
+                  "code" : 6,
+                  "message" : "Failed to authenticate token"
+              });
+          } else {
+            var sequelize = models.sequelize;
+            sequelize.query("UPDATE item SET quantity = quantity - "+req.body.quantity+" WHERE id = "+req.body.id, { type: sequelize.QueryTypes.UPDATE  }).then(function (results) {
+                res.json({
+                    "code":0,
+                    "message":"Item updated"
+                });
+            }).catch(function (err) {
+               //console.log(err)
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "error": err
+                });
+            });
+
+
+          }   
+        }).catch(function (err) {
+          res.json({
+              "code": 2,
+              "message": "Sequelize error",
+              "error": err
+          });
+        });            
+      }else{
+        res.json({
+          "code": 1,
+          "message": "Missing required parameters"
+        });
+      }
+     
+   })
+
+
 }

@@ -1,13 +1,15 @@
-module.exports = function(app, models, TokenUtils) {
+module.exports = function(app, models, TokenUtils, utils) {
     var fs = require("fs");
 
 
     //CREATE Producer
     app.post("/producer", function(req, res, next) {
-        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.token) {
+        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.locationProducer && req.body.token && req.body.paypalProducer) {
             var Producer = models.Producer;
             var User = models.User;
             var idUser = null;
+            var CryptoUtils = utils.CryptoUtils;
+            var crpt = new CryptoUtils();
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
                 idUser = result.idUser;
                   
@@ -26,17 +28,18 @@ module.exports = function(app, models, TokenUtils) {
                     }
                     Producer.create({
                         "idUserProducer" : idUser,
-                        "lastNameProducer" : req.body.lastNameProducer,
-                        "firstNameProducer" : req.body.firstNameProducer,
-                        "emailProducer" : req.body.emailProducer,
-                        "phoneProducer" : req.body.phoneProducer,
+                        "lastNameProducer" : crpt.encryptAES(req.body.lastNameProducer),
+                        "firstNameProducer" : crpt.encryptAES(req.body.firstNameProducer),
+                        "emailProducer" : crpt.encryptAES(req.body.emailProducer),
+                        "phoneProducer" : crpt.encryptAES(req.body.phoneProducer),
                         "birthProducer" : req.body.birthProducer,
-                        "sexProducer" : req.body.sexProducer,
-                        "addressProducer" : req.body.addressProducer,
-                        "cityProducer" : req.body.cityProducer,
-                        "cpProducer" : req.body.cpProducer,
+                        "sexProducer" : crpt.encryptAES(req.body.sexProducer),
+                        "addressProducer" : crpt.encryptAES(req.body.addressProducer),
+                        "cityProducer" : crpt.encryptAES(req.body.cityProducer),
+                        "locationProducer" : crpt.encryptAES(req.body.locationProducer),
                         "descriptionProducer" : req.body.descriptionProducer,
-                        "avatarProducer" : avatar
+                        "avatarProducer" : avatar,
+                        "paypalProducer" : crpt.encryptAES(req.body.paypalProducer)
                     }).then(function(result){
                         var request = {
                             "where": {
@@ -44,8 +47,7 @@ module.exports = function(app, models, TokenUtils) {
                             }
                         };
                         var attributes = {};
-                        attributes.typeUser = "producer"
-                        User
+                        attributes.typeUser = "1"
 
                         User.update(attributes, request).then(function (results) {                      
                         }).catch(function (err) {
@@ -79,7 +81,8 @@ module.exports = function(app, models, TokenUtils) {
 
                         res.json({
                             "code" : 0,
-                            "message" : "producer"
+                            "message" : "producer",
+                            "id" : result.idProducer
                         });
                     }).catch(function(err){    
                         console.log(err);         
@@ -111,9 +114,8 @@ module.exports = function(app, models, TokenUtils) {
     app.get("/getPublicInformations", function(req, res, next) {
         if (req.body.idProducer){
             
-            var Producer = models.Producer;
-            var CommentProducer = models.CommentProducer;
-            var User = models.User;
+            var sequelize = models.sequelize;
+          
             
             var request = {
                 attributes: ["idUserProducer", "lastNameProducer", "firstNameProducer", "descriptionProducer", "avatarProducer"],
@@ -122,13 +124,22 @@ module.exports = function(app, models, TokenUtils) {
                 }
             };
             var jsonResult = {};
-            Producer.find(request).then(function(result){
-                if(result){
+            var CryptoUtils = utils.CryptoUtils;
+            var crpt = new CryptoUtils();
+            var utf8 = require('utf8');
+            sequelize.query("SELECT idUserProducer, lastNameProducer, firstNameProducer, descriptionProducer, avatarProducer, loginUser, addressProducer, cityProducer, locationProducer  FROM user, producer WHERE user.idUser = producer.idUserProducer AND idProducer = :idProducer",{ replacements: { idProducer:  req.body.idProducer }, type: sequelize.QueryTypes.SELECT  })
+            .then(function(result){
+                
+                if(result[0]){
                     jsonResult.code =0;
-                    jsonResult.lastNameProducer = result.lastNameProducer;
-                    jsonResult.firstNameProducer = result.firstNameProducer;
-                    jsonResult.descriptionProducer = result.descriptionProducer;
-                    jsonResult.avatarProducer = result.avatarProducer;
+                    jsonResult.loginUser = result[0].loginUser;
+                    jsonResult.lastNameProducer = utf8.decode(crpt.decryptAES(result[0].lastNameProducer));
+                    jsonResult.firstNameProducer = utf8.decode(crpt.decryptAES(result[0].firstNameProducer));
+                    jsonResult.descriptionProducer = result[0].descriptionProducer;
+                    jsonResult.avatarProducer = result[0].avatarProducer;
+                    jsonResult.addressProducer = utf8.decode(crpt.decryptAES(result[0].addressProducer));
+                    jsonResult.cityProducer = utf8.decode(crpt.decryptAES(result[0].cityProducer));
+                    jsonResult.locationProducer = utf8.decode(crpt.decryptAES(result[0].locationProducer));
 
                     var request2 =  {
                         where: {
@@ -136,7 +147,7 @@ module.exports = function(app, models, TokenUtils) {
                             //include: [{model:db.User}]
                         }
                     }
-                    var sequelize = models.sequelize;
+                   
                                 
                     sequelize.query("SELECT  comment, starComment, dateComment, loginUser FROM commentProducer, user WHERE user.idUser = commentProducer.idUser AND idProducer = :idProducer Order BY dateComment",{ replacements: { idProducer:  req.body.idProducer }, type: sequelize.QueryTypes.SELECT  })
                     .then(function(result){

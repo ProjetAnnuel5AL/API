@@ -38,12 +38,18 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 		cityProducer : {
 			type : Datatypes.STRING
 		},
+		locationProducer : {
+			type : Datatypes.STRING
+		},
 		cpProducer : {
 			type : Datatypes.STRING
 		},
 		descriptionProducer : {
 			type : Datatypes.TEXT
-		}
+		},
+		paypalProducer : {
+			type : Datatypes.STRING
+        },
 	}, {
 		paranoid : true,
 		freezeTab : true,
