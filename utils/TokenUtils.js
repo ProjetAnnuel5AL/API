@@ -47,6 +47,37 @@ var verifSimpleToken = function(token, secret, idUser){
     });      
 };
 
+
+var verifUserOrderToken = function(token, secret, idUser, idOrder){
+    var Order = models.Order;
+    var request = {
+        where: {
+            idUserOrder : idUser,
+            idOrder : idOrder
+        }, 
+    };
+    return jwt.verify(token,secret, function(err, decoded) {
+        if (err) {
+            return false;
+        }else{
+            if(!idUser || idUser!=decoded.id){
+                return false;
+             }else{
+                return Order.find(request).then(function(result){
+                    if(result){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }).catch(function(err){
+                    return false;
+                });
+             }
+        }
+    });      
+};
+
+
 var verifProducerToken = function(token, secret, idUser){
     return jwt.verify(token,secret, function(err, decoded) {
         if (err) {
@@ -89,5 +120,6 @@ module.exports={
     "getIdAndType": getIdAndType,
     "verifSimpleToken" : verifSimpleToken,
     "verifProducerToken": verifProducerToken,
-    "verifAdminToken": verifAdminToken
+    "verifAdminToken": verifAdminToken,
+    "verifUserOrderToken" : verifUserOrderToken
 };

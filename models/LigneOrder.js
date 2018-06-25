@@ -10,7 +10,7 @@ module.exports = sequelize.import("ligneorder", function(sequelize, Datatypes) {
         idOrderLigneOrder : {
             type : Datatypes.INTEGER,
         },
-        idProducerOrder : {
+        idProducerLigneOrder : {
             type : Datatypes.INTEGER,
         },
         idItemLigneOrder : {
