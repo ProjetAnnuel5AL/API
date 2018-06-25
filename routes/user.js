@@ -306,7 +306,7 @@ module.exports = function(app, models, TokenUtils) {
 
 	//
     app.post("/user/auth", function(req, res, next) {
-        if (req.params.loginUser && req.body.passwordUser) {
+        if (req.body.loginUser && req.body.passwordUser) {
             var User = models.User;
             var request = {
                 attributes: ["idUser", "loginUser", "passwordUser", "emailUser", "typeUser", "saltUser"],
