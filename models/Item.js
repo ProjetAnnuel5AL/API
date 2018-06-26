@@ -42,8 +42,10 @@ module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 			type : Datatypes.INTEGER
 		}
 	}, {
+		charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
-		tableName : "Item"
+		tableName : "item"
 	});
 });

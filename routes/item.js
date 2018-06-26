@@ -282,7 +282,7 @@ module.exports = function (app, models, TokenUtils, utils) {
   app.get("/item/filter", function(req, res, next) {
     var query = "SELECT item.id, price, location, city, quantity, item.name as itemName, item.fileExtensions, description, loginUser, category.name as categoryName, product.name as productName,"
         +"category.id as categId, product.id as productId, unit.name as unitName, idProducer, user.loginUser as login FROM item, product, category, unit, user, producer WHERE item.idUser = producer.idUserProducer "
-        +"AND item.idUser = user.idUser AND item.idProduct = product.id AND item.unitId = unit.id AND product.categoryId = category.id and item.deletedAt IS NULL AND quantity>0 ORDER BY Item.createdAt DESC ";
+        +"AND item.idUser = user.idUser AND item.idProduct = product.id AND item.unitId = unit.id AND product.categoryId = category.id and item.deletedAt IS NULL AND quantity>0 ORDER BY item.createdAt DESC ";
     
     if (req.query.productId){
       query += " AND item.idProduct = "+ req.query.productId;

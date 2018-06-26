@@ -23,6 +23,8 @@ module.exports = sequelize.import("commentProducer", function(sequelize, Datatyp
 			type : Datatypes.DATEONLY
 		},
 	}, {
+		charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
 		tableName : "commentProducer"
