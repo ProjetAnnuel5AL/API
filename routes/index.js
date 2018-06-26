@@ -1,10 +1,13 @@
 module.exports = function(app, models, TokenUtils, utils, urlSite, urlApi) {
+<<<<<<< HEAD
 
 	app.get('/', function (req, res) {
 		res.send('Hello on API V3 !');
 	});
+=======
+>>>>>>> revisionFeature
 
-	require("./user")(app, models, TokenUtils, utils, urlApi);
+	require("./user")(app, models, TokenUtils, utils, urlApi, urlSite);
 	require("./unit")(app, models);
 	require("./category")(app, models);
 	require("./producer")(app, models, TokenUtils, utils);
