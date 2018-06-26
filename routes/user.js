@@ -7,7 +7,7 @@
 // 5 : account not validated 
 // 6 : no token /token invalid
 
-module.exports = function(app, models, TokenUtils, utils, urlApi) {
+module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
 
     var bcrypt = require("bcrypt-nodejs");
     var jwt    = require('jsonwebtoken');
@@ -57,7 +57,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                 
                                 var SendMailUtils = utils.SendMailUtils;
                                 var myMail = new SendMailUtils();
-                                myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +validationCodeUser);
+                                myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlSite+"/registrationValidation/" +validationCodeUser);
                                 
                                 res.json({
                                     "code" : 0,
@@ -642,7 +642,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                     var User = models.User;
 
                                     User.update(attributes, request).then(function(results){
-                                        myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +result.validationCodeUser );
+                                        myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlSite+"/registrationValidation/" +result.validationCodeUser );
                                         res.json({
                                             "code": 0,
                                             "message": "ok",
@@ -664,7 +664,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                 });
                             });
                         }else{
-                            myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +result.validationCodeUser );     
+                            myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlSite+"/registrationValidation/" +result.validationCodeUser );     
                             res.json({
                                 "code": 0,
                                 "message": "ok",
@@ -719,7 +719,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                     User.update(attributes, request).then(function (results) {
                         var SendMailUtils = utils.SendMailUtils;
                         var myMail = new SendMailUtils();
-                        myMail.sendMail(req.body.emailUser,"Réinitialisation de mot de passe", "Pour réinitialiser votre mot de passe, cliquez ici : " +urlApi+"/login/resetPassword/" +link);
+                        myMail.sendMail(req.body.emailUser,"Réinitialisation de mot de passe", "Pour réinitialiser votre mot de passe, cliquez ici : " +urlSite+"/login/resetPassword/" +link);
                         res.json({
                             "code":0,
                             "message":null,
