@@ -9,7 +9,6 @@ require("./env.js");
 
 var bodyParser = require("body-parser");
 
-
 var urlApi = "http://vps536743.ovh.net:8888";
 var urlSite = "http://vps536743.ovh.net"
 
