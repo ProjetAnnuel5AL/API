@@ -69,7 +69,6 @@ module.exports = function (app, models, TokenUtils, utils) {
                     if(verifyPaymentJson.count == 1){
                         if(verifyPaymentJson.payments[0].state=="approved"){
                             //Si on arrive ici tout est bon pour paypal : paiement OK
-                            
                             //création de la commande
                             TokenUtils.findIdUser(req.body.loginUser).then(function(result) {
                                 Order.create({
@@ -126,19 +125,22 @@ module.exports = function (app, models, TokenUtils, utils) {
 
                             res.json({
                                 "code" : 0,
-                                "message": "Order saved"
+                                "message": "Order saved",
+                                "result": null
                             })
 
                         }else{
                             res.json({
                                 "code" : 2,
-                                "message": "Payment not approuved"
+                                "message": "Payment not approuved",
+                                "result": null
                             })
                         }
                     }else{
                         res.json({
                             "code" : 2,
-                            "message": "No Payment found"
+                            "message": "No Payment found",
+                            "result": null
                         })
                     }
                 })
@@ -146,7 +148,8 @@ module.exports = function (app, models, TokenUtils, utils) {
         }else{
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     })
@@ -161,7 +164,8 @@ module.exports = function (app, models, TokenUtils, utils) {
                 if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
                     res.json({
                         "code" : 6,
-                        "message" : "Failed to authenticate token"
+                        "message" : "Failed to authenticate token",
+                        "result": null
                     });
                     
                 } else {  
@@ -197,8 +201,11 @@ module.exports = function (app, models, TokenUtils, utils) {
                                       
                                         res.json({
                                             "code" :0,
-                                            "orders" : orders,
-                                            "status" : status,
+                                            "message":null,
+                                            "result" : {
+                                                "orders" : orders,
+                                                "status" : status,
+                                            }
                                         });
                                    }
                                 })
@@ -208,7 +215,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                             res.json({
                                 "code": 1,
                                 "message": "No Order",
-                                "orders" : null
+                                "result": null
                             });
                         }
                     })
@@ -219,14 +226,15 @@ module.exports = function (app, models, TokenUtils, utils) {
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });  
 
         }else{
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     });
@@ -257,12 +265,14 @@ module.exports = function (app, models, TokenUtils, utils) {
 
                             res.json({
                                 "code": 0,
-                                "order": results,
+                                "message": null,
+                                "result": results,
                             });
                         }else{
                             res.json({
                                 "code": 1,
                                 "message": "No order",
+                                "result": null
                                 
                             });
                         }
@@ -271,7 +281,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                         res.json({
                             "code": 2,
                             "message": "Sequelize error",
-                            "error": err
+                            "result": null
                         });
                     });
                 }
@@ -280,14 +290,15 @@ module.exports = function (app, models, TokenUtils, utils) {
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });  
 
         }else{
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     });

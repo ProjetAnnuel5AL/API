@@ -42,8 +42,10 @@ module.exports = sequelize.import("paypalTransact", function(sequelize, Datatype
             type : Datatypes.STRING,
         }
 	}, {
+        charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
-		tableName : "PaypalTransact"
+		tableName : "paypalTransact"
 	});
 });

@@ -50,6 +50,8 @@ module.exports = sequelize.import("user", function(sequelize, Datatypes) {
 			type : Datatypes.STRING
 		},
 	}, {
+		charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
 		tableName : "user"

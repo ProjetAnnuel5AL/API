@@ -27,10 +27,10 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 if(result){
                     res.json({
                         "code" : 4,
-                        "message" : "login already used"
+                        "message" : "login already used",
+                        "result" : null
                     });
-                }else{
-                   
+                }else{     
                     var CryptoUtils = utils.CryptoUtils;
                     var crpt = new CryptoUtils();
                     var FinderUtils = utils.FinderUtils;
@@ -61,21 +61,26 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                 
                                 res.json({
                                     "code" : 0,
-                                    "loginUser" : result.loginUser,
-                                    "emailUser" : result.emailUser
+                                    "message" : null,
+                                    "result" : {
+                                        "loginUser" : result.loginUser,
+                                        "emailUser" : result.emailUser
+                                    }
+                                    
                                 });
                             }).catch(function(err){
-                                console.log(err)
+                                //console.log(err)
                                 res.json({
                                     "code" : 2,
                                     "message" : "Sequelize error",
-                                    "error" : err
+                                    "result":null
                                 });
                             });
                        }else{
                             res.json({
                                 "code" : 5,
-                                "message" : "email already used"
+                                "message" : "email already used",
+                                "result":null
                             });
                        }
                     })    
@@ -86,13 +91,14 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
-                    "error" : err
+                    "result":null
                 });
             });
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result":null
             });
         }
     });
@@ -119,27 +125,30 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                     User.update(attributes, request2).then(function (results) {
                         res.json({
                             "code":0,
-                            "message":"Validated user account"
+                            "message":"Validated user account",
+                            "result":null
                         });
                     }).catch(function (err) {
                         res.json({
                             "code": 2,
                             "message": "Sequelize error",
-                            "error": err
+                            "result":null
                         });
                     });
 
                 } else {
                     res.json({
                         "code" : 3,
-                        "message" : "User not found"
+                        "message" : "User not found",
+                        "result":null
                     });
                 }
             });
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result":null
             });
         }
     });
@@ -151,7 +160,8 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
                     res.json({
                         "code" : 6,
-                        "message" : "Failed to authenticate token"
+                        "message" : "Failed to authenticate token",
+                        "result":null
                     });
                 } else {   
                     var CryptoUtils = utils.CryptoUtils;
@@ -169,12 +179,16 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                         if (result) {
                             res.json({
                                 "code": 0,
-                                "emailUser": utf8.decode(crpt.decryptAES(result.emailUser)),
+                                "message":null,
+                                "result":{
+                                    "emailUser": utf8.decode(crpt.decryptAES(result.emailUser))
+                                }
                             });
                         } else {
                             res.json({
                                 "code": 3,
-                                "message": "User not found"
+                                "message": "User not found",
+                                "result":null
                             });
                         }
                     });
@@ -184,13 +198,14 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });    
         } else {
             res.json({
                 "code": 1,
-                "message": "Missing required parameters"
+                "message": "Missing required parameters",
+                "result": null
             });
         }
     });
@@ -208,19 +223,25 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 if (result){
                     res.json({
                         "code" : 0,
-                        "loginUser" : result.loginUser,
+                        "message" : null,
+                        "result":{
+                            "loginUser" : result.loginUser,
+                        }
+                        
                     });
                 } else {
                     res.json({
                         "code" : 3,
-                        "message" : "User not found with this login"
+                        "message" : "User not found with this login",
+                        "result": null
                     });
                 }
             });
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     });
@@ -241,25 +262,30 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                     if(result.mailValidationUser == false){
                         res.json({
                             "code" : 5,
-                            "message" : "User account not validated"
+                            "message" : "User account not validated",
+                            "result": null
                         });
                     }else{
                         res.json({
-                            "code" : 0,   
+                            "code" : 0,
+                            "message" : "",
+                            "result": null   
                         });
                     }
                     
                 } else {
                     res.json({
                         "code" : 3,
-                        "message" : "User not found with this login"
+                        "message" : "User not found with this login",
+                        "result": null   
                     });
                 }
             });
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null   
             });
         }
     });
@@ -289,34 +315,40 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
 
                         res.json({
                             "code" : 0,
-                            "loginUser" : result.loginUser,
-                            "emailUser" : result.emailUser,
-                            "typeUser" : result.typeUser,
-                            "token" : token
+                            "message": null,   
+                            "result": {
+                                "loginUser" : result.loginUser,
+                                "emailUser" : result.emailUser,
+                                "typeUser" : result.typeUser,
+                                "token" : token
+                            }  
                         });
                     }else{
                         res.json({
                             "code" : 3,
-                            "message" : "Wrong pwd"
+                            "message" : "Wrong pwd",
+                            "result" : null,
                         });
                     }
                 }else{
                     res.json({
                         "code" : 3,
-                        "message" : "User not found"
+                        "message" : "User not found",
+                        "result" : null,
                     });
                 }
             }).catch(function(err){
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
-                    "error" : err
+                    "result" : null,
                 });
             });
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result" : null,
             });
         }
     });
@@ -336,13 +368,14 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                         if(success){
                             res.json({
                                 "code" : 0,
-                                "message":"user deleted"
+                                "message":"user deleted",
+                                "result" : null,
                             });
                         }else{
                             res.json({
                                 "code" : 2,
                                 "message" : "Sequelize error",
-                                "error" : err
+                                "result" : null,
                             });
                         }
                     }).catch(function(err){
@@ -351,7 +384,8 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 }else{
                     res.json({
                         "code" : 3,
-                        "message" : "User not found"
+                        "message" : "User not found",
+                        "result" : null,
                     });
                 }               
         
@@ -385,30 +419,36 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                             if(result.lastNameUser == null){
                                 res.json({
                                     "code" : 0,
-                                    "lastNameUser" : null,
-                                    "firstNameUser" : null,
-                                    "sexUser" : null,
-                                    "addressUser" : null,
-                                    "cityUser" : null,
-                                    "cpUser" : null
+                                    "message": null,
+                                    "result" : {
+                                        "lastNameUser" : null,
+                                        "firstNameUser" : null,
+                                        "sexUser" : null,
+                                        "addressUser" : null,
+                                        "cityUser" : null,
+                                        "cpUser" : null
+                                    }
                                 })
                             }else{
                                 res.json({
                                     "code" : 0,
-                                    "lastNameUser" : utf8.decode(crpt.decryptAES(result.lastNameUser)),
-                                    "firstNameUser" : utf8.decode(crpt.decryptAES(result.firstNameUser)),
-                                    "sexUser" : crpt.decryptAES(result.sexUser),
-                                    "addressUser" : utf8.decode(crpt.decryptAES(result.addressUser)),
-                                    "cityUser" : utf8.decode(crpt.decryptAES(result.cityUser)),
-                                    "cpUser" : utf8.decode(crpt.decryptAES(result.cpUser))
+                                    "message": null,
+                                    "result" : {
+                                        "lastNameUser" : utf8.decode(crpt.decryptAES(result.lastNameUser)),
+                                        "firstNameUser" : utf8.decode(crpt.decryptAES(result.firstNameUser)),
+                                        "sexUser" : crpt.decryptAES(result.sexUser),
+                                        "addressUser" : utf8.decode(crpt.decryptAES(result.addressUser)),
+                                        "cityUser" : utf8.decode(crpt.decryptAES(result.cityUser)),
+                                        "cpUser" : utf8.decode(crpt.decryptAES(result.cpUser))
+                                    }
+                                    
                                 })
                             }
-
-                            
                         }else{
                             res.json({
                                 "code": 3,
-                                "message": "User not found"
+                                "message": "User not found",
+                                "result":null
                             });
                         }
                     }).catch(function (err) {
@@ -416,7 +456,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                         res.json({
                             "code": 2,
                             "message": "Sequelize error",
-                            "error": err
+                            "result": null
                         });
                     });  
                 }  
@@ -425,13 +465,14 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });         
         }else{
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     })
@@ -443,7 +484,8 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
         if(!req.body.token && !req.body.code){
             res.json({
                 "code" : 6,
-                "message" : "Missing token"
+                "message" : "Missing token",
+                "result": null
             });
         }else if(req.body.token){
 
@@ -453,7 +495,8 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
                     res.json({
                         "code" : 6,
-                        "message" : "Failed to authenticate token"
+                        "message" : "Failed to authenticate token",
+                        "result": null
                     });
                     
                 } else {             
@@ -494,19 +537,21 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                         User.update(attributes, request).then(function (results) {
                             res.json({
                                 "code":0,
-                                "message":"User updated"
+                                "message":"User updated",
+                                "result": null
                             });
                         }).catch(function (err) {
                             res.json({
                                 "code": 2,
                                 "message": "Sequelize error",
-                                "error": err
+                                "result": null
                             });
                         });
                     }else{
                         res.json({
                             "code" : 1,
-                            "message" : "Missing required parameters"
+                            "message" : "Missing required parameters",
+                            "result": null
                         });
                     }
                 }
@@ -514,7 +559,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             })  ;      
         }
@@ -538,14 +583,15 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
             User.update(attributes, request).then(function (results) {
                 res.json({
                     "code":0,
-                    "message":"User updated"
+                    "message":"User updated",
+                    "result": null
                 });
             }).catch(function (err) {
                
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });
         }
@@ -567,7 +613,8 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                     if(result.mailValidationUser == 1){
                         res.json({
                             "code" : 5,
-                            "message" : "account is already validate"   
+                            "message" : "account is already validate",
+                            "result": null   
                         })
                     }else{
                         code = result.validationCodeUser
@@ -587,6 +634,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                     res.json({
                                         "code": 4,
                                         "message": "email already used",
+                                        "result": null
                                     });
                                 }else{
                                     var attributes = {};
@@ -597,13 +645,14 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                         myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +result.validationCodeUser );
                                         res.json({
                                             "code": 0,
-                                            "message": "ok"   
+                                            "message": "ok",
+                                            "result": null   
                                         });
                                     }).catch(function (err) {
                                         res.json({
                                             "code": 2,
                                             "message": "Sequelize error",
-                                            "error": err
+                                            "result": null
                                         });
                                     });  
                                 }
@@ -611,21 +660,23 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                                 res.json({
                                     "code": 2,
                                     "message": "Sequelize error",
-                                    "error": err
+                                    "result": null
                                 });
                             });
                         }else{
                             myMail.sendMail(req.body.emailUser,"Validation Inscription", "Votre inscription à bien été prise en compte. Afin de valider votre inscription merci de suivre le lien suivant : " +urlApi+"/registrationValidation/" +result.validationCodeUser );     
                             res.json({
                                 "code": 0,
-                                "message": "ok"      
+                                "message": "ok",
+                                "result": null      
                             });
                         }
                     }
                 } else {
                     res.json({
                         "code": 3,
-                        "message": "User not found"
+                        "message": "User not found",
+                        "result": null
                     });
                 }
             }).catch(function (err) {
@@ -633,13 +684,14 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });
         } else {
             res.json({
                 "code": 1,
-                "message": "Missing required parameters"
+                "message": "Missing required parameters",
+                "result": null
             });
         }
     });
@@ -669,20 +721,23 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                         var myMail = new SendMailUtils();
                         myMail.sendMail(req.body.emailUser,"Réinitialisation de mot de passe", "Pour réinitialiser votre mot de passe, cliquez ici : " +urlApi+"/login/resetPassword/" +link);
                         res.json({
-                            "code":0
+                            "code":0,
+                            "message":null,
+                            "result": null,
                         });
                     }).catch(function (err) {
                         console.log(err)
                         res.json({
                             "code": 2,
                             "message": "Sequelize error",
-                            "error": err
+                            "result": null
                         });
                     });
                 }else{
                     res.json({
                         "code" : 5,
-                        "message" : "email already used"
+                        "message" : "email already used",
+                        "result": null
                     });   
                 }
             }).catch(function (err) {
@@ -690,13 +745,14 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });
         }else{
             res.json({
                 "code": 1,
-                "message": "Missing required parameters"
+                "message": "Missing required parameters",
+                "result": null
             });
         }
     });
@@ -712,19 +768,23 @@ module.exports = function(app, models, TokenUtils, utils, urlApi) {
             User.find(request).then(function(result) {
                 if (result){          
                     res.json({
-                        "code" : 0,  
+                        "code" : 0,
+                        "message":null,
+                        "result": null,  
                     });
                 } else {
                     res.json({
                         "code" : 3,
-                        "message" : "No password reset"
+                        "message" : "No password reset",
+                        "result": null
                     });
                 }
             });
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     });

@@ -35,8 +35,10 @@ module.exports = sequelize.import("ligneorder", function(sequelize, Datatypes) {
             type : Datatypes.FLOAT,
         }
 	}, {
+        charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
-		tableName : "LigneOrder"
+		tableName : "ligneOrder"
 	});
 });

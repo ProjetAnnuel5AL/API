@@ -51,6 +51,8 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 			type : Datatypes.STRING
         },
 	}, {
+		charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
 		tableName : "producer"

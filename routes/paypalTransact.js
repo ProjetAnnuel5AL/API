@@ -101,7 +101,8 @@ module.exports = function (app, models, TokenUtils, utils) {
             }else{
                 res.json({
                     "code" : 1,
-                    "message" : "No Pending transaction found" 
+                    "message" : "No Pending transaction found" ,
+                    "result": null
                 })
             }
         })
