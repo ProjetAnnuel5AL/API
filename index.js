@@ -9,8 +9,8 @@ require("./env.js");
 
 var bodyParser = require("body-parser");
 
-var urlApi = "http://localhost:8082";
-var urlLocal = "http://localhost:8888"
+var urlApi = "http://vps536743.ovh.net:8888";
+var urlSite = "http://vps536743.ovh.net"
 
 module.exports = app;
 
@@ -30,7 +30,7 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/ressources"));
-require("./routes")(app, models, TokenUtils, utils, urlLocal, urlApi);
+require("./routes")(app, models, TokenUtils, utils, urlSite, urlApi);
 
 var port=process.env.PORT || 8888;
 
