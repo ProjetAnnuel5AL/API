@@ -16,7 +16,8 @@ module.exports = function(app, models, TokenUtils, utils) {
                 if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
                     res.json({
                         "code" : 6,
-                        "message" : "Failed to authenticate token"
+                        "message" : "Failed to authenticate token",
+                        "result": null,
                     });
                     
                 } else {
@@ -82,30 +83,35 @@ module.exports = function(app, models, TokenUtils, utils) {
                         res.json({
                             "code" : 0,
                             "message" : "producer",
-                            "id" : result.idProducer
+                            "result": {
+                                "id" : result.idProducer
+                            },
+                            
                         });
                     }).catch(function(err){    
-                        console.log(err);         
+                        //console.log(err);         
                         res.json({
                             "code" : 2,
-                            "message" : "Sequelize error"
+                            "message" : "Sequelize error",
+                            "result": null
                             
                         });
                     });
                 }
             }).catch(function (err) {
-                console.log(err)
+                //console.log(err)
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             })  ;
             
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     });
@@ -152,20 +158,25 @@ module.exports = function(app, models, TokenUtils, utils) {
                     sequelize.query("SELECT  comment, starComment, dateComment, loginUser FROM commentProducer, user WHERE user.idUser = commentProducer.idUser AND idProducer = :idProducer Order BY dateComment",{ replacements: { idProducer:  req.body.idProducer }, type: sequelize.QueryTypes.SELECT  })
                     .then(function(result){
                         jsonResult.comment = result;
-                        res.json(jsonResult);
+                        res.json({
+                            "code":0,
+                            "message": null,
+                            "result": jsonResult
+                        });
                     }).catch(function(err){
                         //console.log(err);
                         res.json({
                             "code" : 2,
                             "message" : "Sequelize error",
-                            "error" : err
+                            "result": null
                         });
                     });
                     
                 }else{
                     res.json({
                         "code" : 3,
-                        "message" : "User not found"
+                        "message" : "User not found",
+                        "result": null
                     });
                 }
 
@@ -174,14 +185,15 @@ module.exports = function(app, models, TokenUtils, utils) {
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
-                    "error" : err
+                    "result": null
                 });
             });
 
         }else{
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null
             });
         }
     });

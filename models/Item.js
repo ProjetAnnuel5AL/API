@@ -2,43 +2,43 @@ var sequelize = require("./sequelize");
 
 module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 	return sequelize.define("Item", {
-		id : {
+		idItem : {
 			type : Datatypes.INTEGER,
 			primaryKey : true,
 			autoIncrement : true
 		},
-		price : {
+		priceItem : {
 			type : Datatypes.FLOAT
 		},
-		adress : {
+		addressItem : {
 			type : Datatypes.STRING
 		},
-		city : {
+		cityItem : {
 			type : Datatypes.STRING
 		},
-		location : {
+		locationItem : {
 			type : Datatypes.STRING
 		},
-		quantity : {
+		quantityItem : {
 			type : Datatypes.FLOAT
 		},
-		name : {
+		nameItem : {
 			type : Datatypes.STRING
 		},
-		fileExtensions : {
+		fileExtensionsItem : {
 			type : Datatypes.STRING
 		},
-		description : {
+		descriptionItem : {
 			type : Datatypes.TEXT
 		},
 		//kg, unité, litres, etc
-		unitId : {
+		idUnitItem : {
 			type : Datatypes.INTEGER
 		},
-		idProduct : {
+		idProductItem : {
 			type : Datatypes.INTEGER
 		},
-		idUser : {
+		idUserItem : {
 			type : Datatypes.INTEGER
 		}
 	}, {

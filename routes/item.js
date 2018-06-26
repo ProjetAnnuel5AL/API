@@ -1,12 +1,13 @@
 module.exports = function (app, models, TokenUtils, utils) {
   var fs = require("fs");
   const empty = require('empty-folder');
+  
   app.post("/item", function (req, res, next) {
     
-    if(req.body.productId && req.body.name && req.body.description && req.body.adress && req.body.location && req.body.city){
+    if(req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city){
       console.log("test")
     }
-    if (req.body.productId && req.body.name && req.body.description && req.body.adress && req.body.location && req.body.city && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
+    if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
       var Item = models.Item;
       var id = null;
       var userId;
@@ -25,24 +26,24 @@ module.exports = function (app, models, TokenUtils, utils) {
       
       userId = TokenUtils.getIdAndType(req.body.token).id;
       Item.create({
-        "id": id,
-        "idProduct": req.body.productId,
-        "name": req.body.name,
-        "description": req.body.description,
-        "adress": req.body.adress,
-        "location": req.body.location,
-        "city": req.body.city,
-        "fileExtensions": photosExtensions,
-        "price": req.body.price,
-        "unitId": req.body.unitId,
-        "quantity": req.body.quantity,
-        "idUser": userId
+        "idItem": id,
+        "idProductItem": req.body.productId,
+        "nameItem": req.body.name,
+        "descriptionItem": req.body.description,
+        "addressItem": req.body.address,
+        "locationItem": req.body.location,
+        "cityItem": req.body.city,
+        "fileExtensionsItem": photosExtensions,
+        "priceItem": req.body.price,
+        "idUnitItem": req.body.unitId,
+        "quantityItem": req.body.quantity,
+        "idUserItem": userId
       }).then(function (result) {
         var filePath=null;
         if (req.body.photo != null) {
           for(var imageIndex = 0; imageIndex < req.body.photo.length; imageIndex++){
           (function (imageIndex) { // jshint ignore:line
-            filePath = "ressources/itemPhotos/" + result.id + "/";
+            filePath = "ressources/itemPhotos/" + result.idItem + "/";
             if (!fs.existsSync(filePath)) {
               fs.mkdirSync(filePath);
             }
@@ -69,21 +70,26 @@ module.exports = function (app, models, TokenUtils, utils) {
         }
         res.json({
           "code": 0,
-          "id": result.id,
-          "name": result.name
+          "message":null,
+          "result": {
+            "id": result.idItem,
+            "name": result.nameItem
+          }
+          
         });
       }).catch(function (err) {
-        console.log(err);
+        //console.log(err);
         res.json({
           "code": 2,
           "message": "Sequelize error",
-          "error": err
+          "result": null,
         });
       });
     } else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null,
       });
     }
   });
@@ -91,7 +97,7 @@ module.exports = function (app, models, TokenUtils, utils) {
   app.post("/item/edit", function (req, res, next) {
 
     var item = req.body.item;
-    if (item.id && req.body.token && item.productId && item.name && item.description && item.adress &&
+    if (item.id && req.body.token && item.productId && item.name && item.description && item.address &&
     item.location && req.body.photo && item.price && item.unitId && item.quantity && item.city) {
       var Item = models.Item;
       var userId;
@@ -108,19 +114,19 @@ module.exports = function (app, models, TokenUtils, utils) {
       //console.log(photosExtensions);
       userId = TokenUtils.getIdAndType(req.body.token).id;
       Item.update({
-          "idProduct": item.productId,
-          "name": item.name,
-          "description": item.description,
-          "adress": item.adress,
-          "location": item.location,
-          "city": item.city,
-          "fileExtensions": photosExtensions,
-          "price": item.price,
-          "unitId": item.unitId,
-          "quantity": item.quantity,
-          "idUser": userId
+          "idProductItem": item.productId,
+          "nameItem": item.name,
+          "descriptionItem": item.description,
+          "addressItem": item.address,
+          "locationItem": item.location,
+          "cityItem": item.city,
+          "fileExtensionsItem": photosExtensions,
+          "priceItem": item.price,
+          "idUnitItem": item.unitId,
+          "quantityItem": item.quantity,
+          "idUserItem": userId
         },
-        {where: {id: item.id} }
+        {where: {idItem: item.id} }
       )
       .then(function(result) {
         var filePath=null;
@@ -158,26 +164,29 @@ module.exports = function (app, models, TokenUtils, utils) {
         }
         res.json({
           "code": 0,
-          "id": result[0]
+          "message": null,
+          "result": {
+            "id": result[0]
+          }
         });
       }).catch(function (err) {
         console.log(err);
         res.json({
           "code": 2,
           "message": "Sequelize error",
-          "error": err
+          "result": null,
         });
       });
     } else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null,
       });
     }
   });
 
   app.post("/item/delete", function (req, res, next) {
-    console.log(req.body);
     if (req.body.id && req.body.token) {
       var Item = models.Item;
       //console.log(photosExtensions);
@@ -185,8 +194,8 @@ module.exports = function (app, models, TokenUtils, utils) {
       Item.destroy({
         force: true,
         where: {
-          id: req.body.id, 
-          idUser: userId
+          idItem: req.body.id, 
+          idUserItem: userId
         } 
       })
       .then(function(result) {
@@ -202,35 +211,36 @@ module.exports = function (app, models, TokenUtils, utils) {
         });
         res.json({
           "code": 0,
-          "id": result[0]
+          "message":null,
+          "result": {
+            "id": result[0]
+          }
         });
       }).catch(function (err) {
-        console.log(err);
         res.json({
           "code": 2,
           "message": "Sequelize error",
-          "error": err
+          "result": null,
         });
       });
     } else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null,
       });
     }
   });
 
   app.get("/item", function(req, res, next) {
     if (req.body.idItem){
-     
       var jsonResult = {} 
       var sequelize = models.sequelize;                      
-      sequelize.query("SELECT item.id, price, item.adress, description, location, city, quantity, item.name as itemName, item.fileExtensions, description, loginUser, category.name as categoryName, product.name as productName,"
-        +"category.id as categId, product.id as productId, unit.id as unitId, unit.name as unitName, idProducer, producer.lastNameProducer as producerName, producer.firstNameProducer as producerFirstName, user.loginUser as login FROM item, product, category, unit, user, producer WHERE item.idUser = producer.idUserProducer "
-        +"AND item.idUser = user.idUser AND item.idProduct = product.id AND item.unitId = unit.id AND product.categoryId = category.id AND item.id = :idItem ",{ replacements: { idItem:  req.body.idItem }, type: sequelize.QueryTypes.SELECT  })
+      sequelize.query("SELECT item.idItem, priceItem, item.addressItem, descriptionItem, locationItem, cityItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
+        +"category.idCategory, product.idProduct, unit.idUnit, unit.nameUnit, idProducer, producer.lastNameProducer, producer.firstNameProducer, user.loginUser FROM item, product, category, unit, user, producer WHERE item.idUserItem = producer.idUserProducer "
+        +"AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND product.idCategoryProduct = category.idCategory AND item.idItem = :idItem ",{ replacements: { idItem:  req.body.idItem }, type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
             if(result){
-              jsonResult.code = 0;
               jsonResult.infoItem = result[0];
               //A changer pour le multi upload
               jsonResult.infoItem.photoURL = "default";
@@ -244,20 +254,25 @@ module.exports = function (app, models, TokenUtils, utils) {
               };
               CommentProducer.findAll(request).then(function(result2){
                 jsonResult.stars = result2
-                res.json(jsonResult);
+                res.json({
+                  "code":0,
+                  "message":null,
+                  "result":jsonResult
+                });
               }).catch(function(err){
                 //console.log(err);
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
-                    "error" : err
+                    "result": null
                 });
               });
 
             }else{
               res.json({
                 "code" : 3,
-                "message" : "Item not found"
+                "message" : "Item not found",
+                "result": null
               });
             }
            
@@ -266,42 +281,43 @@ module.exports = function (app, models, TokenUtils, utils) {
             res.json({
                 "code" : 2,
                 "message" : "Sequelize error",
-                "error" : err
+                "result": null
             });
         });
 
     }else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null
       });
     }
   });
 
 
   app.get("/item/filter", function(req, res, next) {
-    var query = "SELECT item.id, price, location, city, quantity, item.name as itemName, item.fileExtensions, description, loginUser, category.name as categoryName, product.name as productName,"
-        +"category.id as categId, product.id as productId, unit.name as unitName, idProducer, user.loginUser as login FROM item, product, category, unit, user, producer WHERE item.idUser = producer.idUserProducer "
-        +"AND item.idUser = user.idUser AND item.idProduct = product.id AND item.unitId = unit.id AND product.categoryId = category.id and item.deletedAt IS NULL AND quantity>0 ORDER BY item.createdAt DESC ";
+    var query = "SELECT item.idItem, priceItem, locationItem, cityItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
+        +"category.idCategory, product.idProduct, unit.nameUnit, idProducer, user.loginUser FROM item, product, category, unit, user, producer WHERE item.idUserItem = producer.idUserProducer "
+        +"AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND product.idCategoryProduct = category.idCategory and item.deletedAt IS NULL AND quantityItem>0 ORDER BY item.createdAt DESC ";
     
     if (req.query.productId){
-      query += " AND item.idProduct = "+ req.query.productId;
+      query += " AND item.idProductItem = "+ req.query.productId;
     }else{
       if (req.query.categoryId){
-        query += " AND category.id = "+ req.query.categoryId;
+        query += " AND category.idCategory = "+ req.query.categoryId;
       }
     }
     if(req.query.priceMin && req.query.priceMax){
-      query += " AND item.price BETWEEN "+ req.query.priceMin + " AND "+ req.query.priceMax;
+      query += " AND item.priceItem BETWEEN "+ req.query.priceMin + " AND "+ req.query.priceMax;
     }
     if(req.query.city){
-      query += " AND item.city ='" +req.query.city+"'";
+      query += " AND item.cityItem ='" +req.query.city+"'";
     }
     if(req.query.remainingQuantity){
-      query += " AND item.quantity > " +req.query.remainingQuantity;
+      query += " AND item.quantityItem > " +req.query.remainingQuantity;
     }
     if(req.query.producerId){
-      query += " AND item.idUser = "+ req.query.producerId;
+      query += " AND item.idUserItem = "+ req.query.producerId;
     }
     if(req.query.limit){
       query += ' LIMIT 20 OFFSET '+req.query.limit+' ;';
@@ -309,7 +325,7 @@ module.exports = function (app, models, TokenUtils, utils) {
       var sequelize = models.sequelize;  
       //console.log("QUERY:");
       //console.log(query); 
-      sequelize.query("Select COUNT(id) as nbTotalItem FROM item",{ type: sequelize.QueryTypes.SELECT  })
+      sequelize.query("Select COUNT(idItem) as nbTotalItem FROM item",{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
           jsonResult.nbTotalItem = result[0].nbTotalItem;
         })
@@ -321,11 +337,16 @@ module.exports = function (app, models, TokenUtils, utils) {
             if(result){    
               jsonResult.code = 0;
               jsonResult.list = result;          
-              res.json(jsonResult);
+              res.json({
+                "code":0,
+                "message": null,
+                "result":jsonResult
+              });
             }else{
               res.json({
                 "code" : 3,
-                "message" : "Item not found"
+                "message" : "Item not found",
+                "result": null
               });
             }
            
@@ -334,14 +355,15 @@ module.exports = function (app, models, TokenUtils, utils) {
             res.json({
                 "code" : 2,
                 "message" : "Sequelize error",
-                "error" : err
+                "result": null
             });
         });
 
     }else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null
       });
     }
   });
@@ -353,26 +375,32 @@ module.exports = function (app, models, TokenUtils, utils) {
       var Item = models.Item;
       var request = {
         where: {
-          id : req.params.itemId
+          idItem : req.params.itemId
         }
       };
       Item.find(request).then(function(result) { 
         if(result){
           res.json({
             "code": 0,
-            "quantity" : result.quantity
+            "message":"",
+            "result" : {
+              "quantity" : result.quantityItem,
+            }
+            
           });
         }else{
           res.json({
             "code": 2,
-            "message": "Item does t exist"
+            "message": "Item does t exist",
+            "result": null
           });
         }
       });
     }else{
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null
       });
     }
 
@@ -384,21 +412,23 @@ module.exports = function (app, models, TokenUtils, utils) {
           if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
               res.json({
                   "code" : 6,
-                  "message" : "Failed to authenticate token"
+                  "message" : "Failed to authenticate token",
+                  "result": null
               });
           } else {
             var sequelize = models.sequelize;
-            sequelize.query("UPDATE item SET quantity = quantity - "+req.body.quantity+" WHERE id = "+req.body.id, { type: sequelize.QueryTypes.UPDATE  }).then(function (results) {
+            sequelize.query("UPDATE item SET quantityItem = quantityItem - "+req.body.quantity+" WHERE idItem = "+req.body.id, { type: sequelize.QueryTypes.UPDATE  }).then(function (results) {
                 res.json({
                     "code":0,
-                    "message":"Item updated"
+                    "message":"Item updated",
+                    "result": null
                 });
             }).catch(function (err) {
                //console.log(err)
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
-                    "error": err
+                    "result": null
                 });
             });
 
@@ -408,13 +438,14 @@ module.exports = function (app, models, TokenUtils, utils) {
           res.json({
               "code": 2,
               "message": "Sequelize error",
-              "error": err
+              "result": null
           });
         });            
       }else{
         res.json({
           "code": 1,
-          "message": "Missing required parameters"
+          "message": "Missing required parameters",
+          "result": null
         });
       }
      

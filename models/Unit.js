@@ -2,12 +2,12 @@ var sequelize = require("./sequelize");
 
 module.exports = sequelize.import("unit", function(sequelize, Datatypes) {
 	return sequelize.define("Unit", {
-		id : {
+		idUnit : {
 			type : Datatypes.INTEGER,
 			primaryKey : true,
 			autoIncrement : true
 		},
-		name : {
+		nameUnit : {
 			type : Datatypes.STRING
 		}
 	}, {

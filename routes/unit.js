@@ -4,15 +4,20 @@ module.exports = function(app, models) {
         
         var Unit = models.Unit;
         var request = {
-            attributes: ["id", "name"],  
+            attributes: ["idUnit", "nameUnit"],  
         };
         Unit.findAll(request).then(function(result){
             if(result){
-                res.json(result);
+                res.json({
+                   "code": 0,
+                   "message": null,
+                   "result" : result,
+                });
             }else{
                 res.json({
                     "code" : 3,
-                    "message" : "Unit not found"
+                    "message" : "Unit not found",
+                    "result" : null
                 });
             }
         });

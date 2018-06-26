@@ -2,12 +2,12 @@ var sequelize = require("./sequelize");
 
 module.exports = sequelize.import("category", function(sequelize, Datatypes) {
 	return sequelize.define("Category", {
-		id : {
+		idCategory : {
 			type : Datatypes.INTEGER,
 			primaryKey : true,
 			autoIncrement : true
 		},
-		name : {
+		nameCategory : {
 			type : Datatypes.STRING
 		}
 	}, {
