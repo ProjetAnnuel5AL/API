@@ -6,5 +6,7 @@ module.exports = function(app, models, TokenUtils, utils, urlLocal, urlApi) {
 	require("./producer")(app, models, TokenUtils, utils);
 	require("./item")(app, models, TokenUtils);
 	require("./product")(app, models);
-
+	require("./producersGroup")(app, models, TokenUtils, utils);
+	require("./producersGroupMember")(app, models, TokenUtils, utils);
+	require("./notification")(app, models, TokenUtils, utils);
 };
