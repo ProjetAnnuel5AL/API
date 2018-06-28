@@ -7,7 +7,7 @@ module.exports = function (app, models, TokenUtils, utils) {
     if(req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city){
       console.log("test")
     }
-    if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
+    if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
       var Item = models.Item;
       var id = null;
       var userId;
@@ -23,6 +23,10 @@ module.exports = function (app, models, TokenUtils, utils) {
           photosExtensions += req.body.photo[2].name.split('.')[1];
         }
       }
+
+      var LatLong = req.body.location.split(',');
+      lat = LatLong[0];
+      long = LatLong[1];
       
       userId = TokenUtils.getIdAndType(req.body.token).id;
       Item.create({
@@ -33,11 +37,14 @@ module.exports = function (app, models, TokenUtils, utils) {
         "addressItem": req.body.address,
         "locationItem": req.body.location,
         "cityItem": req.body.city,
+        "cpItem" : req.body.cp,
         "fileExtensionsItem": photosExtensions,
         "priceItem": req.body.price,
         "idUnitItem": req.body.unitId,
         "quantityItem": req.body.quantity,
-        "idUserItem": userId
+        "idUserItem": userId,
+        "latItem" : lat,
+        "longItem" : long
       }).then(function (result) {
         var filePath=null;
         if (req.body.photo != null) {
@@ -170,7 +177,6 @@ module.exports = function (app, models, TokenUtils, utils) {
           }
         });
       }).catch(function (err) {
-        console.log(err);
         res.json({
           "code": 2,
           "message": "Sequelize error",
@@ -236,7 +242,7 @@ module.exports = function (app, models, TokenUtils, utils) {
     if (req.body.idItem){
       var jsonResult = {} 
       var sequelize = models.sequelize;                      
-      sequelize.query("SELECT item.idItem, priceItem, item.addressItem, descriptionItem, locationItem, cityItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
+      sequelize.query("SELECT item.idItem, priceItem, item.addressItem, descriptionItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
         +"category.idCategory, product.idProduct, unit.idUnit, unit.nameUnit, idProducer, producer.lastNameProducer, producer.firstNameProducer, user.loginUser FROM item, product, category, unit, user, producer WHERE item.idUserItem = producer.idUserProducer "
         +"AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND product.idCategoryProduct = category.idCategory AND item.idItem = :idItem ",{ replacements: { idItem:  req.body.idItem }, type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
@@ -296,35 +302,44 @@ module.exports = function (app, models, TokenUtils, utils) {
 
 
   app.get("/item/filter", function(req, res, next) {
-    var query = "SELECT item.idItem, priceItem, locationItem, cityItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
-        +"category.idCategory, product.idProduct, unit.nameUnit, idProducer, user.loginUser FROM item, product, category, unit, user, producer WHERE item.idUserItem = producer.idUserProducer "
-        +"AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND product.idCategoryProduct = category.idCategory and item.deletedAt IS NULL AND quantityItem>0 ORDER BY item.createdAt DESC ";
-    
-    if (req.query.productId){
-      query += " AND item.idProductItem = "+ req.query.productId;
-    }else{
-      if (req.query.categoryId){
-        query += " AND category.idCategory = "+ req.query.categoryId;
-      }
-    }
-    if(req.query.priceMin && req.query.priceMax){
-      query += " AND item.priceItem BETWEEN "+ req.query.priceMin + " AND "+ req.query.priceMax;
-    }
-    if(req.query.city){
-      query += " AND item.cityItem ='" +req.query.city+"'";
-    }
-    if(req.query.remainingQuantity){
-      query += " AND item.quantityItem > " +req.query.remainingQuantity;
-    }
-    if(req.query.producerId){
-      query += " AND item.idUserItem = "+ req.query.producerId;
-    }
+   
+
     if(req.query.limit){
+      var query = "SELECT item.idItem, priceItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
+      +"category.idCategory, product.idProduct, unit.nameUnit, idProducer, user.loginUser "
+      if (req.query.lat && req.query.long){ 
+        query +=  ", ( 6371 * acos( cos( radians("+req.query.lat+") ) * cos( radians( item.latItem ) )"+
+        "* cos( radians(item.longItem) - radians("+req.query.long+")) + sin(radians("+req.query.lat+"))"+ 
+        "* sin( radians(item.latItem)))) AS distance "
+      }   
+      query +="FROM item, product, category, unit, user, producer WHERE item.idUserItem = producer.idUserProducer "
+          +"AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND product.idCategoryProduct = category.idCategory and item.deletedAt IS NULL AND quantityItem>0  ";
+      
+      
+      if (req.query.manualSearch){
+        //console.log("in")
+        query += " AND (item.nameItem LIKE '%"+ req.query.manualSearch+"%' OR product.nameProduct LIKE '%"+ req.query.manualSearch+"%' OR category.nameCategory LIKE '%"+ req.query.manualSearch+"%')";
+        
+      }
+      if (req.query.category && req.query.category !=0 ){
+        query += " AND product.idCategoryProduct = "+req.query.category;
+      }
+      if (req.query.product && req.query.product !=0){
+        query += " AND item.idProductItem = "+req.query.product;
+      }
+      if(req.query.priceMax && req.query.priceMin){
+        query += " AND item.priceItem <= "+req.query.priceMax+" AND item.priceItem >= "+req.query.priceMin ;
+      }
+      if (req.query.lat && req.query.long){
+        query += " HAVING distance < 100 ORDER BY distance ";
+      }else{
+        query += " ORDER BY item.createdAt DESC "
+      }
       query += ' LIMIT 20 OFFSET '+req.query.limit+' ;';
+      
       var jsonResult = {} 
       var sequelize = models.sequelize;  
-      //console.log("QUERY:");
-      //console.log(query); 
+      
       sequelize.query("Select COUNT(idItem) as nbTotalItem FROM item",{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
           jsonResult.nbTotalItem = result[0].nbTotalItem;
@@ -336,13 +351,14 @@ module.exports = function (app, models, TokenUtils, utils) {
 
             if(result){    
               jsonResult.code = 0;
-              jsonResult.list = result;          
+              jsonResult.list = result;   
               res.json({
                 "code":0,
                 "message": null,
                 "result":jsonResult
               });
             }else{
+             
               res.json({
                 "code" : 3,
                 "message" : "Item not found",
@@ -351,7 +367,7 @@ module.exports = function (app, models, TokenUtils, utils) {
             }
            
         }).catch(function(err){
-            console.log(err);
+           
             res.json({
                 "code" : 2,
                 "message" : "Sequelize error",
@@ -451,5 +467,23 @@ module.exports = function (app, models, TokenUtils, utils) {
      
    })
 
+
+   app.get("/item/getPriceMinMax", function(req, res, next) { 
+      var sequelize = models.sequelize;                      
+      sequelize.query("SELECT MAX(priceItem) as maxPrice, MIN(priceItem) as minPrice FROM item",{ type: sequelize.QueryTypes.SELECT  })
+        .then(function(result){ 
+          res.json({
+            "code":0,
+            "message":null,
+            "result": result[0]
+          });
+        }).catch(function(err){
+          res.json({
+            "code": 2,
+            "message": "Sequelize error",
+            "result": null
+          });
+        })
+   })
 
 }
