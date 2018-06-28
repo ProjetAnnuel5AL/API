@@ -16,8 +16,17 @@ module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 		cityItem : {
 			type : Datatypes.STRING
 		},
+		cpItem : {
+			type : Datatypes.STRING
+		},
 		locationItem : {
 			type : Datatypes.STRING
+		},
+		latItem : {
+			type : Datatypes.FLOAT
+		},
+		longItem : {
+			type : Datatypes.FLOAT
 		},
 		quantityItem : {
 			type : Datatypes.FLOAT

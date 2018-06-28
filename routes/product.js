@@ -30,4 +30,26 @@ module.exports = function(app, models) {
             });
         }
     });
+
+    app.get("/products", function(req, res, next) {
+        
+        var Product = models.Product;
+        var request = {};
+        Product.findAll(request).then(function(result){
+            if(result){
+                res.json({
+                    "code" : 0,
+                    "message" : null,
+                    "result": result
+                });
+            }else{
+                res.json({
+                    "code" : 3,
+                    "message" : "Category not found",
+                    "result": null
+                });
+            }
+        });
+    });
+
 };
