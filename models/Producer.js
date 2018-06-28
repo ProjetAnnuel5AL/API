@@ -38,6 +38,9 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 		cityProducer : {
 			type : Datatypes.STRING
 		},
+		locationProducer : {
+			type : Datatypes.STRING
+		},
 		cpProducer : {
 			type : Datatypes.STRING
 		},
@@ -48,6 +51,8 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 			type : Datatypes.STRING
         },
 	}, {
+		charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
 		tableName : "producer"

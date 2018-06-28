@@ -9,6 +9,9 @@ var CommentProducerModel = require("./CommentProducer");
 var ProducersGroupModel = require("./ProducersGroup");
 var ProducersGroupMemberModel = require("./ProducersGroupMember");
 var Notification = require("./Notification");
+var PaypalTransact = require("./PaypalTransact");
+var Order = require("./Order");
+var LigneOrder = require("./LigneOrder");
 
 seq.sync();
 
@@ -24,4 +27,7 @@ module.exports = {
     "ProducersGroup": ProducersGroupModel,
     "ProducersGroupMember": ProducersGroupMemberModel,
     "Notification": Notification,
+    "PaypalTransact": PaypalTransact,
+    "Order": Order,
+    "LigneOrder" : LigneOrder
 };

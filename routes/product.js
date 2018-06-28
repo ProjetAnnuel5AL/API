@@ -4,27 +4,52 @@ module.exports = function(app, models) {
             var Product = models.Product;
             var request = {
                 where: {
-                    categoryId : req.query.id
+                    idCategoryProduct : req.query.id
                 }
             };
             Product.findAll(request).then(function(result) {
                 if (result){
                     res.json({
                         "code" : 0,
-                        "products" : result
+                        "message" : null,
+                        "result" : result
                     });
                 } else {
                     res.json({
                         "code" : 3,
-                        "message" : "Products not found"
+                        "message" : "Products not found",
+                        "result": null,
                     });
                 }
             });
         } else {
             res.json({
                 "code" : 1,
-                "message" : "Missing required parameters"
+                "message" : "Missing required parameters",
+                "result": null,
             });
         }
     });
+
+    app.get("/products", function(req, res, next) {
+        
+        var Product = models.Product;
+        var request = {};
+        Product.findAll(request).then(function(result){
+            if(result){
+                res.json({
+                    "code" : 0,
+                    "message" : null,
+                    "result": result
+                });
+            }else{
+                res.json({
+                    "code" : 3,
+                    "message" : "Category not found",
+                    "result": null
+                });
+            }
+        });
+    });
+
 };

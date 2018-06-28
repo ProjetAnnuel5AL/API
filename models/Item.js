@@ -2,48 +2,59 @@ var sequelize = require("./sequelize");
 
 module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 	return sequelize.define("Item", {
-		id : {
+		idItem : {
 			type : Datatypes.INTEGER,
 			primaryKey : true,
 			autoIncrement : true
 		},
-		price : {
+		priceItem : {
 			type : Datatypes.FLOAT
 		},
-		adress : {
+		addressItem : {
 			type : Datatypes.STRING
 		},
-		city : {
+		cityItem : {
 			type : Datatypes.STRING
 		},
-		location : {
+		cpItem : {
 			type : Datatypes.STRING
 		},
-		quantity : {
+		locationItem : {
+			type : Datatypes.STRING
+		},
+		latItem : {
 			type : Datatypes.FLOAT
 		},
-		name : {
+		longItem : {
+			type : Datatypes.FLOAT
+		},
+		quantityItem : {
+			type : Datatypes.FLOAT
+		},
+		nameItem : {
 			type : Datatypes.STRING
 		},
-		fileExtensions : {
+		fileExtensionsItem : {
 			type : Datatypes.STRING
 		},
-		description : {
+		descriptionItem : {
 			type : Datatypes.TEXT
 		},
 		//kg, unité, litres, etc
-		unitId : {
+		idUnitItem : {
 			type : Datatypes.INTEGER
 		},
-		idProduct : {
+		idProductItem : {
 			type : Datatypes.INTEGER
 		},
-		idUser : {
+		idUserItem : {
 			type : Datatypes.INTEGER
 		}
 	}, {
+		charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
-		tableName : "Item"
+		tableName : "item"
 	});
 });

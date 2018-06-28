@@ -23,6 +23,37 @@ var CheckEmailUser = function(email) {
     });
 };
 
+var FindProducerIdWithCart = function(cart){
+    var sequelize = models.sequelize;
+    return sequelize.query("SELECT idProducer FROM producer, item, user WHERE item.idUserItem = user.idUser AND user.idUser = producer.idUserProducer AND item.idItem = "+cart.id,  { type: sequelize.QueryTypes.SELECT  }).then(function (result) {
+        if(result && result.length>0){
+            result[0].cart = cart;
+            return result[0];
+        }else{
+            return null;
+        }
+    }).catch(function(err){
+        //console.log(err)
+        return null;
+    });
+}
+ 
+var FindStatusOrder = function(order, i){
+    var sequelize = models.sequelize;
+    return sequelize.query("SELECT DISTINCT(statusPaypalTransact) FROM paypalTransact, ligneOrder WHERE ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND idOrderLigneOrder ="+order.idOrder+" AND statusPaypalTransact=\"PENDING\"", { type: sequelize.QueryTypes.SELECT  }).then(function (results) { 
+        if(results.length>0){
+            return { "i": i, "statusOrder" :"En attente de reception" }
+        }else{
+            return { "i": i, "statusOrder" :"Terminé" }
+        }
+        
+    }).catch(function(err){
+        return { "i": i};
+    });
+}
+
 module.exports={
     "CheckEmailUser" : CheckEmailUser,
+    "FindProducerIdWithCart" : FindProducerIdWithCart,
+    "FindStatusOrder" : FindStatusOrder
 };
