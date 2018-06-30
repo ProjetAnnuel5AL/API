@@ -52,8 +52,24 @@ var FindStatusOrder = function(order, i){
     });
 }
 
+
+var FindStatusOrderProducer = function(order, i){
+    var sequelize = models.sequelize;
+    return sequelize.query("SELECT DISTINCT(statusPaypalTransact) FROM paypalTransact, ligneOrder WHERE ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND idOrderLigneOrder ="+order.idOrder+" AND statusPaypalTransact=\"PENDING\"", { type: sequelize.QueryTypes.SELECT  }).then(function (results) { 
+        if(results.length>0){
+            return { "i": i, "statusOrder" :"En attente de reception client" }
+        }else{
+            return { "i": i, "statusOrder" :"Terminé" }
+        }
+        
+    }).catch(function(err){
+        return { "i": i};
+    });
+}
+
 module.exports={
     "CheckEmailUser" : CheckEmailUser,
     "FindProducerIdWithCart" : FindProducerIdWithCart,
-    "FindStatusOrder" : FindStatusOrder
+    "FindStatusOrder" : FindStatusOrder,
+    "FindStatusOrderProducer" : FindStatusOrderProducer
 };
