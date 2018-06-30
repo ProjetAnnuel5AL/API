@@ -121,7 +121,7 @@ module.exports = function(app, models, TokenUtils, utils) {
   app.get("/producersGroupMember/idGroup/", function(req, res, next) {
     if(req.query.idGroup){
         var idGroup = req.query.idGroup;
-        var query = 'SELECT gpm.*, prd.* from producersgroupmember gpm, producer prd where prd.idUserProducer = gpm.idUser AND gpm.idGroup = '+idGroup+' ;';
+        var query = 'SELECT gpm.*, prd.* from producersGroupMember gpm, producer prd where prd.idUserProducer = gpm.idUser AND gpm.idGroup = '+idGroup+' ;';
         var jsonResult = {};
         var sequelize = models.sequelize;
         var utf8 = require('utf8');
