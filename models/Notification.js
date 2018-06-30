@@ -26,6 +26,6 @@ module.exports = sequelize.import("Notification", function(sequelize, Datatypes)
 	}, {
 		paranoid : true,
 		freezeTab : true,
-		tableName : "Notification"
+		tableName : "notification"
 	});
 });

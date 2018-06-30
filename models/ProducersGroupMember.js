@@ -16,6 +16,6 @@ module.exports = sequelize.import("producersGroupMember", function(sequelize, Da
 	}, {
 		paranoid : true,
 		freezeTab : true,
-		tableName : "ProducersGroupMember"
+		tableName : "producersGroupMember"
 	});
 });
