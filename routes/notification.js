@@ -1,0 +1,114 @@
+module.exports = function(app, models, TokenUtils, utils) {
+  app.post("/notification/idUser", function(req, res, next) {
+    console.log("notifUserCreate");
+    if (req.body.idUser && req.body.title && req.body.description && req.body.url && req.body.type && req.body.token) {
+      var Notification = models.Notification;
+      var id = null;
+      if (req.body.id) {
+        id = req.body.id;
+      }
+      Notification.create({
+            "id": id,
+            "idUser": req.body.idUser,
+            "title": req.body.title,
+            "description": req.body.description,
+            "url": req.body.url,
+            "type": req.body.type
+      }).then(function (result) {
+        res.json({
+          "code": 0,
+          "id": result.id
+        });
+      }).catch(function (err) {
+        console.log(err);
+        res.json({
+          "code": 2,
+          "message": "Sequelize error",
+          "error": err
+        });
+      });
+    } else {
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+  });
+
+  app.get("/notification/idUser", function(req, res, next) {
+        if(req.body.token){
+          var userId = TokenUtils.getIdAndType(req.body.token).id;
+          var Notification = models.Notification;
+          var request = {
+                  attributes: ["id", "idUser", "type", "url", "title", "description"],
+                  where: {
+                      idUser : userId
+                  }
+              };
+          Notification.findAll(request).then(function(result){
+              if(result){
+                  res.json({
+                    "code": 0,
+                    "result": result
+                  });
+              }else{
+                  res.json({
+                      "code" : 3,
+                      "message" : "Notification not found"
+                  });
+              }
+          }).catch(function (err) {
+            console.log(err);
+            res.json({
+              "code": 2,
+              "message": "Sequelize error"
+
+            });
+          });
+        }else {
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+  });
+  app.delete("/notification/idItem", function(req, res, next) {
+        console.log(req.query);
+        if(req.query.id && req.body.token){
+        var userId = TokenUtils.getIdAndType(req.body.token).id;
+        var id = req.query.id;
+        var Notification = models.Notification;
+        Notification.destroy({
+        force: true,
+        where: {
+          id: id,
+          idUser: userId
+        } 
+        }).then(function(result){
+            if(result){
+                res.json({
+                  "code": 0,
+                  "result": result
+                });
+            }else{
+                res.json({
+                    "code" : 3,
+                    "message" : "Notification not found"
+                });
+            }
+          }).catch(function (err) {
+            console.log(err);
+            res.json({
+              "code": 2,
+              "message": "Sequelize error"
+
+            });
+          });
+        }else {
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+    });
+};

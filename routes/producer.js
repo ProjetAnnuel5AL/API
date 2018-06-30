@@ -1,6 +1,7 @@
 module.exports = function(app, models, TokenUtils, utils) {
     var fs = require("fs");
-
+    var CryptoUtils = utils.CryptoUtils;
+    var crpt = new CryptoUtils();
 
     //CREATE Producer
     app.post("/producer", function(req, res, next) {
@@ -37,6 +38,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                         "sexProducer" : crpt.encryptAES(req.body.sexProducer),
                         "addressProducer" : crpt.encryptAES(req.body.addressProducer),
                         "cityProducer" : crpt.encryptAES(req.body.cityProducer),
+                        "cpProducer" : req.body.cpProducer,
                         "locationProducer" : crpt.encryptAES(req.body.locationProducer),
                         "descriptionProducer" : req.body.descriptionProducer,
                         "avatarProducer" : avatar,
@@ -115,7 +117,51 @@ module.exports = function(app, models, TokenUtils, utils) {
             });
         }
     });
+    app.get("/producer/dept", function(req, res, next) {
+        console.log(req.body);
+        if (req.body.cp && req.body.token){
+            var query = 'SELECT prd.* from producer prd where prd.cpProducer LIKE "'+req.body.cp+'%" ;';
+            var jsonResult = {};
+            var object= [];
+            var sequelize = models.sequelize;
+            var utf8 = require('utf8');
+            sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
+            .then(function(result){
+                if(result){
+                    jsonResult.code =0;
+                    for(i=0; i<result.length; i++){
+                        var singleObj = {};
+                        singleObj.lastNameProducer = utf8.decode(crpt.decryptAES(result[i].lastNameProducer));
+                        singleObj.firstNameProducer = utf8.decode(crpt.decryptAES(result[i].firstNameProducer));
+                        singleObj.idUserProducer = result[i].idUserProducer;
+                        singleObj.cityProducer = utf8.decode(crpt.decryptAES(result[i].cityProducer));
+                        object[i] = singleObj;
+                    }
+                    jsonResult.object = object;
+                    res.json(jsonResult);
+                }else{
+                    res.json({
+                        "code" : 3,
+                        "message" : "User not found"
+                    });
+                }
 
+            }).catch(function(err){
+                console.log(err);
+                res.json({
+                    "code" : 2,
+                    "message" : "Sequelize error",
+                    "error" : err
+                });
+            });
+
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters"
+            });
+        }
+    });
 
     app.get("/getPublicInformations", function(req, res, next) {
         if (req.body.idProducer){

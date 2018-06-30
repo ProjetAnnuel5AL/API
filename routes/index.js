@@ -6,7 +6,9 @@ module.exports = function(app, models, TokenUtils, utils, urlSite, urlApi) {
 	require("./producer")(app, models, TokenUtils, utils);
 	require("./item")(app, models, TokenUtils, utils);
 	require("./product")(app, models);
+	require("./producersGroup")(app, models, TokenUtils, utils);
+	require("./producersGroupMember")(app, models, TokenUtils, utils);
+	require("./notification")(app, models, TokenUtils, utils);
 	require("./paypalTransact")(app, models, TokenUtils, utils);
 	require("./order")(app, models, TokenUtils, utils);
-
 };
