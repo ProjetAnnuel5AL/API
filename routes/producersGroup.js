@@ -15,7 +15,7 @@ module.exports = function(app, models, TokenUtils, utils) {
       TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
         idUser = result.idUser;
 
-        if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+        if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
           res.json({
             "code": 6,
             "message": "Failed to authenticate token"
@@ -66,14 +66,14 @@ module.exports = function(app, models, TokenUtils, utils) {
             }
             res.json({
               "code": 0,
-              "id": result.id
+              "message":"",
+              "result": result.id
             });
           }).catch(function (err) {
             console.log(err);
             res.json({
               "code": 2,
-              "message": "Sequelize error",
-              "error": err
+              "message": "Sequelize error"
             });
           });
         }
@@ -92,7 +92,11 @@ module.exports = function(app, models, TokenUtils, utils) {
         };
         producerGroup.findAll(request).then(function(result){
             if(result){
-                res.json(result);
+                res.json({
+                  "code": 0,
+                  "message":null,
+                  "result": result
+                });
             }else{
                 res.json({
                     "code" : 3,
@@ -113,17 +117,25 @@ module.exports = function(app, models, TokenUtils, utils) {
       var idUser;
       TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
       idUser = result.idUser;
+      if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", idUser) == false) {
+        res.json({
+          "code": 6,
+          "message": "Failed to authenticate token",
+          "result": null,
+        });
+      }
       var query = 'SELECT grp.*, (select count(id) from producersGroupMember where idGroup = grp.id) as countMembers FROM producersGroup grp, producersGroupMember mbr where mbr.idGroup = grp.id AND mbr.idUser = '+idUser+' ;';
-      var jsonResult = {} 
       var sequelize = models.sequelize;
         
       
       sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
-            if(result){    
-              jsonResult.code = 0;
-              jsonResult.list = result;          
-              res.json(jsonResult);
+            if(result){         
+              res.json({
+                "code":0,
+                "message":null,
+                "result": result
+              });
             }else{
               res.json({
                 "code" : 3,
@@ -153,17 +165,25 @@ module.exports = function(app, models, TokenUtils, utils) {
       var idUser;
       TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
       idUser = result.idUser;
+      if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", idUser) == false) {
+        res.json({
+          "code": 6,
+          "message": "Failed to authenticate token",
+          "result": null,
+        });
+      }
       var query = 'SELECT grp.*, (select count(id) from producersGroupMember where idGroup = grp.id) as countMembers FROM producersGroup grp where grp.founderUserId = '+idUser+' ;';
-      var jsonResult = {} 
       var sequelize = models.sequelize;
         
       
       sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
-            if(result){    
-              jsonResult.code = 0;
-              jsonResult.list = result;
-              res.json(jsonResult);
+            if(result){
+              res.json({
+                "code":0,
+                "message":null,
+                "result": result
+              });
             }else{
               res.json({
                 "code" : 3,
@@ -208,7 +228,8 @@ module.exports = function(app, models, TokenUtils, utils) {
                 }
                 res.json({
                   code: 0,
-                  coop : result[0]
+                  message: null,
+                  result : coop
                 });
             }else{
                 res.json({

@@ -3,6 +3,13 @@ module.exports = function(app, models, TokenUtils, utils) {
   var crpt = new CryptoUtils();
   app.post("/producersGroupMember", function (req, res, next) {
     if(req.body.idGroup && req.body.idUser && req.body.token){
+      if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", req.body.idUser) == false) {
+        res.json({
+          "code": 6,
+          "message": "Failed to authenticate token",
+          "result": null,
+        });
+      }
       var ProducersGroupMember = models.ProducersGroupMember;
       var id = null;
       if (req.body.id) {
@@ -127,7 +134,11 @@ module.exports = function(app, models, TokenUtils, utils) {
                      jsonResult.list[producerIndex].firstNameProducer = utf8.decode(crpt.decryptAES(jsonResult.list[producerIndex].firstNameProducer));
                      jsonResult.list[producerIndex].lastNameProducer = utf8.decode(crpt.decryptAES(jsonResult.list[producerIndex].lastNameProducer));
                 }
-                res.json(jsonResult);
+                res.json({
+                    "code" : 0,
+                    "message" : "",
+                    "result": jsonResult.list
+                });
             }else{
                 res.json({
                     "code" : 3,

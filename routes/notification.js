@@ -3,6 +3,14 @@ module.exports = function(app, models, TokenUtils, utils) {
     console.log("notifUserCreate");
     if (req.body.idUser && req.body.title && req.body.description && req.body.url && req.body.type && req.body.token) {
       var Notification = models.Notification;
+      var userId = TokenUtils.getIdAndType(req.body.token).id;
+      if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+          res.json({
+            "code": 6,
+            "message": "Failed to authenticate token",
+            "result": null,
+          });
+        }
       var id = null;
       if (req.body.id) {
         id = req.body.id;
@@ -17,6 +25,7 @@ module.exports = function(app, models, TokenUtils, utils) {
       }).then(function (result) {
         res.json({
           "code": 0,
+          "message": "",
           "id": result.id
         });
       }).catch(function (err) {
@@ -38,6 +47,13 @@ module.exports = function(app, models, TokenUtils, utils) {
   app.get("/notification/idUser", function(req, res, next) {
         if(req.body.token){
           var userId = TokenUtils.getIdAndType(req.body.token).id;
+          if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+            res.json({
+              "code": 6,
+              "message": "Failed to authenticate token",
+              "result": null,
+            });
+          }
           var Notification = models.Notification;
           var request = {
                   attributes: ["id", "idUser", "type", "url", "title", "description"],
@@ -49,6 +65,7 @@ module.exports = function(app, models, TokenUtils, utils) {
               if(result){
                   res.json({
                     "code": 0,
+                    "message": "",
                     "result": result
                   });
               }else{
@@ -76,6 +93,13 @@ module.exports = function(app, models, TokenUtils, utils) {
         console.log(req.query);
         if(req.query.id && req.body.token){
         var userId = TokenUtils.getIdAndType(req.body.token).id;
+        if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+          res.json({
+            "code": 6,
+            "message": "Failed to authenticate token",
+            "result": null,
+          });
+        }
         var id = req.query.id;
         var Notification = models.Notification;
         Notification.destroy({
@@ -88,6 +112,7 @@ module.exports = function(app, models, TokenUtils, utils) {
             if(result){
                 res.json({
                   "code": 0,
+                  "message": "",
                   "result": result
                 });
             }else{

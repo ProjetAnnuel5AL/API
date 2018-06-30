@@ -138,7 +138,11 @@ module.exports = function(app, models, TokenUtils, utils) {
                         object[i] = singleObj;
                     }
                     jsonResult.object = object;
-                    res.json(jsonResult);
+                    res.json({
+                        "code" : 0,
+                        "message" : "",
+                        "result": jsonResult.object
+                    });
                 }else{
                     res.json({
                         "code" : 3,

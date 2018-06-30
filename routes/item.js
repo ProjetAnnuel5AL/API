@@ -3,15 +3,17 @@ module.exports = function (app, models, TokenUtils, utils) {
   const empty = require('empty-folder');
   
   app.post("/item", function (req, res, next) {
-    
-    if(req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city){
-      console.log("test")
-    }
     if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
       var Item = models.Item;
       var id = null;
       var userId;
-      
+      if(TokenUtils.getIdAndType(token).type!=1){
+        res.json({
+          "code": 1,
+          "message": "Missing required parameters",
+          "result": null,
+        });
+      }
       if (req.body.id) {
         id = req.body.id;
       }
