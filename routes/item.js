@@ -3,15 +3,17 @@ module.exports = function (app, models, TokenUtils, utils) {
   const empty = require('empty-folder');
   
   app.post("/item", function (req, res, next) {
-    
-    if(req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city){
-      console.log("test")
-    }
     if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
       var Item = models.Item;
       var id = null;
       var userId;
-      
+      if(TokenUtils.getIdAndType(token).type!=1){
+        res.json({
+          "code": 1,
+          "message": "Missing required parameters",
+          "result": null,
+        });
+      }
       if (req.body.id) {
         id = req.body.id;
       }
@@ -239,7 +241,10 @@ module.exports = function (app, models, TokenUtils, utils) {
   });
 
   app.get("/item", function(req, res, next) {
-    if (req.body.idItem){
+    if (req.body.idItem || req.query.idItem){
+      if(req.query.idItem){
+        req.body.idItem = req.query.idItem
+      }
       var jsonResult = {} 
       var sequelize = models.sequelize;                      
       sequelize.query("SELECT item.idItem, priceItem, item.addressItem, descriptionItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
@@ -306,7 +311,7 @@ module.exports = function (app, models, TokenUtils, utils) {
 
     if(req.query.limit){
       var query = "SELECT item.idItem, priceItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
-      +"category.idCategory, product.idProduct, unit.nameUnit, idProducer, user.loginUser "
+      +"category.idCategory, product.idProduct, unit.nameUnit, idProducer "
       if (req.query.lat && req.query.long){ 
         query +=  ", ( 6371 * acos( cos( radians("+req.query.lat+") ) * cos( radians( item.latItem ) )"+
         "* cos( radians(item.longItem) - radians("+req.query.long+")) + sin(radians("+req.query.lat+"))"+ 
