@@ -9,10 +9,12 @@ require("./env.js");
 
 var bodyParser = require("body-parser");
 
-var urlApi = "http://localhost:8888";
-var urlSite = "http://localhost:8082"
+var urlApi = "http://vps536743.ovh.net:8888";
+var urlSite = "http://vps536743.ovh.net"
+
 
 module.exports = app;
+
 /*app.use(
     session({
         secret: "vidyapathaisalwaysrunning",
@@ -32,6 +34,9 @@ app.use(express.static(__dirname + "/ressources"));
 require("./routes")(app, models, TokenUtils, utils, urlSite, urlApi);
 
 var port=process.env.PORT || 8888;
+
+if (process.env.NODE_ENV === "test")
+    port = 8082;
 
 var server = app.listen(port, function() {
     console.log("Server started port "+port+"...");
