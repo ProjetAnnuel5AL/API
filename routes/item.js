@@ -3,98 +3,114 @@ module.exports = function (app, models, TokenUtils, utils) {
   const empty = require('empty-folder');
   
   app.post("/item", function (req, res, next) {
-    if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token) {
+    if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token && req.body.loginUser) {
       var Item = models.Item;
       var id = null;
       var userId;
-      if(TokenUtils.getIdAndType(token).type!=1){
-        res.json({
-          "code": 1,
-          "message": "Missing required parameters",
-          "result": null,
-        });
-      }
-      if (req.body.id) {
-        id = req.body.id;
-      }
-      var photosExtensions = "";
-      photosExtensions += req.body.photo[0].name.split('.')[1]+";";
-      if(req.body.photo[1]){
-        photosExtensions += req.body.photo[1].name.split('.')[1]+";";
-        if(req.body.photo[2]){
-          photosExtensions += req.body.photo[2].name.split('.')[1];
-        }
-      }
-
-      var LatLong = req.body.location.split(',');
-      lat = LatLong[0];
-      long = LatLong[1];
+     
+      TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
+        userId = result.idUser;
+          if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+            res.json({
+                "code" : 6,
+                "message" : "Failed to authenticate token",
+                "result": null,
+            });
+              
+          } else {
       
-      userId = TokenUtils.getIdAndType(req.body.token).id;
-      Item.create({
-        "idItem": id,
-        "idProductItem": req.body.productId,
-        "nameItem": req.body.name,
-        "descriptionItem": req.body.description,
-        "addressItem": req.body.address,
-        "locationItem": req.body.location,
-        "cityItem": req.body.city,
-        "cpItem" : req.body.cp,
-        "fileExtensionsItem": photosExtensions,
-        "priceItem": req.body.price,
-        "idUnitItem": req.body.unitId,
-        "quantityItem": req.body.quantity,
-        "idUserItem": userId,
-        "latItem" : lat,
-        "longItem" : long
-      }).then(function (result) {
-        var filePath=null;
-        if (req.body.photo != null) {
-          for(var imageIndex = 0; imageIndex < req.body.photo.length; imageIndex++){
-          (function (imageIndex) { // jshint ignore:line
-            filePath = "ressources/itemPhotos/" + result.idItem + "/";
-            if (!fs.existsSync(filePath)) {
-              fs.mkdirSync(filePath);
+      
+            if (req.body.id) {
+              id = req.body.id;
+            }
+            var photosExtensions = "";
+            photosExtensions += req.body.photo[0].name.split('.')[1]+";";
+            if(req.body.photo[1]){
+              photosExtensions += req.body.photo[1].name.split('.')[1]+";";
+              if(req.body.photo[2]){
+                photosExtensions += req.body.photo[2].name.split('.')[1];
+              }
             }
 
-            var extension = req.body.photo[imageIndex].name.split('.');
-            var oldpath = req.body.photo[imageIndex].path;
-            var newpath = filePath + imageIndex + "." + extension[extension.length - 1];
+            var LatLong = req.body.location.split(',');
+            lat = LatLong[0];
+            long = LatLong[1];
 
-            fs.readFile(oldpath, function (err, data) {
-              console.log('File read!');
+            Item.create({
+              "idItem": id,
+              "idProductItem": req.body.productId,
+              "nameItem": req.body.name,
+              "descriptionItem": req.body.description,
+              "addressItem": req.body.address,
+              "locationItem": req.body.location,
+              "cityItem": req.body.city,
+              "cpItem" : req.body.cp,
+              "fileExtensionsItem": photosExtensions,
+              "priceItem": req.body.price,
+              "idUnitItem": req.body.unitId,
+              "quantityItem": req.body.quantity,
+              "idUserItem": userId,
+              "latItem" : lat,
+              "longItem" : long
+            }).then(function (result) {
+              var filePath=null;
+              if (req.body.photo != null) {
+                for(var imageIndex = 0; imageIndex < req.body.photo.length; imageIndex++){
+                (function (imageIndex) { // jshint ignore:line
+                  filePath = "ressources/itemPhotos/" + result.idItem + "/";
+                  if (!fs.existsSync(filePath)) {
+                    fs.mkdirSync(filePath);
+                  }
 
-              // Write the file
-              fs.writeFile(newpath, data, function (err) {
-                console.log('File written!');
+                  var extension = req.body.photo[imageIndex].name.split('.');
+                  var oldpath = req.body.photo[imageIndex].path;
+                  var newpath = filePath + imageIndex + "." + extension[extension.length - 1];
+
+                  fs.readFile(oldpath, function (err, data) {
+                    console.log('File read!');
+
+                    // Write the file
+                    fs.writeFile(newpath, data, function (err) {
+                      console.log('File written!');
+                    });
+
+                    // Delete the file
+                    fs.unlink(oldpath, function (err) {
+                      console.log('File deleted!');
+                    });
+                  });
+                  })(imageIndex);
+                }
+              }
+              res.json({
+                "code": 0,
+                "message":null,
+                "result": {
+                  "id": result.idItem,
+                  "name": result.nameItem
+                }
+                
               });
-
-              // Delete the file
-              fs.unlink(oldpath, function (err) {
-                console.log('File deleted!');
+            }).catch(function (err) {
+              //console.log(err);
+              res.json({
+                "code": 2,
+                "message": "Sequelize error",
+                "result": null,
               });
             });
-            })(imageIndex);
           }
-        }
-        res.json({
-          "code": 0,
-          "message":null,
-          "result": {
-            "id": result.idItem,
-            "name": result.nameItem
-          }
-          
-        });
-      }).catch(function (err) {
-        //console.log(err);
-        res.json({
-          "code": 2,
-          "message": "Sequelize error",
-          "result": null,
-        });
-      });
+        }).catch(function (err) {
+          console.log(err);
+          res.json({
+            "code": 2,
+            "message": "Sequelize error",
+            "result": null,
+          });
+        });   
+      
     } else {
+
       res.json({
         "code": 1,
         "message": "Missing required parameters",
