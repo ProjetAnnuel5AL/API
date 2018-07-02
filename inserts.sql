@@ -44,8 +44,21 @@ INSERT INTO UNIT VALUES(3, 'Litres', SYSDATE(), SYSDATE(), null);
 
 -- motif
 
-INSERT INTO motif VALUES(1, "Commande non reçu", 'Je n\'ai pas reçu ma commande', SYSDATE(), SYSDATE(), null);
-INSERT INTO motif VALUES(2, "Commande incomplète", 'La commande que j\'ai reçu est incomplète', SYSDATE(), SYSDATE(), null);
-INSERT INTO motif VALUES(3, "Commande non conforme", "Je reçu la commande mais elle ne contient pas les bon produits.", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(1, "Commande non reçu", "ORDER", "Je n'ai pas reçu ma commande", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(2, "Commande incomplète", "ORDER","La commande que j'ai reçu est incomplète", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(3, "Commande non conforme", "ORDER", "Je reçu la commande mais elle ne contient pas les bon produits.", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(4, "Contenu à caractère sexuel", "ITEM", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(5, "Contenu violent ou abject", "ITEM", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(6, "Contenu offensant ou haineux", "ITEM", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(7, "Spam ou contenu trompeur", "ITEM", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(8, "Contenu à caractère sexuel", "PRODUCER", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(9, "Contenu violent ou abject", "PRODUCER", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(10, "Contenu offensant ou haineux", "PRODUCER", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(11, "Spam ou contenu trompeur", "PRODUCER", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(12, "Contenu à caractère sexuel", "PRODUCERGROUP", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(13, "Contenu violent ou abject", "PRODUCERGROUP", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(14, "Contenu offensant ou haineux", "PRODUCERGROUP", "", SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(15, "Spam ou contenu trompeur", "PRODUCERGROUP", "", SYSDATE(), SYSDATE(), null);
+
 
 commit;

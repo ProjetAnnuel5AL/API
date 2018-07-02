@@ -10,6 +10,14 @@ module.exports = sequelize.import("motif", function(sequelize, Datatypes) {
 		nameMotif : {
 			type : Datatypes.STRING
 		},
+		//Pour designer le type du signalement
+		//ORDER
+		//PRODUCER
+		//ITEM
+		//PRODUCERGROUP
+		typeMotif : {
+			type : Datatypes.STRING
+		},
 		libelleMotif : {
 			type : Datatypes.STRING
 		}

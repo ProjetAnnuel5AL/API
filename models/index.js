@@ -13,6 +13,10 @@ var PaypalTransact = require("./PaypalTransact");
 var Order = require("./Order");
 var LigneOrder = require("./LigneOrder");
 var Motif = require("./Motif");
+var SignalOrder = require("./SignalOrder");
+var SignalOrderLigneOrder = require("./SignalOrderLigneOrder");
+var Report = require("./Report");
+
 
 seq.sync();
 
@@ -31,5 +35,8 @@ module.exports = {
     "PaypalTransact": PaypalTransact,
     "Order": Order,
     "LigneOrder" : LigneOrder,
-    "Motif" : Motif
+    "Motif" : Motif,
+    "SignalOrder": SignalOrder,
+    "SignalOrderLigneOrder": SignalOrderLigneOrder,
+    "Report": Report
 };

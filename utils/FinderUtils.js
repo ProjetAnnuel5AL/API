@@ -40,9 +40,15 @@ var FindProducerIdWithCart = function(cart){
  
 var FindStatusOrder = function(order, i){
     var sequelize = models.sequelize;
-    return sequelize.query("SELECT DISTINCT(statusPaypalTransact) FROM paypalTransact, ligneOrder WHERE ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND idOrderLigneOrder ="+order.idOrder+" AND statusPaypalTransact=\"PENDING\"", { type: sequelize.QueryTypes.SELECT  }).then(function (results) { 
-        if(results.length>0){
-            return { "i": i, "statusOrder" :"En attente de reception" }
+    return sequelize.query("SELECT DISTINCT(statusPaypalTransact) FROM paypalTransact, ligneOrder WHERE ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND idOrderLigneOrder ="+order.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) { 
+        if(results.length>0){    
+            if(results.map(function(e) { return e.statusPaypalTransact; }).indexOf('DISPUTES') != -1){
+                return { "i": i, "statusOrder" :"Litige en cours" }
+            }else if(results.map(function(e) { return e.statusPaypalTransact; }).indexOf('PENDING') != -1){
+                return { "i": i, "statusOrder" :"En attente de reception" }
+            }else{
+                return { "i": i, "statusOrder" :"Terminé" }
+            }
         }else{
             return { "i": i, "statusOrder" :"Terminé" }
         }
@@ -56,12 +62,13 @@ var FindStatusOrder = function(order, i){
 var FindStatusOrderProducer = function(order, i){
     var sequelize = models.sequelize;
     return sequelize.query("SELECT DISTINCT(statusPaypalTransact) FROM paypalTransact, ligneOrder WHERE ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND idOrderLigneOrder ="+order.idOrder+" AND statusPaypalTransact=\"PENDING\"", { type: sequelize.QueryTypes.SELECT  }).then(function (results) { 
-        if(results.length>0){
+        if(results.map(function(e) { return e.statusPaypalTransact; }).indexOf('DISPUTES') != -1){
+            return { "i": i, "statusOrder" :"Litige en cours" }
+        }else if(results.map(function(e) { return e.statusPaypalTransact; }).indexOf('PENDING') != -1){
             return { "i": i, "statusOrder" :"En attente de reception client" }
         }else{
             return { "i": i, "statusOrder" :"Terminé" }
         }
-        
     }).catch(function(err){
         return { "i": i};
     });
