@@ -101,7 +101,7 @@ module.exports = function (app, models, TokenUtils, utils) {
             });
           }
         }).catch(function (err) {
-          console.log(err);
+          //console.log(err);
           res.json({
             "code": 2,
             "message": "Sequelize error",

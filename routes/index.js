@@ -17,4 +17,5 @@ module.exports = function(app, models, TokenUtils, utils, urlSite, urlApi) {
 	require("./notification")(app, models, TokenUtils, utils);
 	require("./paypalTransact")(app, models, TokenUtils, utils);
 	require("./order")(app, models, TokenUtils, utils);
+	require("./motif")(app, models);
 };

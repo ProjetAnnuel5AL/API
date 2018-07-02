@@ -12,6 +12,7 @@ var Notification = require("./Notification");
 var PaypalTransact = require("./PaypalTransact");
 var Order = require("./Order");
 var LigneOrder = require("./LigneOrder");
+var Motif = require("./Motif");
 
 seq.sync();
 
@@ -29,5 +30,6 @@ module.exports = {
     "Notification": Notification,
     "PaypalTransact": PaypalTransact,
     "Order": Order,
-    "LigneOrder" : LigneOrder
+    "LigneOrder" : LigneOrder,
+    "Motif" : Motif
 };

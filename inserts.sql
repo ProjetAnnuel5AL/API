@@ -42,4 +42,10 @@ INSERT INTO UNIT VALUES(1, 'Unité', SYSDATE(), SYSDATE(), null);
 INSERT INTO UNIT VALUES(2, 'Kg', SYSDATE(), SYSDATE(), null);
 INSERT INTO UNIT VALUES(3, 'Litres', SYSDATE(), SYSDATE(), null);
 
+-- motif
+
+INSERT INTO motif VALUES(1, "Commande non reçu", 'Je n\'ai pas reçu ma commande', SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(2, "Commande incomplète", 'La commande que j\'ai reçu est incomplète', SYSDATE(), SYSDATE(), null);
+INSERT INTO motif VALUES(3, "Commande non conforme", "Je reçu la commande mais elle ne contient pas les bon produits.", SYSDATE(), SYSDATE(), null);
+
 commit;
