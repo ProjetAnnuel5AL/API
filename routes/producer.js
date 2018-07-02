@@ -5,7 +5,7 @@ module.exports = function(app, models, TokenUtils, utils) {
 
     //CREATE Producer
     app.post("/producer", function(req, res, next) {
-        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.locationProducer && req.body.token && req.body.paypalProducer) {
+        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.locationProducer && req.body.token && req.body.paypalProducer) {
             var Producer = models.Producer;
             var User = models.User;
             var idUser = null;
@@ -28,6 +28,10 @@ module.exports = function(app, models, TokenUtils, utils) {
                         extension = req.body.avatarProducer.name.split('.');
                         avatar = "avatar."+extension[extension.length-1];
                     }
+                    var LatLong = req.body.locationProducer.split(',');
+                    lat = LatLong[0];
+                    long = LatLong[1];
+
                     Producer.create({
                         "idUserProducer" : idUser,
                         "lastNameProducer" : crpt.encryptAES(req.body.lastNameProducer),
@@ -42,7 +46,9 @@ module.exports = function(app, models, TokenUtils, utils) {
                         "locationProducer" : crpt.encryptAES(req.body.locationProducer),
                         "descriptionProducer" : req.body.descriptionProducer,
                         "avatarProducer" : avatar,
-                        "paypalProducer" : crpt.encryptAES(req.body.paypalProducer)
+                        "paypalProducer" : crpt.encryptAES(req.body.paypalProducer),
+                        "latProducer" : lat,
+                        "longProducer" : long
                     }).then(function(result){
                         var request = {
                             "where": {
@@ -91,7 +97,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                             
                         });
                     }).catch(function(err){    
-                        //console.log(err);         
+                        console.log(err);         
                         res.json({
                             "code" : 2,
                             "message" : "Sequelize error",
@@ -101,7 +107,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                     });
                 }
             }).catch(function (err) {
-                //console.log(err)
+                console.log(err)
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",
@@ -118,7 +124,7 @@ module.exports = function(app, models, TokenUtils, utils) {
         }
     });
     app.get("/producer/dept", function(req, res, next) {
-        console.log(req.body);
+      
         if (req.body.cp && req.body.token){
             var query = 'SELECT prd.* from producer prd where prd.cpProducer LIKE "'+req.body.cp+'%" ;';
             var jsonResult = {};
@@ -246,6 +252,204 @@ module.exports = function(app, models, TokenUtils, utils) {
                 "result": null
             });
         }
+    });
+
+    app.post("/producer/getProducer", function(req, res, next) {
+        if(req.body.loginUser && req.body.token ){
+            var idUser;
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
+                idUser = result.idUser;
+                if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token",
+                        "result": null,
+                    });
+                    
+                } else {
+                    var request = {
+                        where: {
+                            idUserProducer : idUser
+                        }
+                    };
+
+                    var Producer = models.Producer;
+
+                    Producer.find(request).then(function(result){
+                        if(result){
+                            var CryptoUtils = utils.CryptoUtils;
+                            var crpt = new CryptoUtils();
+                            var utf8 = require('utf8');
+                            res.json({
+                                "code" : 0,
+                                "message" : "Sequelize error",
+                                "result": {
+                                    "idProducer" : result.idProducer,
+                                    "lastNameProducer" :  utf8.decode(crpt.decryptAES(result.lastNameProducer)),
+                                    "firstNameProducer" :  utf8.decode(crpt.decryptAES(result.firstNameProducer)),
+                                    "emailProducer" :  utf8.decode(crpt.decryptAES(result.emailProducer)),
+                                    "phoneProducer" :  utf8.decode(crpt.decryptAES(result.phoneProducer)),
+                                    "birthProducer" : result.birthProducer,
+                                    "sexProducer" :  utf8.decode(crpt.decryptAES(result.sexProducer)),
+                                    "addressProducer" :  utf8.decode(crpt.decryptAES(result.addressProducer)),
+                                    "cityProducer" :  utf8.decode(crpt.decryptAES(result.cityProducer)),
+                                    "cpProducer" : result.cpProducer,
+                                    "locationProducer" :  utf8.decode(crpt.decryptAES(result.locationProducer)),
+                                    "descriptionProducer" : result.descriptionProducer,
+                                    "avatarProducer" : result.avatarProducer,
+                                    "paypalProducer" :  utf8.decode(crpt.decryptAES(result.paypalProducer))
+                                } 
+                            });
+                        }else{
+                           
+                            res.json({
+                                "code" : 0,
+                                "message" : "Producer not found",
+                                "result": null
+                            });
+                        }
+                    }).catch(function(err){
+                        res.json({
+                            "code" : 2,
+                            "message" : "Sequelize error",
+                            "result": null
+                        });
+                    })
+
+                }
+            }).catch(function(err){
+                res.json({
+                    "code" : 2,
+                    "message" : "Sequelize error",
+                    "result": null
+                });
+            });
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters",
+                "result": null
+            });
+        }
+    })
+
+    app.post("/producer/update", function(req, res, next) {
+        
+        if(req.body.loginUser && req.body.token && req.body.photoChange && req.body.paypalChange && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.locationProducer){
+            var idUser;
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
+                idUser = result.idUser;
+                if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token",
+                        "result": null,
+                    });
+                    
+                } else {
+                    var request = {
+                        where: {
+                            idUserProducer : idUser
+                        }
+                    };
+
+                    var Producer = models.Producer;
+                    var CryptoUtils = utils.CryptoUtils;
+                    var crpt = new CryptoUtils();
+                    var attributes = {};
+                    if(req.body.photoChange == "true"){
+                        var avatar = "default";
+                        var extension;
+                        if(req.body.avatarProducer.name !=""){
+                            extension = req.body.avatarProducer.name.split('.');
+                            avatar = "avatar."+extension[extension.length-1];
+                        }
+                        attributes.avatarProducer= avatar;
+                    }
+                    
+                    if(req.body.paypalChange == "true"){
+                        attributes.paypalProducer= crpt.encryptAES(req.body.paypalProducer);
+                    }
+
+                    var LatLong = req.body.locationProducer.split(',');
+                    lat = LatLong[0];
+                    long = LatLong[1];
+
+                    
+                    attributes.lastNameProducer = crpt.encryptAES(req.body.lastNameProducer);
+                    attributes.firstNameProducer = crpt.encryptAES(req.body.firstNameProducer);
+                    attributes.emailProducer = crpt.encryptAES(req.body.emailProducer);
+                    attributes.phoneProducer= crpt.encryptAES(req.body.phoneProducer);
+                    attributes.birthProducer= req.body.birthProducer;
+                    attributes.sexProducer= crpt.encryptAES(req.body.sexProducer);
+                    attributes.addressProducer= crpt.encryptAES(req.body.addressProducer);
+                    attributes.cityProducer= crpt.encryptAES(req.body.cityProducer);
+                    attributes.cpProducer= req.body.cpProducer;
+                    attributes.locationProducer= crpt.encryptAES(req.body.locationProducer);
+                    attributes.descriptionProducer= req.body.descriptionProducer;
+
+                    attributes.latProducer= lat;
+                    attributes.longProducer= long;
+
+                    Producer.update(attributes, request).then(function(results){
+                        
+                        
+                        var filePath=null;
+                        if(req.body.avatarProducer.name!=""){
+                            filePath = "ressources/producerAvatar/"+results[0]+"/";
+                            if (!fs.existsSync(filePath)) {
+                                fs.mkdirSync(filePath)
+                            }
+                            var oldpath = req.body.avatarProducer.path;
+                            var newpath = filePath+ "avatar."+extension[extension.length-1];
+                            
+                            fs.readFile(oldpath, function (err, data) {
+                                console.log('File read!');
+                    
+                                // Write the file
+                                fs.writeFile(newpath, data, function (err) {
+                                    console.log('File written!');
+                                });
+                    
+                                // Delete the file
+                                fs.unlink(oldpath, function (err) {
+                                    console.log('File deleted!');
+                                });
+                            });
+                        }
+                        res.json({
+                            "code": 0,
+                            "message": "ok",
+                            "result": {
+                                "id": results[0]
+                            }   
+                        });
+                    }).catch(function (err) {
+                        console.log(err)
+                        res.json({
+                            "code": 2,
+                            "message": "Sequelize error",
+                            "result": null
+                        });
+                    });  
+                }
+
+            }).catch(function(err){
+                console.log(err)
+                res.json({
+                    "code" : 2,
+                    "message" : "Sequelize error",
+                    "result": null
+                });
+            });
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters",
+                "result": null
+            });
+        }
+    
     });
 
 }
