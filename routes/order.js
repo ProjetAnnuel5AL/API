@@ -255,7 +255,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                     });
                 } else {  
                     //"SELECT idOrder, dateOrder, totalOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser WHERE order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder
-                    sequelize.query("SELECT idOrder, dateOrder, totalOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
+                    sequelize.query("SELECT idOrder, dateOrder, totalOrder, idLigneOrder, idItemLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
                         if(results && results.length>0){
 
                             //On déchiffre les infos avant de send
@@ -550,7 +550,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                         if(result){
                             idProducer = result.idProducer;
                             sequelize.query("SELECT idOrder, dateOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, "
-                            +"titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, "
+                            +"titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idItemLigneOrder, "
                             +" lastNameOrder, firstNameOrder, sexOrder, addressOrder, cityOrder, cpOrder FROM `order`, ligneOrder, paypalTransact, producer, user "
                             +"WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact "
                             +"AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND idProducerLigneOrder = "+idProducer 
