@@ -36,6 +36,10 @@ module.exports = function (app, models, TokenUtils, utils) {
             var LatLong = req.body.location.split(',');
             lat = LatLong[0];
             long = LatLong[1];
+            var deliveryTimeSplit = req.body.deliveryTime.split(';');
+            if((deliveryTimeSplit[0]*1)>(deliveryTimeSplit[1]*1)){
+              req.body.deliveryTime = deliveryTimeSplit[1] + ";" + deliveryTimeSplit[0];
+            }
 
             Item.create({
               "idItem": id,
@@ -321,7 +325,7 @@ module.exports = function (app, models, TokenUtils, utils) {
       var sequelize = models.sequelize;                      
       sequelize.query("SELECT item.idItem, priceItem, item.addressItem, descriptionItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem,"
       +"descriptionItem, loginUser, category.nameCategory, product.nameProduct, category.idCategory, product.idProduct, unit.idUnit, unit.nameUnit, idProducer, shippingCostItem, quatityMaxOrderItem, "
-      +"producer.lastNameProducer, producer.firstNameProducer, user.loginUser, nameDelivery, deliveryTimeItem FROM item, product, category, unit, user, producer, delivery "
+      +"producer.lastNameProducer, producer.firstNameProducer, user.loginUser,idDeliveryItem,  nameDelivery, deliveryTimeItem FROM item, product, category, unit, user, producer, delivery "
       +"WHERE item.idUserItem = producer.idUserProducer AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit "
       +"AND item.idDeliveryItem = delivery.idDelivery AND product.idCategoryProduct = category.idCategory AND item.idItem = :idItem ",{ replacements: { idItem:  req.body.idItem }, type: sequelize.QueryTypes.SELECT  })
         .then(function(result){

@@ -42,7 +42,7 @@ module.exports = function (app, models, TokenUtils, utils) {
 
             var totalOrder = 0.00;
             for(var i = 0; i<req.body.cart.length; i++){
-                totalOrder += (req.body.cart[i].prixU*parseInt(req.body.cart[i].qte));
+                totalOrder += (req.body.cart[i].prixU*parseInt(req.body.cart[i].qte) + req.body.cart[i].shippingCost*1);
             }
 
             rp({
@@ -101,6 +101,9 @@ module.exports = function (app, models, TokenUtils, utils) {
                                                 "titleLigneOrder": result.cart.title,
                                                 "quantiteLigneOrder": result.cart.qte,
                                                 "prixUnitaireLigneOrder": (result.cart.prixU*1).toFixed(2),
+                                                "shippingCostLigneOrder" : (result.cart.shippingCost*1).toFixed(2),
+                                                "deliveryTimeLigneOrder" : result.cart.deliveryTime,
+                                                "idDeliveryLigneOrder" : result.cart.idDelivery
                                             }).then(function(result){
                                                 //Création d'une transaction de redistribution paypal
                                                 PaypalTransact.create({
@@ -108,9 +111,10 @@ module.exports = function (app, models, TokenUtils, utils) {
                                                     "datePaypalTransact": new Date(),
                                                     "dateRediPaypalTransact": null,
                                                     "payerIDPaypalTransact": crpt.encryptAES(req.body.payementDetail.payerID),
-                                                    "valuePaypalTransact": (result.quantiteLigneOrder*result.prixUnitaireLigneOrder).toFixed(2),
+                                                    "valuePaypalTransact": (result.quantiteLigneOrder*result.prixUnitaireLigneOrder + result.shippingCostLigneOrder*1).toFixed(2),
                                                     //batch et item id sera update lors de la transaction 
                                                     "batchIdPaypalTransact": null,
+                                                    //Ne correspond pas a nos item MAIS CEUX DE PAYPAL : ils ont le meme libelle que nous
                                                     "itemIdPaypalTransact": null,
                                                     "statusPaypalTransact": "PENDING",
                                                 })
@@ -121,9 +125,6 @@ module.exports = function (app, models, TokenUtils, utils) {
 
                                 
                             })
-
-                            
-
                             res.json({
                                 "code" : 0,
                                 "message": "Order saved",
@@ -255,9 +256,13 @@ module.exports = function (app, models, TokenUtils, utils) {
                     });
                 } else {  
                     //"SELECT idOrder, dateOrder, totalOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser WHERE order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder
-                    sequelize.query("SELECT idOrder, dateOrder, totalOrder, idLigneOrder, idItemLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
+                    sequelize.query("SELECT idOrder, dateOrder, totalOrder, idLigneOrder, idItemLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, "
+                    +" titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, "
+                    +"loginUser, shippingCostLigneOrder, deliveryTimeLigneOrder, idDeliveryLigneOrder, nameDelivery FROM `order`, ligneOrder, paypalTransact, producer, user, delivery "
+                    +"WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact "
+                    +"AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND order.idUserOrder = "+idUser 
+                    +" AND delivery.idDelivery = ligneOrder.idDeliveryLigneOrder AND idOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
                         if(results && results.length>0){
-
                             //On déchiffre les infos avant de send
                             for(var i =0; i<results.length; i++){
                                 results[i].lastNameProducer = utf8.decode(crpt.decryptAES(results[i].lastNameProducer));
@@ -372,7 +377,11 @@ module.exports = function (app, models, TokenUtils, utils) {
                     });
                 } else {  
                     //"SELECT idOrder, dateOrder, totalOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser WHERE order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder
-                    sequelize.query("SELECT idOrder, dateOrder, totalOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
+                    sequelize.query("SELECT idOrder, dateOrder, totalOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, shippingCostLigneOrder, "
+                    +"deliveryTimeLigneOrder , quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser, "
+                    +"idDeliveryLigneOrder, nameDelivery FROM `order`, ligneOrder, paypalTransact, producer, user, delivery WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder "
+                    +"AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer "
+                    +"AND producer.idUserProducer = user.idUser AND delivery.idDelivery = ligneOrder.idDeliveryLigneOrder AND order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
                         if(results && results.length>0){
 
                             //On déchiffre les infos avant de send
@@ -451,7 +460,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                     Producer.find(request).then(function(result){
                         if(result){
                             idProducer = result.idProducer;
-                            sequelize.query("Select idOrder, dateOrder, SUM(ligneorder.prixUnitaireLigneOrder*ligneorder.quantiteLigneOrder) as totalOrder FROM `order`, ligneOrder WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND idProducerLigneOrder = "+idProducer+ " GROUP BY idOrder, dateOrder ORDER BY dateOrder DESC", { type: sequelize.QueryTypes.SELECT  })
+                            sequelize.query("Select idOrder, dateOrder, SUM(ligneOrder.prixUnitaireLigneOrder*ligneOrder.quantiteLigneOrder + ligneOrder.shippingCostLigneOrder) as totalOrder FROM `order`, ligneOrder WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND idProducerLigneOrder = "+idProducer+ " GROUP BY idOrder, dateOrder ORDER BY dateOrder DESC", { type: sequelize.QueryTypes.SELECT  })
                             .then(function(result){ 
                                 if(result && result.length>0){
                                     orders=result
@@ -551,9 +560,10 @@ module.exports = function (app, models, TokenUtils, utils) {
                             idProducer = result.idProducer;
                             sequelize.query("SELECT idOrder, dateOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, "
                             +"titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idItemLigneOrder, "
-                            +" lastNameOrder, firstNameOrder, sexOrder, addressOrder, cityOrder, cpOrder FROM `order`, ligneOrder, paypalTransact, producer, user "
+                            +" lastNameOrder, firstNameOrder, sexOrder, addressOrder, cityOrder, cpOrder, shippingCostLigneOrder, deliveryTimeLigneOrder, idDeliveryLigneOrder "
+                            +" FROM `order`, ligneOrder, paypalTransact, producer, user, delivery "
                             +"WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact "
-                            +"AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND idProducerLigneOrder = "+idProducer 
+                            +" AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND delivery.idDelivery = ligneOrder.idDeliveryLigneOrder AND idProducerLigneOrder = "+idProducer 
                             +" AND idOrder = "+req.body.idOrder + " GROUP BY  titleLigneOrder, idOrder, dateOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact,  lastNameOrder, firstNameOrder, sexOrder, addressOrder, cityOrder, cpOrder", { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
                                 if(results && results.length>0){
 
@@ -566,7 +576,6 @@ module.exports = function (app, models, TokenUtils, utils) {
                                     results[0].cityOrder = utf8.decode(crpt.decryptAES(results[0].cityOrder));
                                     results[0].cpOrder = utf8.decode(crpt.decryptAES(results[0].cpOrder));
                                     
-
                                     res.json({
                                         "code": 0,
                                         "message": null,
