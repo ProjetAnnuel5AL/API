@@ -79,6 +79,11 @@ module.exports = function(app, models, TokenUtils, utils) {
                                 // Write the file
                                 fs.writeFile(newpath, data, function (err) {
                                     console.log('File written!');
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 512, "_medium");
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 384, "_ms");
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 256,"_small");384
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 128,"_xs");
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 64,"_xxs");
                                 });
                     
                                 // Delete the file
@@ -337,6 +342,8 @@ module.exports = function(app, models, TokenUtils, utils) {
         
         if(req.body.loginUser && req.body.token && req.body.photoChange && req.body.paypalChange && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.locationProducer){
             var idUser;
+            var idProducer;
+            var Producer = models.Producer;
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
                 idUser = result.idUser;
                 if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
@@ -347,13 +354,15 @@ module.exports = function(app, models, TokenUtils, utils) {
                     });
                     
                 } else {
+                    Producer.find({where: { idUserProducer : idUser}}).then(function(result){
+                        idProducer = result.idProducer
+                    })
                     var request = {
                         where: {
                             idUserProducer : idUser
                         }
                     };
 
-                    var Producer = models.Producer;
                     var CryptoUtils = utils.CryptoUtils;
                     var crpt = new CryptoUtils();
                     var attributes = {};
@@ -396,7 +405,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                         
                         var filePath=null;
                         if(req.body.avatarProducer.name!=""){
-                            filePath = "ressources/producerAvatar/"+results[0]+"/";
+                            filePath = "ressources/producerAvatar/"+idProducer+"/";
                             if (!fs.existsSync(filePath)) {
                                 fs.mkdirSync(filePath)
                             }
@@ -408,7 +417,12 @@ module.exports = function(app, models, TokenUtils, utils) {
                     
                                 // Write the file
                                 fs.writeFile(newpath, data, function (err) {
-                                    console.log('File written!');
+                                    console.log('File written!' + filePath);
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 512, "_medium");
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 384, "_ms");
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 256,"_small");384
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 128,"_xs");
+                                    utils.OtherUtils.ResizeImg(filePath, "avatar", extension[extension.length - 1], 64,"_xxs");
                                 });
                     
                                 // Delete the file

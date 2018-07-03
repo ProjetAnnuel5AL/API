@@ -2,8 +2,10 @@ module.exports = function (app, models, TokenUtils, utils) {
   var fs = require("fs");
   const empty = require('empty-folder');
   
+
+
   app.post("/item", function (req, res, next) {
-    console.log(req.body);
+
     if (req.body.productId && req.body.idDelivery && req.body.quatityMaxOrder && req.body.shippingCost && req.body.deliveryTime && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token && req.body.loginUser) {
       var Item = models.Item;
       var id = null;
@@ -37,6 +39,7 @@ module.exports = function (app, models, TokenUtils, utils) {
             lat = LatLong[0];
             long = LatLong[1];
             var deliveryTimeSplit = req.body.deliveryTime.split(';');
+
             if((deliveryTimeSplit[0]*1)>(deliveryTimeSplit[1]*1)){
               req.body.deliveryTime = deliveryTimeSplit[1] + ";" + deliveryTimeSplit[0];
             }
@@ -73,13 +76,20 @@ module.exports = function (app, models, TokenUtils, utils) {
                   var extension = req.body.photo[imageIndex].name.split('.');
                   var oldpath = req.body.photo[imageIndex].path;
                   var newpath = filePath + imageIndex + "." + extension[extension.length - 1];
-
+                   
                   fs.readFile(oldpath, function (err, data) {
                     console.log('File read!');
 
                     // Write the file
                     fs.writeFile(newpath, data, function (err) {
                       console.log('File written!');
+                      
+                      //Obliger d appeler comme sa pour conserver la qualité de l'image. 
+                      utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 512, "_medium");
+                      utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 384, "_ms");
+                      utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 256,"_small");384
+                      utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 128,"_xs");
+                      utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 64,"_xxs");
                     });
 
                     // Delete the file
@@ -178,7 +188,6 @@ module.exports = function (app, models, TokenUtils, utils) {
           //console.log(photosExtensions);
       
           attributes.idDeliveryItem=item.idDeliveryItem;
-          console.log(item.idDeliveryItem)
           attributes.idProductItem=item.idProductItem;
           attributes.nameItem=item.nameItem;
           attributes.descriptionItem=item.descriptionItem;
@@ -191,20 +200,21 @@ module.exports = function (app, models, TokenUtils, utils) {
 
           Item.update(attributes,{where: {idItem: item.idItem, idUserItem : idUser} })
           .then(function(result) {
+
             if(req.body.photoChange =="true"){
               var filePath=null;
               if (req.body.photo[0].size != 0) {
                 for(var imageIndex = 0; imageIndex < req.body.photo.length; imageIndex++){
                   (function (imageIndex) { // jshint ignore:line
-                    filePath = "ressources/itemPhotos/" + result[0] + "/";
+                    filePath = "ressources/itemPhotos/" + item.idItem + "/";
                     if (!fs.existsSync(filePath)) {
                       fs.mkdirSync(filePath);
                     }
-                    empty(filePath, false, (o)=>{
-                      if(o.error) console.error(err);
+                    //empty(filePath, false, (o)=>{
+                     // if(o.error) console.error(o.error);
                       //console.log(o.removed);
                       //console.log(o.failed);
-                    });
+                    //});
                     var extension = req.body.photo[imageIndex].name.split('.');
                     var oldpath = req.body.photo[imageIndex].path;
                     var newpath = filePath + imageIndex + "." + extension[extension.length - 1];
@@ -214,7 +224,13 @@ module.exports = function (app, models, TokenUtils, utils) {
         
                       // Write the file
                       fs.writeFile(newpath, data, function (err) {
-                        console.log('File written!');
+                        console.log('File written !' + newpath);
+                        //Obliger d appeler comme sa pour conserver la qualité de l'image. 
+                        utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 512, "_medium");
+                        utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 384, "_ms");
+                        utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 256,"_small");384
+                        utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 128,"_xs");
+                        utils.OtherUtils.ResizeImg(filePath, imageIndex, extension[extension.length - 1], 64,"_xxs");
                       });
         
                       // Delete the file

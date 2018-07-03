@@ -65,8 +65,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                                     "result" : {
                                         "loginUser" : result.loginUser,
                                         "emailUser" : result.emailUser
-                                    }
-                                    
+                                    }       
                                 });
                             }).catch(function(err){
                                 //console.log(err)
