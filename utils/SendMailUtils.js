@@ -24,7 +24,7 @@ SendMailUtils.prototype.sendMail = function(to, subject, text) {
 		//text: text
 		html: text
 	};
-	console.log(mailOptions)
+
   this.transporter.sendMail(mailOptions, function(error, info){
 	if (error) {
 		console.log("ERREUR ENVOI MAIL")
