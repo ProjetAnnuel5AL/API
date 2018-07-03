@@ -61,4 +61,10 @@ INSERT INTO motif VALUES(14, "Contenu offensant ou haineux", "PRODUCERGROUP", ""
 INSERT INTO motif VALUES(15, "Spam ou contenu trompeur", "PRODUCERGROUP", "", SYSDATE(), SYSDATE(), null);
 
 
+INSERT INTO delivery VALUES(1, "Chronopost", "https://www.chronopost.fr/fr/particulier/suivez-votre-colis", SYSDATE(), SYSDATE(), null);
+INSERT INTO delivery VALUES(2, "TNT", "https://www.tnt.fr/public/suivi_colis/recherche/index.do", SYSDATE(), SYSDATE(), null);
+INSERT INTO delivery VALUES(3, "DHL", "https://www.dhl.fr/fr/dhl_express/suivi_expedition.html", SYSDATE(), SYSDATE(), null);
+INSERT INTO delivery VALUES(4, "Colissimo", "https://www.laposte.fr/professionnel/outils/suivre-vos-envois", SYSDATE(), SYSDATE(), null);
+
+
 commit;

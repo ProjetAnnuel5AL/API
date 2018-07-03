@@ -3,7 +3,8 @@ module.exports = function (app, models, TokenUtils, utils) {
   const empty = require('empty-folder');
   
   app.post("/item", function (req, res, next) {
-    if (req.body.productId && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token && req.body.loginUser) {
+    console.log(req.body);
+    if (req.body.productId && req.body.idDelivery && req.body.quatityMaxOrder && req.body.shippingCost && req.body.deliveryTime && req.body.name && req.body.description && req.body.address && req.body.location && req.body.city && req.body.cp && req.body.photo && req.body.price && req.body.unitId && req.body.quantity  && req.body.token && req.body.loginUser) {
       var Item = models.Item;
       var id = null;
       var userId;
@@ -19,7 +20,7 @@ module.exports = function (app, models, TokenUtils, utils) {
               
           } else {
       
-      
+    
             if (req.body.id) {
               id = req.body.id;
             }
@@ -50,8 +51,12 @@ module.exports = function (app, models, TokenUtils, utils) {
               "idUnitItem": req.body.unitId,
               "quantityItem": req.body.quantity,
               "idUserItem": userId,
-              "latItem" : lat,
-              "longItem" : long
+              "latItem": lat,
+              "longItem": long,
+              "idDeliveryItem": req.body.idDelivery,
+              "deliveryTimeItem": req.body.deliveryTime,
+              "shippingCostItem":  req.body.shippingCost,
+              "quatityMaxOrderItem" : req.body.quatityMaxOrder
             }).then(function (result) {
               var filePath=null;
               if (req.body.photo != null) {
@@ -61,7 +66,6 @@ module.exports = function (app, models, TokenUtils, utils) {
                   if (!fs.existsSync(filePath)) {
                     fs.mkdirSync(filePath);
                   }
-
                   var extension = req.body.photo[imageIndex].name.split('.');
                   var oldpath = req.body.photo[imageIndex].path;
                   var newpath = filePath + imageIndex + "." + extension[extension.length - 1];
@@ -121,9 +125,10 @@ module.exports = function (app, models, TokenUtils, utils) {
 
   app.post("/item/updateProducer", function (req, res, next) {
     var item = req.body;
+    console.log(item)
     if (req.body.idItem && item.idProductItem  && item.nameItem && item.descriptionItem && item.addressItem &&
     item.locationItem && req.body.photo && item.priceItem && item.idUnitItem && item.quantityItem && item.cityItem && item.cpItem  && req.body.loginUser && req.body.token 
-    && req.body.addressChange  && req.body.photoChange) {
+    && req.body.addressChange  && req.body.photoChange && req.body.idDeliveryItem && req.body.deliveryTimeItem && req.body.quatityMaxOrderItem && req.body.shippingCostItem) {
       var Item = models.Item;
       var idUser;
 
@@ -165,17 +170,20 @@ module.exports = function (app, models, TokenUtils, utils) {
             attributes.cpItem=item.cpItem;
             attributes.latItem=lat;
             attributes.longItem=long;
-
           }
           //console.log(photosExtensions);
-          
-          
+      
+          attributes.idDeliveryItem=item.idDeliveryItem;
+          console.log(item.idDeliveryItem)
           attributes.idProductItem=item.idProductItem;
           attributes.nameItem=item.nameItem;
           attributes.descriptionItem=item.descriptionItem;
           attributes.priceItem=item.priceItem;
           attributes.idUnitItem=item.idUnitItem;
           attributes.quantityItem=item.quantityItem;
+          attributes.deliveryTimeItem= item.deliveryTimeItem;
+          attributes.quatityMaxOrderItem=item.quatityMaxOrderItem;
+          attributes.shippingCostItem=item.shippingCostItem;
 
           Item.update(attributes,{where: {idItem: item.idItem, idUserItem : idUser} })
           .then(function(result) {
@@ -231,7 +239,7 @@ module.exports = function (app, models, TokenUtils, utils) {
           });
         }
       }).catch(function (err) {
-        //console.log(err);
+        console.log(err);
         res.json({
           "code": 2,
           "message": "Sequelize error",
@@ -311,9 +319,11 @@ module.exports = function (app, models, TokenUtils, utils) {
       }
       var jsonResult = {} 
       var sequelize = models.sequelize;                      
-      sequelize.query("SELECT item.idItem, priceItem, item.addressItem, descriptionItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
-        +"category.idCategory, product.idProduct, unit.idUnit, unit.nameUnit, idProducer, producer.lastNameProducer, producer.firstNameProducer, user.loginUser FROM item, product, category, unit, user, producer WHERE item.idUserItem = producer.idUserProducer "
-        +"AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND product.idCategoryProduct = category.idCategory AND item.idItem = :idItem ",{ replacements: { idItem:  req.body.idItem }, type: sequelize.QueryTypes.SELECT  })
+      sequelize.query("SELECT item.idItem, priceItem, item.addressItem, descriptionItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem,"
+      +"descriptionItem, loginUser, category.nameCategory, product.nameProduct, category.idCategory, product.idProduct, unit.idUnit, unit.nameUnit, idProducer, shippingCostItem, quatityMaxOrderItem, "
+      +"producer.lastNameProducer, producer.firstNameProducer, user.loginUser, nameDelivery, deliveryTimeItem FROM item, product, category, unit, user, producer, delivery "
+      +"WHERE item.idUserItem = producer.idUserProducer AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit "
+      +"AND item.idDeliveryItem = delivery.idDelivery AND product.idCategoryProduct = category.idCategory AND item.idItem = :idItem ",{ replacements: { idItem:  req.body.idItem }, type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
             if(result){
               jsonResult.infoItem = result[0];
@@ -375,13 +385,13 @@ module.exports = function (app, models, TokenUtils, utils) {
 
     if(req.query.limit){
       var query = "SELECT item.idItem, priceItem, locationItem, cityItem, cpItem, quantityItem, item.nameItem, item.fileExtensionsItem, descriptionItem, loginUser, category.nameCategory, product.nameProduct,"
-      +"category.idCategory, product.idProduct, unit.nameUnit, idProducer "
+      +"category.idCategory, product.idProduct, unit.nameUnit, idProducer, nameDelivery, deliveryTimeItem , shippingCostItem, quatityMaxOrderItem "
       if (req.query.lat && req.query.long){ 
         query +=  ", ( 6371 * acos( cos( radians("+req.query.lat+") ) * cos( radians( item.latItem ) )"+
         "* cos( radians(item.longItem) - radians("+req.query.long+")) + sin(radians("+req.query.lat+"))"+ 
         "* sin( radians(item.latItem)))) AS distance "
       }   
-      query +="FROM item, product, category, unit, user, producer WHERE item.idUserItem = producer.idUserProducer "
+      query +="FROM item, product, category, unit, user, producer, delivery WHERE item.idUserItem = producer.idUserProducer AND item.idDeliveryItem = delivery.idDelivery "
           +"AND item.idUserItem = user.idUser AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND product.idCategoryProduct = category.idCategory and item.deletedAt IS NULL AND quantityItem>0  ";
       
       
@@ -470,8 +480,7 @@ module.exports = function (app, models, TokenUtils, utils) {
             "message":"",
             "result" : {
               "quantity" : result.quantityItem,
-            }
-            
+            }      
           });
         }else{
           res.json({
@@ -616,9 +625,9 @@ module.exports = function (app, models, TokenUtils, utils) {
           } else {
             var sequelize = models.sequelize; 
             sequelize.query("SELECT item.idItem, priceItem, addressItem, cityItem, cpItem, quantityItem, nameItem, "
-            +"fileExtensionsItem, nameCategory, nameProduct, nameUnit "
-            +"FROM item, product, category, unit, producer WHERE item.idUserItem = producer.idUserProducer "
-            +"AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit "
+            +"fileExtensionsItem, nameCategory, nameProduct, nameUnit, nameDelivery, deliveryTimeItem , shippingCostItem, quatityMaxOrderItem "
+            +"FROM item, product, category, unit, producer, delivery WHERE item.idUserItem = producer.idUserProducer "
+            +"AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit AND item.idDeliveryItem = delivery.idDelivery "
             +"AND product.idCategoryProduct = category.idCategory AND producer.idUserProducer = :idUser AND item.deletedAt IS NULL",{ replacements: { idUser:  idUser }, type: sequelize.QueryTypes.SELECT  })
             .then(function(result){
 
@@ -677,8 +686,8 @@ module.exports = function (app, models, TokenUtils, utils) {
           } else {
             var sequelize = models.sequelize; 
             sequelize.query("SELECT idItem, priceItem, addressItem, cityItem, cpItem, locationItem, quantityItem, nameItem, descriptionItem, latItem, longItem,"
-            +"fileExtensionsItem, idCategory, nameCategory, idProduct, nameProduct, idUnit, nameUnit "
-            +"FROM item, product, category, unit, producer WHERE item.idUserItem = producer.idUserProducer "
+            +"fileExtensionsItem, idCategory, nameCategory, idProduct, nameProduct, idUnit, nameUnit, nameDelivery, deliveryTimeItem, idDeliveryItem, shippingCostItem, quatityMaxOrderItem "
+            +"FROM item, product, category, unit, producer, delivery WHERE item.idUserItem = producer.idUserProducer AND delivery.idDelivery = item.idDeliveryItem "
             +"AND item.idProductItem = product.idProduct AND item.idUnitItem = unit.idUnit "
             +"AND product.idCategoryProduct = category.idCategory AND producer.idUserProducer = :idUser AND idItem= :idItem",{ replacements: { idUser:  idUser, idItem: req.body.idItem }, type: sequelize.QueryTypes.SELECT  })
             .then(function(result){
@@ -690,6 +699,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                   "result": result[0]
                 });
               }else{
+                
                 res.json({
                   "code": 1,
                   "message": "0 item",
@@ -698,6 +708,7 @@ module.exports = function (app, models, TokenUtils, utils) {
               }
 
             }).catch(function (err) {
+              console.log(err)
                res.json({
                    "code": 2,
                    "message": "Sequelize error",
@@ -707,6 +718,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                             
           }
       }).catch(function(err){
+        console.log(err)
         res.json({
             "code" : 2,
             "message" : "Sequelize error",
