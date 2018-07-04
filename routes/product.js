@@ -5,7 +5,8 @@ module.exports = function(app, models) {
             var request = {
                 where: {
                     idCategoryProduct : req.query.id
-                }
+                },
+                order: ['nameProduct'] 
             };
             Product.findAll(request).then(function(result) {
                 if (result){
@@ -34,7 +35,9 @@ module.exports = function(app, models) {
     app.get("/products", function(req, res, next) {
         
         var Product = models.Product;
-        var request = {};
+        var request = { 
+            order: ['nameProduct'] 
+        };
         Product.findAll(request).then(function(result){
             if(result){
                 res.json({

@@ -65,8 +65,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                                     "result" : {
                                         "loginUser" : result.loginUser,
                                         "emailUser" : result.emailUser
-                                    }
-                                    
+                                    }       
                                 });
                             }).catch(function(err){
                                 //console.log(err)
@@ -741,7 +740,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                     });   
                 }
             }).catch(function (err) {
-               console.log(err)
+               //console.log(err)
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",

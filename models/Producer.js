@@ -41,6 +41,12 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 		locationProducer : {
 			type : Datatypes.STRING
 		},
+		latProducer : {
+			type : Datatypes.FLOAT
+		},
+		longProducer : {
+			type : Datatypes.FLOAT
+		},
 		cpProducer : {
 			type : Datatypes.STRING
 		},
