@@ -229,6 +229,9 @@ module.exports = function(app, models, TokenUtils, utils) {
       sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
             if(result){         
+              for(i = 0; i< result.length; i++){
+                result[i].distance = result[i].distance.toFixed(0);
+              }
               res.json({
                 "code":0,
                 "message":null,
