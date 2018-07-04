@@ -121,7 +121,7 @@ module.exports = function(app, models, TokenUtils, utils) {
   app.get("/producersGroupMember/idGroup/", function(req, res, next) {
     if(req.query.idGroup){
         var idGroup = req.query.idGroup;
-        var query = 'SELECT gpm.*, prd.* from producersGroupMember gpm, producer prd where prd.idUserProducer = gpm.idUser AND gpm.idGroup = '+idGroup+' ;';
+        var query = 'SELECT gpm.*, prd.* from producersGroupMember gpm, producer prd where prd.idUserProducer = gpm.idUser AND gpm.deletedAt IS NOT NULL AND gpm.idGroup = '+idGroup+' ;';
         var jsonResult = {};
         var sequelize = models.sequelize;
         var utf8 = require('utf8');
@@ -183,5 +183,93 @@ module.exports = function(app, models, TokenUtils, utils) {
             });
         });
     }
+  });
+  app.delete("/producersGroupMember/idGroup", function (req, res, next) {
+      if (req.body.idGroup && req.body.token) {
+          var userId = TokenUtils.getIdAndType(req.body.token).id;
+          if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+              res.json({
+                  "code": 6,
+                  "message": "Failed to authenticate token",
+                  "result": null,
+              });
+          }
+          var idGroup = req.body.idGroup;
+          var ProducersGroupMember = models.ProducersGroupMember;
+          ProducersGroupMember.destroy({
+              where: {
+                  idGroup: idGroup
+              }
+          }).then(function (result) {
+              if (result) {
+                  res.json({
+                      "code": 0,
+                      "message": "",
+                      "result": result
+                  });
+              } else {
+                  res.json({
+                      "code": 3,
+                      "message": "ProducerGroupMember not found"
+                  });
+              }
+          }).catch(function (err) {
+              console.log(err);
+              res.json({
+                  "code": 2,
+                  "message": "Sequelize error"
+
+              });
+          });
+      } else {
+          res.json({
+              "code": 1,
+              "message": "Missing required parameters"
+          });
+      }
+  });
+  app.delete("/producersGroupMember/id", function (req, res, next) {
+      if (req.body.id && req.body.token) {
+          var userId = TokenUtils.getIdAndType(req.body.token).id;
+          if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+              res.json({
+                  "code": 6,
+                  "message": "Failed to authenticate token",
+                  "result": null,
+              });
+          }
+          var id = req.body.id;
+          var ProducersGroupMember = models.ProducersGroupMember;
+          ProducersGroupMember.destroy({
+              where: {
+                  id: id
+              }
+          }).then(function (result) {
+              if (result) {
+                  res.json({
+                      "code": 0,
+                      "message": "",
+                      "result": result
+                  });
+              } else {
+                  res.json({
+                      "code": 3,
+                      "message": "ProducerGroupMember not found"
+                  });
+              }
+          }).catch(function (err) {
+              console.log(err);
+              res.json({
+                  "code": 2,
+                  "message": "Sequelize error"
+
+              });
+          });
+      } else {
+          res.json({
+              "code": 1,
+              "message": "Missing required parameters"
+          });
+      }
   });
 };
