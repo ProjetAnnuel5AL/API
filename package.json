@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "mocha": "mocha --exit",
-    "deploy": "./script/deploy"
+    "dev_deploy": "./script/dev_deploy",
+    "prod_deploy": "./script/prod_deploy"
   },
   "author": "",
   "license": "ISC",
