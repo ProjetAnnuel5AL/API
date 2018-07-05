@@ -1,10 +1,14 @@
 {
   "development": {
-    "username": "root",
-    "password": "",
+    "username": "admin",
+    "password": "ESGI-projet-annuel-2018",
     "database": "projetannuel5a",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "host": "51.38.36.241",
+    "dialect": "mysql",
+    "paypalClientId" : "AabAT8gUN4V6XU9PkYH2YuAvx9rp29KOZV29lZoCbFzJBD-987JgMyKWTUEwd4dkpx94_wPgKsL1SNMv",
+    "paypalSecret" : "ELukJJD1z1O3d2NH0V00IfxzxR9696y7bF8DuJNsrj2E24po8r-BT7Q4ANmSx2TgxizR4Ej1hYppXwrU",
+    "paypalMode" : "sandbox",
+    "paypalUrl" : "https://api.sandbox.paypal.com"
 
   },
   "production": {
@@ -12,14 +16,22 @@
     "password": "",
     "database": "",
     "host": "",
-    "dialect": ""
+    "dialect": "",
+    "paypalClientId" : "AabAT8gUN4V6XU9PkYH2YuAvx9rp29KOZV29lZoCbFzJBD-987JgMyKWTUEwd4dkpx94_wPgKsL1SNMv",
+    "paypalSecret" : "ELukJJD1z1O3d2NH0V00IfxzxR9696y7bF8DuJNsrj2E24po8r-BT7Q4ANmSx2TgxizR4Ej1hYppXwrU",
+    "paypalMode" : "sandbox",
+    "paypalUrl" : "https://api.sandbox.paypal.com"
   },
   "test": {
-    "username": "",
-    "password": "",
-    "database": "",
-    "host": "",
-    "dialect": ""
+    "username": "admin",
+    "password": "ESGI-projet-annuel-2018",
+    "database": "projetannuel5a_test",
+    "host": "51.38.36.241",
+    "dialect": "mysql",
+    "paypalClientId" : "AabAT8gUN4V6XU9PkYH2YuAvx9rp29KOZV29lZoCbFzJBD-987JgMyKWTUEwd4dkpx94_wPgKsL1SNMv",
+    "paypalSecret" : "ELukJJD1z1O3d2NH0V00IfxzxR9696y7bF8DuJNsrj2E24po8r-BT7Q4ANmSx2TgxizR4Ej1hYppXwrU",
+    "paypalMode" : "sandbox",
+    "paypalUrl" : "https://api.sandbox.paypal.com"
   }
 
 }

@@ -16,10 +16,42 @@ module.exports = sequelize.import("user", function(sequelize, Datatypes) {
 		passwordUser : {
 			type : Datatypes.STRING
 		},
-		typeUser : {
+		codeResetPasswordUser : {
+			type : Datatypes.TEXT
+		},
+		saltUser : {
 			type : Datatypes.STRING
-		}
+		},
+		typeUser : {
+			type : Datatypes.INTEGER
+		},
+		mailValidationUser : {
+			type : Datatypes.BOOLEAN
+		},
+		validationCodeUser : {
+			type : Datatypes.TEXT
+		},
+		lastNameUser : {
+			type : Datatypes.STRING
+		},
+		firstNameUser : {
+			type : Datatypes.STRING
+		},
+		sexUser : {
+			type : Datatypes.STRING
+		},
+		addressUser : {
+			type : Datatypes.STRING
+		},
+		cityUser : {
+			type : Datatypes.STRING
+		},
+		cpUser : {
+			type : Datatypes.STRING
+		},
 	}, {
+		charset: 'utf8',
+		collate: 'utf8_unicode_ci',
 		paranoid : true,
 		freezeTab : true,
 		tableName : "user"
