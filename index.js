@@ -29,6 +29,7 @@ app.use(
     })
 );
 
+
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/ressources"));
 require("./routes")(app, models, TokenUtils, utils, urlSite, urlApi);
