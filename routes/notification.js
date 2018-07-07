@@ -90,8 +90,7 @@ module.exports = function(app, models, TokenUtils, utils) {
     }
   });
   app.delete("/notification/idItem", function(req, res, next) {
-        console.log(req.query);
-        if(req.query.id && req.body.token){
+        if(req.body.id && req.body.token){
         var userId = TokenUtils.getIdAndType(req.body.token).id;
         if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
           res.json({
@@ -100,7 +99,7 @@ module.exports = function(app, models, TokenUtils, utils) {
             "result": null,
           });
         }
-        var id = req.query.id;
+        var id = req.body.id;
         var Notification = models.Notification;
         Notification.destroy({
         force: true,

@@ -16,7 +16,7 @@ var Motif = require("./Motif");
 var SignalOrder = require("./SignalOrder");
 var SignalOrderLigneOrder = require("./SignalOrderLigneOrder");
 var Report = require("./Report");
-
+var Delivery = require("./Delivery");
 
 seq.sync();
 
@@ -38,5 +38,6 @@ module.exports = {
     "Motif" : Motif,
     "SignalOrder": SignalOrder,
     "SignalOrderLigneOrder": SignalOrderLigneOrder,
-    "Report": Report
+    "Report": Report,
+    "Delivery": Delivery
 };
