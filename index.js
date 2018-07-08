@@ -37,7 +37,7 @@ require("./routes")(app, models, TokenUtils, utils, urlSite, urlApi);
 var port=process.env.PORT || 8888;
 
 if (process.env.NODE_ENV === "test")
-    port = 8082;
+    port = 8083;
 
 var server = app.listen(port, function() {
     console.log("Server started port "+port+"...");
