@@ -13,8 +13,8 @@ var PaypalTransact = require("./PaypalTransact");
 var Order = require("./Order");
 var LigneOrder = require("./LigneOrder");
 var Motif = require("./Motif");
-var SignalOrder = require("./SignalOrder");
-var SignalOrderLigneOrder = require("./SignalOrderLigneOrder");
+var Dispute = require("./Dispute");
+var DisputeLigneOrder = require("./DisputeLigneOrder");
 var Report = require("./Report");
 var Delivery = require("./Delivery");
 
@@ -36,8 +36,8 @@ module.exports = {
     "Order": Order,
     "LigneOrder" : LigneOrder,
     "Motif" : Motif,
-    "SignalOrder": SignalOrder,
-    "SignalOrderLigneOrder": SignalOrderLigneOrder,
+    "Dispute": Dispute,
+    "DisputeLigneOrder": DisputeLigneOrder,
     "Report": Report,
     "Delivery": Delivery
 };
