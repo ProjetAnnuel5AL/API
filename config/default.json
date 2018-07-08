@@ -2,7 +2,7 @@
   "development": {
     "username": "admin",
     "password": "ESGI-projet-annuel-2018",
-    "database": "projetannuel5a_test",
+    "database": "projetannuel5a",
     "host": "51.38.36.241",
     "dialect": "mysql",
     "paypalClientId" : "AabAT8gUN4V6XU9PkYH2YuAvx9rp29KOZV29lZoCbFzJBD-987JgMyKWTUEwd4dkpx94_wPgKsL1SNMv",
