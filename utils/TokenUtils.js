@@ -23,7 +23,7 @@ var findIdUser = function(login) {
 };
 
 var getIdAndType = function(token){
-    return jwt.verify(token,secret, function(err, decoded) {
+    return jwt.verify(token, secret, function(err, decoded) {
         if (err) {
             return false;
         }else{
@@ -97,7 +97,7 @@ var verifProducerToken = function(token, secret, idUser){
 };
 
 var verifAdminToken = function(token, secret, idUser){
-    return jwt.verify(token,secret, function(err, decoded) {
+    return jwt.verify(token, secret, function(err, decoded) {
         if (err) {
             return false;
         }else{

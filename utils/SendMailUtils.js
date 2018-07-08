@@ -21,12 +21,14 @@ SendMailUtils.prototype.sendMail = function(to, subject, text) {
 		from: this.from,
 		to: to,
 		subject: subject,
-		text: text
+		//text: text
+		html: text
 	};
+
   this.transporter.sendMail(mailOptions, function(error, info){
 	if (error) {
 		console.log("ERREUR ENVOI MAIL")
-          console.log(error);
+    console.log(error);
 	} else {
 	  console.log('Email sent: ' + info.response);
 	}

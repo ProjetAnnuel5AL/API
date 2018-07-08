@@ -4,7 +4,8 @@ module.exports = function(app, models) {
         
         var Unit = models.Unit;
         var request = {
-            attributes: ["idUnit", "nameUnit"],  
+            attributes: ["idUnit", "nameUnit"], 
+            order: ['nameUnit']  
         };
         Unit.findAll(request).then(function(result){
             if(result){

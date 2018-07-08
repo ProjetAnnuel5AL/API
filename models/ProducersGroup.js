@@ -32,6 +32,12 @@ module.exports = sequelize.import("producersGroup", function(sequelize, Datatype
 		location : {
 			type : Datatypes.STRING
 		},
+		latGroup : {
+			type : Datatypes.FLOAT
+		},
+		longGroup : {
+			type : Datatypes.FLOAT
+		},
 		description : {
 			type : Datatypes.TEXT
 		},

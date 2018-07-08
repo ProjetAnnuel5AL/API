@@ -65,8 +65,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                                     "result" : {
                                         "loginUser" : result.loginUser,
                                         "emailUser" : result.emailUser
-                                    }
-                                    
+                                    }       
                                 });
                             }).catch(function(err){
                                 //console.log(err)
@@ -155,6 +154,11 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
 
 	//On récupère les infos persos
 	app.get("/user/findEmail", function (req, res, next) {
+        //for retrofit
+        if(req.query.token && req.query.loginUser){
+            req.body.token=req.query.token;
+            req.body.loginUser=req.query.loginUser;
+        }
         if(req.body.token && req.body.loginUser){ 
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       
                 if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
@@ -396,6 +400,11 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
 
 
     app.get("/user/findAddress", function (req, res, next) {
+        //for retrofit
+        if(req.query.token && req.query.loginUser){
+            req.body.token=req.query.token;
+            req.body.loginUser=req.query.loginUser;
+        }
         if(req.body.token && req.body.loginUser){ 
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       
                 if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
@@ -741,7 +750,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                     });   
                 }
             }).catch(function (err) {
-               console.log(err)
+               //console.log(err)
                 res.json({
                     "code": 2,
                     "message": "Sequelize error",

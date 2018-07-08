@@ -10,6 +10,9 @@ module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 		priceItem : {
 			type : Datatypes.FLOAT
 		},
+		shippingCostItem : {
+			type : Datatypes.FLOAT
+		},
 		addressItem : {
 			type : Datatypes.STRING
 		},
@@ -31,6 +34,9 @@ module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 		quantityItem : {
 			type : Datatypes.FLOAT
 		},
+		quatityMaxOrderItem : {
+			type : Datatypes.FLOAT
+		},
 		nameItem : {
 			type : Datatypes.STRING
 		},
@@ -40,6 +46,9 @@ module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 		descriptionItem : {
 			type : Datatypes.TEXT
 		},
+		deliveryTimeItem : {
+			type : Datatypes.STRING
+		},
 		//kg, unité, litres, etc
 		idUnitItem : {
 			type : Datatypes.INTEGER
@@ -48,6 +57,9 @@ module.exports = sequelize.import("Item", function(sequelize, Datatypes) {
 			type : Datatypes.INTEGER
 		},
 		idUserItem : {
+			type : Datatypes.INTEGER
+		},
+		idDeliveryItem : {
 			type : Datatypes.INTEGER
 		}
 	}, {

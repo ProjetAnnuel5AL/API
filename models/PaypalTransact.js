@@ -38,6 +38,8 @@ module.exports = sequelize.import("paypalTransact", function(sequelize, Datatype
         //TO DO : reception validé ou plus de N jour
         //SUCCESS : paiement effectué
         //FAIL : probleme lors du paiement.
+        //DISPUTES : litige
+        //REFUND : remboursement a faire
         statusPaypalTransact: {
             type : Datatypes.STRING,
         }
