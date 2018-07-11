@@ -90,33 +90,6 @@ module.exports = function(app, models, TokenUtils, utils) {
       });
     }
   });
-  app.get("/producersGroup", function(req, res, next) {
-        var ProducersGroup = models.ProducersGroup;
-        var request = {
-            attributes: ["id", "founderUserId", "avatar", "name", "email", "phone", "adress", "city", "location", "description"],  
-        };
-        ProducersGroup.findAll(request).then(function(result){
-            if(result){
-                res.json({
-                  "code": 0,
-                  "message":null,
-                  "result": result
-                });
-            }else{
-                res.json({
-                    "code" : 3,
-                    "message" : "Member not found"
-                });
-            }
-        }).catch(function(err){    
-            console.log(err);
-            res.json({
-              "code": 2,
-              "message": "Sequelize error"
-
-            });
-          });
-    });
   app.get("/producersGroup/member/userId/", function(req, res, next) {
     if(req.body.token, req.body.loginUser){
       var idUser;
@@ -217,6 +190,12 @@ module.exports = function(app, models, TokenUtils, utils) {
   app.get("/producersGroup/search", function(req, res, next) {
     if(req.query.lat && req.query.long && req.body.token){
       var userId = TokenUtils.getIdAndType(req.body.token).id;
+      if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+        res.json({
+          "code": 6,
+          "message": "Failed to authenticate token"
+        });
+      }
       var query = "SELECT grp.*, (select count(id) from producersGroupMember where idGroup = grp.id AND deletedAt IS NULL) "+
         "as countMembers, ( 6371 * acos( cos( radians("+req.query.lat+") ) * cos( radians( grp.latGroup ) )"+
         "* cos( radians(grp.longGroup) - radians("+req.query.long+")) + sin(radians("+req.query.lat+"))"+ 
@@ -261,7 +240,14 @@ module.exports = function(app, models, TokenUtils, utils) {
   });
 
   app.get("/producersGroup/idGroup/", function(req, res, next) {
-    if(req.query.idGroup){
+    if(req.query.idGroup && req.query.token){
+      var userId = TokenUtils.getIdAndType(req.query.token).id;
+      if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+        res.json({
+          "code": 6,
+          "message": "Failed to authenticate token"
+        });
+      }else{
         var utf8 = require('utf8');
         var id = req.query.idGroup;
         var coop;
@@ -298,6 +284,7 @@ module.exports = function(app, models, TokenUtils, utils) {
 
             });
           });
+      }
     }else {
       res.json({
         "code": 1,
@@ -309,48 +296,49 @@ module.exports = function(app, models, TokenUtils, utils) {
   app.delete("/producersGroup/idGroup", function(req, res, next) {
         if(req.body.idGroup && req.body.token){
         var userId = TokenUtils.getIdAndType(req.body.token).id;
-        if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+        if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
           res.json({
             "code": 6,
             "message": "Failed to authenticate token",
             "result": null,
           });
-        }
-        var idGroup = req.body.idGroup;
-        var ProducersGroup = models.ProducersGroup;
-        ProducersGroup.destroy({
-        where: {
-          id: idGroup,
-          founderUserId: userId
-        } 
-        }).then(function(result){
-            if(result){
-              var filePath = null;
-              filePath = "ressources/groupAvatar/" + req.body.idGroup + "/";
-              empty(filePath, true, (o) => {
-                if (o.error) console.error(err);
-                //console.log(o.removed);
-                //console.log(o.failed);
-              });
-                res.json({
-                  "code": 0,
-                  "message": "",
-                  "result": result
+        }else{
+          var idGroup = req.body.idGroup;
+          var ProducersGroup = models.ProducersGroup;
+          ProducersGroup.destroy({
+          where: {
+            id: idGroup,
+            founderUserId: userId
+          } 
+          }).then(function(result){
+              if(result){
+                var filePath = null;
+                filePath = "ressources/groupAvatar/" + req.body.idGroup + "/";
+                empty(filePath, true, (o) => {
+                  if (o.error) console.error(err);
+                  //console.log(o.removed);
+                  //console.log(o.failed);
                 });
-            }else{
-                res.json({
-                    "code" : 3,
-                    "message" : "Producers group not found"
-                });
-            }
-          }).catch(function (err) {
-            console.log(err);
-            res.json({
-              "code": 2,
-              "message": "Sequelize error"
+                  res.json({
+                    "code": 0,
+                    "message": "",
+                    "result": result
+                  });
+              }else{
+                  res.json({
+                      "code" : 3,
+                      "message" : "Producers group not found"
+                  });
+              }
+            }).catch(function (err) {
+              console.log(err);
+              res.json({
+                "code": 2,
+                "message": "Sequelize error"
 
+              });
             });
-          });
+        }
         }else {
       res.json({
         "code": 1,

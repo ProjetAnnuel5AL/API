@@ -8,6 +8,9 @@ var ProducerModel = require("./Producer");
 var CommentProducerModel = require("./CommentProducer");
 var ProducersGroupModel = require("./ProducersGroup");
 var ProducersGroupMemberModel = require("./ProducersGroupMember");
+var ProducersGroupSubscriberModel = require("./ProducersGroupSubscriber");
+var ProducersGroupEventModel = require("./ProducersGroupEvent");
+var ProducersGroupEventParticipantModel = require("./ProducersGroupEventParticipant");
 var Notification = require("./Notification");
 var PaypalTransact = require("./PaypalTransact");
 var Order = require("./Order");
@@ -31,6 +34,9 @@ module.exports = {
     "CommentProducer": CommentProducerModel,
     "ProducersGroup": ProducersGroupModel,
     "ProducersGroupMember": ProducersGroupMemberModel,
+    "ProducersGroupSubscriber": ProducersGroupSubscriberModel,
+    "ProducersGroupEvent": ProducersGroupEventModel,
+    "ProducersGroupEventParticipant": ProducersGroupEventParticipantModel,
     "Notification": Notification,
     "PaypalTransact": PaypalTransact,
     "Order": Order,
