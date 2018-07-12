@@ -2,8 +2,9 @@ module.exports = function(app, models, TokenUtils, utils) {
   var CryptoUtils = utils.CryptoUtils;
   var crpt = new CryptoUtils();
   app.post("/producersGroupEventParticipant", function (req, res, next) {
-    if(req.body.idEvent && req.body.idUser && req.body.token && req.body.typeParticipant && req.body.libelleParticipant){
-      if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", req.body.idUser) == false) {
+    if(req.body.idEvent  && req.body.token && req.body.typeParticipant && req.body.libelleParticipant){
+      var userId = TokenUtils.getIdAndType(req.body.token).id;
+      if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
         res.json({
           "code": 6,
           "message": "Failed to authenticate token",
@@ -17,9 +18,9 @@ module.exports = function(app, models, TokenUtils, utils) {
         }
         ProducersGroupEventParticipant.create({
             "idParticipant": id,
-            "idUser": req.body.idUser,
-            "idEvent": req.body.idGroup,
-            "typeParticipant": req.body.typeParticipant ,
+            "idUser": userId,
+            "idEvent": req.body.idEvent,
+            "typeParticipant": req.body.typeParticipant,
             "libelleParticipant": req.body.libelleParticipant
         }).then(function (result) {
             res.json({
@@ -127,7 +128,7 @@ module.exports = function(app, models, TokenUtils, utils) {
             });
         }else{
             var idGroup = req.query.idGroup;
-            var query = 'SELECT gep.*, prd.* from producersGroupEventParticipant gep, producer prd where prd.idUserProducer = gep.idUser AND gep.typeParticipant = 1 AND gep.deletedAt IS NOT NULL AND gep.idGroup = '+idGroup+' ;';
+            var query = 'SELECT gep.*, prd.*, usr.loginUser from producersGroupEventParticipant gep, producer prd, user usr where usr.idUser = prd.idUserProducer AND prd.idUserProducer = gep.idUser AND gep.typeParticipant = 1 AND gep.deletedAt IS NULL AND gep.idGroup = '+idGroup+' ;';
             var jsonResult = {};
             var sequelize = models.sequelize;
             var utf8 = require('utf8');
@@ -173,7 +174,7 @@ module.exports = function(app, models, TokenUtils, utils) {
             });
         }else{
             var idEvent = req.query.idEvent;
-            var query = 'SELECT gep.*, prd.* from producersGroupEventParticipant gep, producer prd where prd.idUserProducer = gep.idUser AND gep.typeParticipant = 1 AND gep.deletedAt IS NOT NULL AND gep.idEvent = '+idEvent+' ;';
+            var query = 'SELECT gep.*, prd.*, usr.loginUser from producersGroupEventParticipant gep, producer prd, user usr where usr.idUser = prd.idUserProducer AND prd.idUserProducer = gep.idUser AND gep.typeParticipant = 1 AND gep.deletedAt IS NULL AND gep.idEvent = '+idEvent+' ;';
             var jsonResult = {};
             var sequelize = models.sequelize;
             var utf8 = require('utf8');
@@ -260,7 +261,7 @@ module.exports = function(app, models, TokenUtils, utils) {
             });
         }else{
         var idGroup = req.query.idGroup;
-        var query = 'SELECT gep.*, usr.loginUser from producersGroupEventParticipant gep, user usr where usr.idUser = gep.idUser AND gep.typeParticipant = 0 AND gep.deletedAt IS NOT NULL AND gep.idGroup = '+idGroup+' ;';
+        var query = 'SELECT gep.*, usr.loginUser from producersGroupEventParticipant gep, user usr where usr.idUser = gep.idUser AND gep.typeParticipant = 0 AND gep.deletedAt IS NULL AND gep.idGroup = '+idGroup+' ;';
         var jsonResult = {};
         var sequelize = models.sequelize;
         var utf8 = require('utf8');

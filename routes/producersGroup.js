@@ -187,6 +187,56 @@ module.exports = function(app, models, TokenUtils, utils) {
     }
   });
 
+  app.get("/producersGroup/subscriber/id/", function(req, res, next) {
+    if(req.body.token, req.body.loginUser){
+      var idUser;
+      TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
+      idUser = result.idUser;
+      if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", idUser) == false) {
+        res.json({
+          "code": 6,
+          "message": "Failed to authenticate token",
+          "result": null,
+        });
+      }else{
+      var query = 'SELECT grp.*, (select count(id) from producersGroupMember where idGroup = grp.id AND deletedAt IS NULL) as countMembers FROM producersGroup grp, producersGroupSubscriber gps where grp.id = gps.idGroup AND grp.deletedAt IS NULL AND gps.deletedAt IS NULL AND gps.idUser = '+idUser+' ;';
+      var sequelize = models.sequelize;
+        
+      
+      sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
+        .then(function(result){
+            if(result){
+              res.json({
+                "code":0,
+                "message":null,
+                "result": result
+              });
+            }else{
+              res.json({
+                "code" : 3,
+                "message" : "Item not found"
+              });
+            }
+           
+        }).catch(function(err){
+            console.log(err);
+            res.json({
+                "code" : 2,
+                "message" : "Sequelize error",
+                "error" : err
+            });
+        });
+      }
+    });
+    }
+    else {
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters"
+      });
+    }
+  });
+
   app.get("/producersGroup/search", function(req, res, next) {
     if(req.query.lat && req.query.long && req.body.token){
       var userId = TokenUtils.getIdAndType(req.body.token).id;

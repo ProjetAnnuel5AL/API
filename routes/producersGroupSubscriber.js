@@ -41,6 +41,47 @@ module.exports = function(app, models, TokenUtils, utils) {
       });
     }
   });
+  app.get("/producersGroupSubscriber/idUser", function(req, res, next) {
+    if (req.query.token) {
+      var userId = TokenUtils.getIdAndType(req.query.token).id;
+      if (TokenUtils.verifProducerToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+        res.json({
+          "code": 6,
+          "message": "Failed to authenticate token",
+          "result": null,
+        });
+      }else{
+        var ProducersGroupSubscriber = models.ProducersGroupSubscriber;
+        var request = {
+            attributes: ["id", "idUser", "idGroup"],
+            where: {
+            idUser: req.query.userId
+            }
+        };
+        ProducersGroupSubscriber.findAll(request).then(function (result) {
+            if (result) {
+            res.json({
+                "code": 0,
+                "message": "",
+                "result": result
+            });
+            } else {
+            res.json({
+                "code": 3,
+                "message": "ProducerGroupSubscribers not found"
+            });
+            }
+        }).catch(function (err) {
+            console.log(err);
+            res.json({
+            "code": 2,
+            "message": "Sequelize error"
+
+            });
+        });
+      }
+    }
+  });
   app.get("/producersGroupSubscriber/idGroup", function(req, res, next) {
     if (req.query.idGroup && req.query.token) {
       var userId = TokenUtils.getIdAndType(req.query.token).id;
