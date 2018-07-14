@@ -2,7 +2,7 @@ module.exports = function(app, models, TokenUtils, utils, urlSite, urlApi) {
 
 
 	app.get('/', function (req, res) {
-		res.send('Welcome on API V3 !');
+		res.send('Hello on API V3 !');
 	});
 
 
