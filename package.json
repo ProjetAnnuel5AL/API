@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=html mocha --exit",
-    "mocha": "nyc mocha --exit",
-    "deploy": "./script/deploy"
+  "test": "nyc --reporter=html mocha --exit",
+    "mocha": "mocha --exit",
+    "dev_deploy": "./script/dev_deploy",
+    "prod_deploy": "./script/prod_deploy"
+
   },
   "author": "",
   "license": "ISC",
