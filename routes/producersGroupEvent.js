@@ -56,15 +56,15 @@ module.exports = function(app, models, TokenUtils, utils) {
     }
   });
   app.get("/producersGroupEvent/idGroup/", function(req, res, next) {
-    if(req.query.idGroup && req.query.token){
-        var userId = TokenUtils.getIdAndType(req.query.token).id;
-        if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
-            res.json({
-            "code": 6,
-            "message": "Failed to authenticate token",
-            "result": null,
-            });
-        }else{
+    if(req.query.idGroup /*&& req.query.token*/){
+      /*var userId = TokenUtils.getIdAndType(req.query.token).id;
+      if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+          res.json({
+          "code": 6,
+          "message": "Failed to authenticate token",
+          "result": null,
+          });
+      }else{*/
             var ProducersGroupEvent = models.ProducersGroupEvent;
             var request = {
                 attributes: ['idEvent', 'idGroup', 'nameEvent', 'adressEvent', 'cityEvent', 'locationEvent', 'latEvent', 'longEvent', 'descriptionEvent', 'dateEvent'],  
@@ -94,7 +94,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                 });
             });
         }
-    }
+    //}
   });
   app.get("/producersGroupEvent/id/", function(req, res, next) {
     if(req.query.idEvent && req.query.token){

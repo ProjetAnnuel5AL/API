@@ -115,15 +115,15 @@ module.exports = function(app, models, TokenUtils, utils) {
     }
   });
   app.get("/producersGroupMember/idGroup/", function(req, res, next) {
-    if(req.query.idGroup && req.query.token){
-        var userId = TokenUtils.getIdAndType(req.query.token).id;
+    if(req.query.idGroup /*&& req.query.token*/){
+        /*var userId = TokenUtils.getIdAndType(req.query.token).id;
         if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
             res.json({
             "code": 6,
             "message": "Failed to authenticate token",
             "result": null,
             });
-        }else{
+        }else{*/
             var idGroup = req.query.idGroup;
             var query = 'SELECT gpm.*, prd.*, usr.loginUser from producersGroupMember gpm, producer prd, user usr where usr.idUser = prd.idUserProducer AND prd.idUserProducer = gpm.idUser AND gpm.deletedAt IS NULL AND gpm.idGroup = '+idGroup+' ;';
             var jsonResult = {};
@@ -158,10 +158,11 @@ module.exports = function(app, models, TokenUtils, utils) {
                 });
             });
         }
-    }
+    //}
   });
+
   app.get("/producersGroupMember/idUser/idGroup", function(req, res, next) {
-    if(req.query.idUser && req.query.idGroup && req.query.token){
+    if(req.query.idGroup && req.query.token){
         var userId = TokenUtils.getIdAndType(req.query.token).id;
         if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
             res.json({
@@ -174,13 +175,17 @@ module.exports = function(app, models, TokenUtils, utils) {
             var request = {
                 attributes: ["id", "idUser", "idGroup"],  
                 where: {
-                idGroup : req.query.idGroup,
-                idUser : req.query.idUser
+                    idGroup : req.query.idGroup,
+                    idUser : userId
                 }
             };
             ProducersGroupMember.findAll(request).then(function(result){
-                if(result){
-                    res.json(result);
+                if(result && result.length>0){
+                    res.json({
+                        "code" : 0,
+						"result" :null,
+                        "message" : ""
+                    });
                 }else{
                     res.json({
                         "code" : 3,
@@ -196,8 +201,14 @@ module.exports = function(app, models, TokenUtils, utils) {
                 });
             });
         }
-    }
+    }else {
+          res.json({
+              "code": 1,
+              "message": "Missing required parameters"
+          });
+      }
   });
+
   app.delete("/producersGroupMember/idGroup", function (req, res, next) {
       if (req.body.idGroup && req.body.token) {
           var userId = TokenUtils.getIdAndType(req.body.token).id;

@@ -139,6 +139,10 @@ module.exports = function(app, models, TokenUtils, utils) {
     }
   });
   app.get("/producersGroup/founder/userId/", function(req, res, next) {
+    if(req.query.token && req.query.loginUser){
+        req.body.token= req.query.token;
+        req.body.loginUser =  req.query.loginUser;
+    }
     if(req.body.token, req.body.loginUser){
       var idUser;
       TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
@@ -156,7 +160,7 @@ module.exports = function(app, models, TokenUtils, utils) {
       
       sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
-            if(result){
+            if(result && result.length>0){
               res.json({
                 "code":0,
                 "message":null,
@@ -165,7 +169,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             }else{
               res.json({
                 "code" : 3,
-                "message" : "Item not found"
+                "message" : "Item not found",
+                "result": null
               });
             }
            
@@ -188,7 +193,7 @@ module.exports = function(app, models, TokenUtils, utils) {
   });
 
   app.get("/producersGroup/subscriber/id/", function(req, res, next) {
-    if(req.body.token, req.body.loginUser){
+    if(req.body.token && req.body.loginUser){
       var idUser;
       TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
       idUser = result.idUser;
@@ -290,14 +295,14 @@ module.exports = function(app, models, TokenUtils, utils) {
   });
 
   app.get("/producersGroup/idGroup/", function(req, res, next) {
-    if(req.query.idGroup && req.query.token){
-      var userId = TokenUtils.getIdAndType(req.query.token).id;
+    if(req.query.idGroup /*&& req.query.token*/){
+      /*var userId = TokenUtils.getIdAndType(req.query.token).id;
       if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
         res.json({
           "code": 6,
           "message": "Failed to authenticate token"
         });
-      }else{
+      }else{*/
         var utf8 = require('utf8');
         var id = req.query.idGroup;
         var coop;
@@ -334,7 +339,7 @@ module.exports = function(app, models, TokenUtils, utils) {
 
             });
           });
-      }
+      //}
     }else {
       res.json({
         "code": 1,
