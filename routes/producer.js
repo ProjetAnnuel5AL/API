@@ -3,9 +3,23 @@ module.exports = function(app, models, TokenUtils, utils) {
     var CryptoUtils = utils.CryptoUtils;
     var crpt = new CryptoUtils();
 
+
+    app.get("/testCryptoFile", function(req,res,next){
+       
+        
+        encryptor.encryptFile('test.pdf', 'encrypted.dat', key, options, function(err) {
+            encryptor.decryptFile('encrypted.dat', 'outputfile.pdf', key, options, function(err) {
+                // Encryption complete;
+              });
+        });
+    })
+
     //CREATE Producer
     app.post("/producer", function(req, res, next) {
-        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.locationProducer && req.body.token && req.body.paypalProducer) {
+        console.log(req.body);
+        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer 
+            && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer 
+            && req.body.locationProducer && req.body.token && req.body.paypalProducer && req.body.ibanProducer) {
             var Producer = models.Producer;
             var User = models.User;
             var idUser = null;
@@ -22,8 +36,17 @@ module.exports = function(app, models, TokenUtils, utils) {
                     });
                     
                 } else {
+                    
+                    var nameIbanFile="";
                     var avatar = "default";
                     var extension;
+
+
+
+                    if(req.body.ibanProducer.name!=""){
+                        nameIbanFile = req.body.ibanProducer.name;
+                    }
+
                     if(req.body.avatarProducer.name!=""){
                         extension = req.body.avatarProducer.name.split('.');
                         avatar = "avatar."+extension[extension.length-1];
@@ -48,7 +71,8 @@ module.exports = function(app, models, TokenUtils, utils) {
                         "avatarProducer" : avatar,
                         "paypalProducer" : crpt.encryptAES(req.body.paypalProducer),
                         "latProducer" : lat,
-                        "longProducer" : long
+                        "longProducer" : long,
+                        "ibanProducer": nameIbanFile,
                     }).then(function(result){
                         var request = {
                             "where": {
@@ -63,6 +87,31 @@ module.exports = function(app, models, TokenUtils, utils) {
                            
                         });
                         var filePath=null;
+                        var filePath2=null;
+                        if(req.body.ibanProducer.name!=""){
+                            filePath2 = "ressources/ibanProducer/";
+                            if (!fs.existsSync(filePath2)) {
+                                fs.mkdirSync(filePath2)
+                            }
+                            var oldPathIban = req.body.ibanProducer.path;
+                            var newPathIban = filePath2 + req.body.ibanProducer.name;
+
+                            fs.readFile(oldPathIban, function (err, data) {
+                                console.log('File read!');
+                    
+                                // Write the file
+                                fs.writeFile(newPathIban, data, function (err) {
+
+                                });
+                    
+                                // Delete the file
+                                fs.unlink(oldPathIban, function (err) {
+                                    console.log('File deleted!');
+                                });
+                            });
+
+                        }
+
                         if(req.body.avatarProducer.name!=""){
                             filePath = "ressources/producerAvatar/"+result.idProducer+"/";
                             if (!fs.existsSync(filePath)) {
@@ -179,6 +228,9 @@ module.exports = function(app, models, TokenUtils, utils) {
     });
 
     app.get("/getPublicInformations", function(req, res, next) {
+        if(req.query.idProducer){
+            req.body.idProducer = req.query.idProducer;
+        }
         if (req.body.idProducer){
             
             var sequelize = models.sequelize;
@@ -439,7 +491,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                             }   
                         });
                     }).catch(function (err) {
-                        console.log(err)
+                        //console.log(err)
                         res.json({
                             "code": 2,
                             "message": "Sequelize error",
@@ -449,7 +501,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                 }
 
             }).catch(function(err){
-                console.log(err)
+                //console.log(err)
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
@@ -465,5 +517,61 @@ module.exports = function(app, models, TokenUtils, utils) {
         }
     
     });
+
+    app.post("/commentProducer", function(req, res, next) {
+        console.log(req.body)
+        if(req.body.loginUser && req.body.token && req.body.stars && req.body.idProducer){
+            var idUser;
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
+                idUser = result.idUser;
+                if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token",
+                        "result": null,
+                    });    
+                } else {
+                    var comment="";
+                    if(req.body.comment){
+                        comment = req.body.comment;
+                    }
+                    var CommentProducer = models.CommentProducer;
+                    CommentProducer.create({
+                        "idProducer": req.body.idProducer,
+                        "idUser": idUser ,
+                        "comment": comment,
+                        "starComment": req.body.stars,
+                        "dateComment": new Date()
+                    }).then(function(result){
+                        if(result){
+                            res.json({
+                                "code": 0,
+                                "message": "ok",
+                                "result": null
+                            });
+                        }else{
+                            res.json({
+                                "code" : 2,
+                                "message" : "Sequelize error",
+                                "result": null
+                            });
+                        }
+                    }).catch(function(err){
+                        res.json({
+                            "code" : 2,
+                            "message" : "Sequelize error",
+                            "result": null
+                        });
+                    })
+                }
+            });
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters",
+                "result": null
+            });
+        }
+    })
 
 }

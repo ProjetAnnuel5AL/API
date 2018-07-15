@@ -158,6 +158,10 @@ module.exports = function (app, models, TokenUtils, utils) {
 
     
     app.get("/order/getOdrersFromUser", function (req, res, next) { 
+        if(req.query.loginUser && req.query.token){
+            req.body.loginUser = req.query.loginUser;
+            req.body.token = req.query.token;
+        }
         if(req.body.loginUser && req.body.token){
             var orders;
             var status = [];
@@ -242,6 +246,11 @@ module.exports = function (app, models, TokenUtils, utils) {
     });
 
     app.get("/order/getOrderDetailsFromUser", function (req, res, next) { 
+        if(req.query.loginUser && req.query.token && req.query.idOrder){
+            req.body.loginUser = req.query.loginUser;
+            req.body.token = req.query.token;
+            req.body.idOrder = req.query.idOrder;
+        }
         if(req.body.loginUser && req.body.token && req.body.idOrder){
             var sequelize = models.sequelize;
             var idUser;
@@ -630,5 +639,7 @@ module.exports = function (app, models, TokenUtils, utils) {
             });
         }
     });
+
+
 
 };

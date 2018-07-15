@@ -1,8 +1,8 @@
 var models=require("../models");
 var jwt = require('jsonwebtoken');
 
-//UserType: 0
-//ProducerType: 1
+//UserType: 1
+//ProducerType: 3
 //AdminType: 2
 var secret = "kukjhifksd489745dsf87d79+62dsfAD_-=";
 
