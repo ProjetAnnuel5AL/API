@@ -56,44 +56,36 @@ module.exports = function(app, models, TokenUtils, utils) {
     }
   });
   app.get("/producersGroupEvent/idGroup/", function(req, res, next) {
-    if(req.query.idGroup && req.query.token){
-        var userId = TokenUtils.getIdAndType(req.query.token).id;
-        if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
-            res.json({
-            "code": 6,
-            "message": "Failed to authenticate token",
-            "result": null,
-            });
-        }else{
-            var ProducersGroupEvent = models.ProducersGroupEvent;
-            var request = {
-                attributes: ['idEvent', 'idGroup', 'nameEvent', 'adressEvent', 'cityEvent', 'locationEvent', 'latEvent', 'longEvent', 'descriptionEvent', 'dateEvent'],  
-                where: {
-                  idGroup : req.query.idGroup
-                }
-            };
-            ProducersGroupEvent.findAll(request).then(function(result){
-                if(result){
-                  res.json({
-                    "code" : 0,
-                    "message" : "",
-                    "result":result
-                  });
-                }else{
-                    res.json({
-                        "code" : 3,
-                        "message" : "Event not found"
-                    });
-                }
-            }).catch(function (err) {
-                console.log(err);
-                res.json({
-                    "code": 2,
-                    "message": "Sequelize error"
-
-                });
-            });
+    if (req.query.idGroup) {
+      var ProducersGroupEvent = models.ProducersGroupEvent;
+      var request = {
+        attributes: ['idEvent', 'idGroup', 'nameEvent', 'adressEvent', 'cityEvent', 'locationEvent', 'latEvent', 'longEvent', 'descriptionEvent', 'dateEvent'],
+        where: {
+          idGroup: req.query.idGroup
         }
+      };
+      ProducersGroupEvent.findAll(request).then(function (result) {
+        if (result) {
+          res.json({
+            "code": 0,
+            "message": "",
+            "result": result
+          });
+        } else {
+          res.json({
+            "code": 3,
+            "message": "Event not found",
+            "result": result
+          });
+        }
+      }).catch(function (err) {
+        console.log(err);
+        res.json({
+          "code": 2,
+          "message": "Sequelize error",
+          "result": result
+        });
+      });
     }
   });
   app.get("/producersGroupEvent/id/", function(req, res, next) {
@@ -113,7 +105,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                   idEvent : req.query.idEvent
                 }
             };
-            ProducersGroupEvent.findAll(request).then(function(result){
+            ProducersGroupEvent.find(request).then(function(result){
                 if(result){
                   res.json({
                     "code" : 0,
