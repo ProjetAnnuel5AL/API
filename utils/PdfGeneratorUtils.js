@@ -2,7 +2,7 @@ var PDFDocument = require("pdfkit");
 var fs = require("fs");
 const pdfInvoice = require('./PdfGeneratorEngineUtils');
 
-var PDFBillUser = function(customer, items, producer, orderId, orderDate, res) {
+var PDFBillUser = function(customer, items, producer, orderId, orderDate, totalPrice, res) {
     const document = pdfInvoice({
       company: {
         phone: '(+33) 106863729',
@@ -15,7 +15,8 @@ var PDFBillUser = function(customer, items, producer, orderId, orderDate, res) {
       items: items,
       producer: producer,
       orderId: orderId,
-      orderDate : orderDate
+      orderDate : orderDate,
+      totalPrice : totalPrice
     })
     document.generate()
     document.pdfkitDoc.pipe(res);
