@@ -57,7 +57,7 @@ module.exports = function(app, models, TokenUtils, utils) {
   });
   app.get("/producersGroupEvent/idGroup/", function(req, res, next) {
     if (req.query.idGroup) {
-      var query = 'SELECT (select count(*) from producersGroupEventParticipant gpep where gpep.deletedAt IS NULL AND gpep.idEvent=grpEvent.idEvent) as countParticipants, grpEvent.* from producersGroupEvent grpEvent where grpEvent.deletedAt IS NULL AND grpEvent.idGroup ='+req.query.idGroup+';';
+      var query = 'SELECT (select count(*) from producersGroupEventParticipant gpep where gpep.deletedAt IS NULL AND gpep.idEvent=grpEvent.idEvent) as countParticipants, grpEvent.* from producersGroupEvent grpEvent where grpEvent.deletedAt IS NULL AND grpEvent.dateEvent > sysdate() AND grpEvent.idGroup ='+req.query.idGroup+';';
       var sequelize = models.sequelize;
       sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
       .then(function(result){
