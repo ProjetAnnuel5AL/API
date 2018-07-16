@@ -1,7 +1,6 @@
 module.exports = function (app, models, TokenUtils, utils) {
   var fs = require("fs");
   const empty = require('empty-folder');
-  
 
 
   app.post("/item", function (req, res, next) {
