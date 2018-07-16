@@ -63,8 +63,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                                     "code" : 0,
                                     "message" : null,
                                     "result" : {
-                                        "loginUser" : result.loginUser,
-                                        "emailUser" : result.emailUser
+                                        "loginUser" : result.loginUser
                                     }       
                                 });
                             }).catch(function(err){
@@ -85,14 +84,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                     })    
                 }
 
-            }).catch(function(err){
-                console.log(err)
-                res.json({
-                    "code" : 2,
-                    "message" : "Sequelize error",
-                    "result":null
-                });
-            });
+            })
         } else {
             res.json({
                 "code" : 1,
@@ -127,14 +119,7 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
                             "message":"Validated user account",
                             "result":null
                         });
-                    }).catch(function (err) {
-                        res.json({
-                            "code": 2,
-                            "message": "Sequelize error",
-                            "result":null
-                        });
-                    });
-
+                    })
                 } else {
                     res.json({
                         "code" : 3,

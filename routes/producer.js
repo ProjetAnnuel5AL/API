@@ -2,10 +2,17 @@ module.exports = function(app, models, TokenUtils, utils) {
     var fs = require("fs");
     var CryptoUtils = utils.CryptoUtils;
     var crpt = new CryptoUtils();
+    var jwt = require('jsonwebtoken');
 
     //CREATE Producer
     app.post("/producer", function(req, res, next) {
-        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.locationProducer && req.body.token && req.body.paypalProducer) {
+        var nameIbanFile =""
+        const uuidv4 = require('uuid/v4');
+        
+        if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer 
+            && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer 
+            && req.body.locationProducer && req.body.token && req.body.paypalProducer && req.body.ibanProducer) {
+                
             var Producer = models.Producer;
             var User = models.User;
             var idUser = null;
@@ -22,8 +29,15 @@ module.exports = function(app, models, TokenUtils, utils) {
                     });
                     
                 } else {
+                   
                     var avatar = "default";
                     var extension;
+
+                    if(req.body.ibanProducer.name!=""){
+                       
+                        nameIbanFile = uuidv4()+".pdf";
+                    }
+
                     if(req.body.avatarProducer.name!=""){
                         extension = req.body.avatarProducer.name.split('.');
                         avatar = "avatar."+extension[extension.length-1];
@@ -48,7 +62,8 @@ module.exports = function(app, models, TokenUtils, utils) {
                         "avatarProducer" : avatar,
                         "paypalProducer" : crpt.encryptAES(req.body.paypalProducer),
                         "latProducer" : lat,
-                        "longProducer" : long
+                        "longProducer" : long,
+                        "ibanProducer": nameIbanFile,
                     }).then(function(result){
                         var request = {
                             "where": {
@@ -63,6 +78,38 @@ module.exports = function(app, models, TokenUtils, utils) {
                            
                         });
                         var filePath=null;
+                        var filePath2=null;
+                        if(req.body.ibanProducer.name!=""){
+                            filePath2 = "ressources/ibanProducer/";
+                            if (!fs.existsSync(filePath2)) {
+                                fs.mkdirSync(filePath2)
+                            }
+                            var oldPathIban = req.body.ibanProducer.path;
+                            var newPathIban = filePath2 + nameIbanFile;
+
+                            fs.readFile(oldPathIban, function (err, data) {
+                                console.log('File read!');
+                    
+                                // Write the file
+                                fs.writeFile(newPathIban, data, function (err) {
+                                    var ext = newPathIban.split('.');
+                                    var nameCrypt ="";
+                                    for (var i =0; i<ext.length-1; i++){
+                                        nameCrypt += ext[i];
+                                    }
+                                    crpt.encrypteFileAES(nameCrypt)
+                                        
+                                    
+                                });
+                    
+                                // Delete the file
+                                fs.unlink(oldPathIban, function (err) {
+                                    console.log('File deleted!');
+                                });
+                            });
+
+                        }
+
                         if(req.body.avatarProducer.name!=""){
                             filePath = "ressources/producerAvatar/"+result.idProducer+"/";
                             if (!fs.existsSync(filePath)) {
@@ -93,11 +140,21 @@ module.exports = function(app, models, TokenUtils, utils) {
                             });
                         }
 
+                        var payload = {
+                            admin: 1,
+                            id: idUser
+                        };
+                        var token = jwt.sign(payload, "kukjhifksd489745dsf87d79+62dsfAD_-=", {
+                            expiresIn : 60*60*24
+                        });
+
+                        
                         res.json({
                             "code" : 0,
                             "message" : "producer",
                             "result": {
-                                "id" : result.idProducer
+                                "id" : result.idProducer,
+                                "token" : token
                             },
                             
                         });
@@ -179,6 +236,9 @@ module.exports = function(app, models, TokenUtils, utils) {
     });
 
     app.get("/getPublicInformations", function(req, res, next) {
+        if(req.query.idProducer){
+            req.body.idProducer = req.query.idProducer;
+        }
         if (req.body.idProducer){
             
             var sequelize = models.sequelize;
@@ -344,6 +404,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             var idUser;
             var idProducer;
             var Producer = models.Producer;
+            var oldIbanProducer="";
+            const uuidv4 = require('uuid/v4');
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
                 idUser = result.idUser;
                 if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
@@ -356,6 +418,17 @@ module.exports = function(app, models, TokenUtils, utils) {
                 } else {
                     Producer.find({where: { idUserProducer : idUser}}).then(function(result){
                         idProducer = result.idProducer
+                        var extOldIban = result.ibanProducer.split('.');
+                       
+                        for (var i =0; i<extOldIban.length-1; i++){
+                            oldIbanProducer += extOldIban[i];
+                        }
+                        if(req.body.ibanProducer.name!=""){
+                           
+                            fs.unlink("ressources/ibanProducer/"+oldIbanProducer+".dat");
+                        }
+                       
+                        
                     })
                     var request = {
                         where: {
@@ -385,6 +458,13 @@ module.exports = function(app, models, TokenUtils, utils) {
                     long = LatLong[1];
 
                     
+                    if(req.body.ibanProducer.name!=""){
+                       
+                        var nameIbanFile=  uuidv4()+".pdf";;
+                        attributes.ibanProducer =  nameIbanFile;;
+                       
+                    }
+                    
                     attributes.lastNameProducer = crpt.encryptAES(req.body.lastNameProducer);
                     attributes.firstNameProducer = crpt.encryptAES(req.body.firstNameProducer);
                     attributes.emailProducer = crpt.encryptAES(req.body.emailProducer);
@@ -403,7 +483,40 @@ module.exports = function(app, models, TokenUtils, utils) {
                     Producer.update(attributes, request).then(function(results){
                         
                         
+                        if(req.body.ibanProducer.name!=""){
+                            filePath2 = "ressources/ibanProducer/";
+                            if (!fs.existsSync(filePath2)) {
+                                fs.mkdirSync(filePath2)
+                            }
+                            var oldPathIban = req.body.ibanProducer.path;
+                            var newPathIban = filePath2 + nameIbanFile;
+
+                            fs.readFile(oldPathIban, function (err, data) {
+                                console.log('File read!');
+                    
+                                // Write the file
+                                fs.writeFile(newPathIban, data, function (err) {
+                                    var ext = newPathIban.split('.');
+                                    var nameCrypt ="";
+                                    for (var i =0; i<ext.length-1; i++){
+                                        nameCrypt += ext[i];
+                                    }
+                                    crpt.encrypteFileAES(nameCrypt)
+                                        
+                                    
+                                });
+                    
+                                // Delete the file
+                                fs.unlink(oldPathIban, function (err) {
+                                    console.log('File deleted!');
+                                });
+                            });
+
+                        }
+
                         var filePath=null;
+
+
                         if(req.body.avatarProducer.name!=""){
                             filePath = "ressources/producerAvatar/"+idProducer+"/";
                             if (!fs.existsSync(filePath)) {
@@ -439,7 +552,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                             }   
                         });
                     }).catch(function (err) {
-                        console.log(err)
+                        //console.log(err)
                         res.json({
                             "code": 2,
                             "message": "Sequelize error",
@@ -449,7 +562,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                 }
 
             }).catch(function(err){
-                console.log(err)
+                //console.log(err)
                 res.json({
                     "code" : 2,
                     "message" : "Sequelize error",
@@ -465,5 +578,64 @@ module.exports = function(app, models, TokenUtils, utils) {
         }
     
     });
+
+    app.post("/commentProducer", function(req, res, next) {
+        console.log(req.body)
+        if(req.body.loginUser && req.body.token && req.body.stars && req.body.idProducer){
+            var idUser;
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
+                idUser = result.idUser;
+                if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token",
+                        "result": null,
+                    });    
+                } else {
+                    var comment="";
+                    if(req.body.comment){
+                        comment = req.body.comment;
+                    }
+                    var CommentProducer = models.CommentProducer;
+                    CommentProducer.create({
+                        "idProducer": req.body.idProducer,
+                        "idUser": idUser ,
+                        "comment": comment,
+                        "starComment": req.body.stars,
+                        "dateComment": new Date()
+                    }).then(function(result){
+                        if(result){
+                            res.json({
+                                "code": 0,
+                                "message": "ok",
+                                "result": null
+                            });
+                        }else{
+                            res.json({
+                                "code" : 2,
+                                "message" : "Sequelize error",
+                                "result": null
+                            });
+                        }
+                    }).catch(function(err){
+                        res.json({
+                            "code" : 2,
+                            "message" : "Sequelize error",
+                            "result": null
+                        });
+                    })
+                }
+            });
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters",
+                "result": null
+            });
+        }
+    })
+
+
+
 
 }

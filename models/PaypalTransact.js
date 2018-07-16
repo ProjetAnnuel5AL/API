@@ -36,7 +36,7 @@ module.exports = sequelize.import("paypalTransact", function(sequelize, Datatype
         },
         //PENDING : en attente de validation de reception
         //TO DO : reception validé ou plus de N jour
-        //SUCCESS : paiement effectué
+        //SUCCESS : TERMINE
         //FAIL : probleme lors du paiement.
         //DISPUTES : litige
         //REFUND : remboursement a faire

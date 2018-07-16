@@ -79,7 +79,7 @@ module.exports = function(app, models, TokenUtils, utils) {
           });
         }
       }).catch(function (err) {
-        console.log(err);
+        
         res.json({
           "code": 2,
           "message": "Sequelize error",
@@ -88,6 +88,7 @@ module.exports = function(app, models, TokenUtils, utils) {
       });
     }
   });
+
   app.get("/producersGroupEvent/id/", function(req, res, next) {
     if(req.query.idEvent && req.query.token){
         var userId = TokenUtils.getIdAndType(req.query.token).id;

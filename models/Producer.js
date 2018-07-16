@@ -55,6 +55,9 @@ module.exports = sequelize.import("producer", function(sequelize, Datatypes) {
 		},
 		paypalProducer : {
 			type : Datatypes.STRING
+		},
+		ibanProducer : {
+			type : Datatypes.STRING
         },
 	}, {
 		charset: 'utf8',

@@ -193,7 +193,7 @@ module.exports = function(app, models, TokenUtils, utils) {
   });
 
   app.get("/producersGroup/subscriber/id/", function(req, res, next) {
-    if(req.body.token, req.body.loginUser){
+    if(req.body.token && req.body.loginUser){
       var idUser;
       TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
       idUser = result.idUser;

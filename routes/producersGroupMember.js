@@ -149,9 +149,11 @@ module.exports = function(app, models, TokenUtils, utils) {
                     "message" : "Sequelize error",
                     "error" : err
                 });
-            });
+            });D
     }
-  });
+
+});
+
   app.get("/producersGroupMember/idUser/idGroup", function(req, res, next) {
     if(req.query.idGroup && req.query.token){
         var userId = TokenUtils.getIdAndType(req.query.token).id;
@@ -166,8 +168,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             var request = {
                 attributes: ["id", "idUser", "idGroup"],  
                 where: {
-                idGroup : req.query.idGroup,
-                idUser : userId
+                    idGroup : req.query.idGroup,
+                    idUser : userId
                 }
             };
             ProducersGroupMember.findAll(request).then(function(result){
@@ -199,7 +201,9 @@ module.exports = function(app, models, TokenUtils, utils) {
            "message": "Missing required parameters"
        });
     }
+ 
   });
+
   app.delete("/producersGroupMember/idGroup", function (req, res, next) {
       if (req.body.idGroup && req.body.token) {
           var userId = TokenUtils.getIdAndType(req.body.token).id;
