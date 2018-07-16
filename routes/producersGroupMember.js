@@ -114,7 +114,8 @@ module.exports = function(app, models, TokenUtils, utils) {
         }
     }
   });
-  app.get("/", function(req, res, next) {
+
+  app.get("/producersGroupMember/idGroup/", function(req, res, next) {
     if(req.query.idGroup){
             var idGroup = req.query.idGroup;
             var query = 'SELECT gpm.*, prd.*, usr.loginUser from producersGroupMember gpm, producer prd, user usr where usr.idUser = prd.idUserProducer AND prd.idUserProducer = gpm.idUser AND gpm.deletedAt IS NULL AND gpm.idGroup = '+idGroup+' ;';
