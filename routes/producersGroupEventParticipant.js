@@ -342,4 +342,49 @@ module.exports = function(app, models, TokenUtils, utils) {
           });
       }
   });
+  app.delete("/producersGroupEventParticipant/idEvent", function (req, res, next) {
+      if (req.body.idEvent && req.body.token) {
+          var userId = TokenUtils.getIdAndType(req.body.token).id;
+          if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+              res.json({
+                  "code": 6,
+                  "message": "Failed to authenticate token",
+                  "result": null,
+              });
+          }else{
+            var id = req.body.id;
+            var ProducersGroupEventParticipant = models.ProducersGroupEventParticipant;
+            ProducersGroupEventParticipant.destroy({
+                where: {
+                    idEvent: req.body.idEvent
+                }
+            }).then(function (result) {
+                if (result) {
+                    res.json({
+                        "code": 0,
+                        "message": "",
+                        "result": result
+                    });
+                } else {
+                    res.json({
+                        "code": 3,
+                        "message": "ProducerGroupEventParticipant not found"
+                    });
+                }
+            }).catch(function (err) {
+                console.log(err);
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error"
+
+                });
+            });
+          }
+      } else {
+          res.json({
+              "code": 1,
+              "message": "Missing required parameters"
+          });
+      }
+  });
 };

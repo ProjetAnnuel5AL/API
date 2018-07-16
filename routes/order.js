@@ -713,7 +713,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                     "message" : "Failed to authenticate token"
                 });
             } else {  
-                var query = "SELECT idOrder, dateOrder, totalOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, shippingCostLigneOrder, "
+                var query = "SELECT idOrder, dateOrder, totalOrder, (quantiteLigneOrder*prixUnitaireLigneOrder+shippingCostLigneOrder) as priceLine, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, shippingCostLigneOrder, "
                     +"deliveryTimeLigneOrder , quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, addressProducer, lastNameUser, cityProducer, firstNameUser, emailUser, loginUser, "
                     +"idDeliveryLigneOrder, nameDelivery FROM `order`, ligneOrder, paypalTransact, producer, user, delivery WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder "
                     +"AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer "
@@ -738,11 +738,15 @@ module.exports = function (app, models, TokenUtils, utils) {
                             if(result[i].unitLigneOrder != 'Unité'){
                                 result[i].quantiteLigneOrder = result[i].quantiteLigneOrder + " (" + result[i].unitLigneOrder+(")");
                             }
-                            items[i] = {amount: result[i].totalOrder, unitPrice: result[i].prixUnitaireLigneOrder, name: result[i].productLigneOrder, description: result[i].titleLigneOrder, quantity: result[i].quantiteLigneOrder};
+                            if(result[i].titleLigneOrder.length>18){
+                                result[i].titleLigneOrder = result[i].titleLigneOrder.substring(0,18)+'...';
+                            }
+                            items[i] = {amount: result[i].priceLine, shippingCost: result[i].shippingCostLigneOrder, unitPrice: result[i].prixUnitaireLigneOrder, name: result[i].productLigneOrder, description: result[i].titleLigneOrder, quantity: result[i].quantiteLigneOrder};
                         }
                         var orderDate = result[0].dateOrder
+                        var totalPrice = result[0].totalOrder
                         var orderId = result[0].idOrder;
-                        PdfGeneratorUtils.PDFBillUser(customer, items, producer, orderId, orderDate, res);
+                        PdfGeneratorUtils.PDFBillUser(customer, items, producer, orderId, orderDate, totalPrice, res);
                     
                     }else{
                     res.json({
