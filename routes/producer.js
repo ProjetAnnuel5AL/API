@@ -10,7 +10,7 @@ module.exports = function(app, models, TokenUtils, utils) {
         const uuidv4 = require('uuid/v4');
         
         if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer 
-            && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer 
+            && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer 
             && req.body.locationProducer && req.body.token && req.body.paypalProducer && req.body.ibanProducer) {
                 
             var Producer = models.Producer;
@@ -52,7 +52,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                         "firstNameProducer" : crpt.encryptAES(req.body.firstNameProducer),
                         "emailProducer" : crpt.encryptAES(req.body.emailProducer),
                         "phoneProducer" : crpt.encryptAES(req.body.phoneProducer),
-                        "birthProducer" : req.body.birthProducer,
+                        "birthProducer" : null,
                         "sexProducer" : crpt.encryptAES(req.body.sexProducer),
                         "addressProducer" : crpt.encryptAES(req.body.addressProducer),
                         "cityProducer" : crpt.encryptAES(req.body.cityProducer),
@@ -354,7 +354,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                                     "firstNameProducer" :  utf8.decode(crpt.decryptAES(result.firstNameProducer)),
                                     "emailProducer" :  utf8.decode(crpt.decryptAES(result.emailProducer)),
                                     "phoneProducer" :  utf8.decode(crpt.decryptAES(result.phoneProducer)),
-                                    "birthProducer" : result.birthProducer,
+                                    "birthProducer" : null,
                                     "sexProducer" :  utf8.decode(crpt.decryptAES(result.sexProducer)),
                                     "addressProducer" :  utf8.decode(crpt.decryptAES(result.addressProducer)),
                                     "cityProducer" :  utf8.decode(crpt.decryptAES(result.cityProducer)),
@@ -400,7 +400,7 @@ module.exports = function(app, models, TokenUtils, utils) {
 
     app.post("/producer/update", function(req, res, next) {
         
-        if(req.body.loginUser && req.body.token && req.body.photoChange && req.body.paypalChange && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.locationProducer){
+        if(req.body.loginUser && req.body.token && req.body.photoChange && req.body.paypalChange && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer && req.body.locationProducer){
             var idUser;
             var idProducer;
             var Producer = models.Producer;
@@ -425,7 +425,9 @@ module.exports = function(app, models, TokenUtils, utils) {
                         }
                         if(req.body.ibanProducer.name!=""){
                            
-                            fs.unlink("ressources/ibanProducer/"+oldIbanProducer+".dat");
+                            fs.unlink("ressources/ibanProducer/"+oldIbanProducer+".dat", function (err) {
+                                console.log('File deleted!');
+                            });
                         }
                        
                         
@@ -469,7 +471,7 @@ module.exports = function(app, models, TokenUtils, utils) {
                     attributes.firstNameProducer = crpt.encryptAES(req.body.firstNameProducer);
                     attributes.emailProducer = crpt.encryptAES(req.body.emailProducer);
                     attributes.phoneProducer= crpt.encryptAES(req.body.phoneProducer);
-                    attributes.birthProducer= req.body.birthProducer;
+                    attributes.birthProducer= null;
                     attributes.sexProducer= crpt.encryptAES(req.body.sexProducer);
                     attributes.addressProducer= crpt.encryptAES(req.body.addressProducer);
                     attributes.cityProducer= crpt.encryptAES(req.body.cityProducer);
@@ -580,8 +582,9 @@ module.exports = function(app, models, TokenUtils, utils) {
     });
 
     app.post("/commentProducer", function(req, res, next) {
-        console.log(req.body)
-        if(req.body.loginUser && req.body.token && req.body.stars && req.body.idProducer){
+        console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+       console.log(req.body)
+        if(req.body.loginUser && req.body.token && (req.body.stars || req.body.stars) && req.body.idProducer){
             var idUser;
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
                 idUser = result.idUser;

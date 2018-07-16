@@ -2,7 +2,9 @@ module.exports = function(app, models) {
 
     app.get("/motif/order", function(req, res, next) {
         var Motif = models.Motif;
+       
         request = {
+            attributes: ["idMotif", "nameMotif", "typeMotif", "libelleMotif"],
             where: {
                 typeMotif: "ORDER"
             }

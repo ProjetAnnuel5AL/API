@@ -4,7 +4,7 @@ module.exports = function(app, models) {
         
         var Delivery = models.Delivery;
     
-        Delivery.findAll({ order: ['nameDelivery']}).then(function(result){
+        Delivery.findAll({ attributes: ["idDelivery", "nameDelivery","siteDelivery"], order: ['nameDelivery']}).then(function(result){
             if(result){
                 res.json({
                     "code" : 0,
