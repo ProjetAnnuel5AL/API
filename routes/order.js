@@ -39,7 +39,7 @@ module.exports = function (app, models, TokenUtils, utils) {
             var PaypalTransact = models.PaypalTransact 
             var idOrder;
             var FinderUtils = utils.FinderUtils;
-
+            var payerId ="";
             var totalOrder = 0.00;
             for(var i = 0; i<req.body.cart.length; i++){
                 totalOrder += (req.body.cart[i].prixU*parseInt(req.body.cart[i].qte) + req.body.cart[i].shippingCost*1);
@@ -65,12 +65,13 @@ module.exports = function (app, models, TokenUtils, utils) {
                     }
                 }).then(function(result2){ 
                     var verifyPaymentJson = JSON.parse(result2)
+                   
                     //si un paiement exist on enregistre la commande.
                     if(verifyPaymentJson.count == 1){
                         if(verifyPaymentJson.payments[0].state=="approved"){
                             //Si on arrive ici tout est bon pour paypal : paiement OK
                             //création de la commande
-                            console.log(req.body.address.sexUser)
+                            payerId = verifyPaymentJson.payments[0].payer.payer_info.payer_id;
                             TokenUtils.findIdUser(req.body.loginUser).then(function(result) {
                                 Order.create({
                                     "idUserOrder": result.idUser,
@@ -110,7 +111,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                                                     "idLigneOrderPaypalTransact": result.idLigneOrder,
                                                     "datePaypalTransact": new Date(),
                                                     "dateRediPaypalTransact": null,
-                                                    "payerIDPaypalTransact": crpt.encryptAES(req.body.payementDetail.payerID),
+                                                    "payerIDPaypalTransact": crpt.encryptAES(payerId),
                                                     "valuePaypalTransact": (result.quantiteLigneOrder*result.prixUnitaireLigneOrder + result.shippingCostLigneOrder*1).toFixed(2),
                                                     //batch et item id sera update lors de la transaction 
                                                     "batchIdPaypalTransact": null,

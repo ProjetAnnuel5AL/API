@@ -520,6 +520,52 @@ module.exports = function (app, models, TokenUtils, utils) {
 
   });
 
+  app.post("/item/verifyQuantityItems", function(req, res, next) {
+	
+    if (req.body){
+      var Item = models.Item;
+      var listId ="";
+      for (var i = 0; i<req.body.length; i++){
+       
+        listId += req.body[i].item.id
+        if(i !=  req.body.length-1){
+          listId += ","
+        }  
+      }
+      var sequelize = models.sequelize;  
+      
+      sequelize.query("Select idItem, quantityItem FROM item WHERE idItem IN ("+listId+")",{ type: sequelize.QueryTypes.SELECT  })
+        .then(function(result){
+			
+          if(result && result.length>0){
+            res.json({
+              "code": 0,
+              "message":"",
+              "result" : result 
+            });
+          }else{
+            res.json({
+              "code": 2,
+              "message": "Item does t exist",
+              "result": null
+            });
+          }
+        }).catch(function(err){
+			res.json({
+              "code": 1,
+              "message": "sequelize error",
+              "result": null
+            });
+        })
+    }else{
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters",
+        "result": null
+      });
+    }
+  });
+
   app.post("/item/updateQuantity", function(req, res, next) {
       if(req.body.quantity && req.body.id && req.body.loginUser && req.body.token){
         TokenUtils.findIdUser(req.body.loginUser).then( function(result) {       

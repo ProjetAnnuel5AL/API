@@ -4,11 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "test": "nyc --reporter=html mocha --exit",
+    "test": "nyc --reporter=html mocha --exit",
     "mocha": "mocha --exit",
     "dev_deploy": "./script/dev_deploy",
     "prod_deploy": "./script/prod_deploy"
-
   },
   "author": "",
   "license": "ISC",
@@ -36,6 +35,7 @@
     "sequelize": "^4.37.5",
     "supertest": "^3.0.0",
     "supertest-session": "^3.3.0",
-    "utf8": "^3.0.0"
+    "utf8": "^3.0.0",
+    "uuid": "^3.3.2"
   }
 }

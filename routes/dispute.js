@@ -660,4 +660,94 @@ module.exports = function(app, models, TokenUtils, utils, urlApi, urlSite) {
     });
     
 
+    app.post("/dispute/arbitrage", function(req, res, next) { 
+        if(req.body.token && req.body.loginUser && req.body.idDispute && req.body.winner && req.body.description){ 
+
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) {     
+                if (TokenUtils.verifAdminToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token",
+                        "result": null
+                    });
+                } else {    
+                    var Dispute = models.Dispute;
+                    var attributes = {}
+                    attributes.winnerContestDispute = req.body.winner;
+                    attributes.winnerContestDescriptionDispute = req.body.description;
+                    attributes.statusDispute = "CLOSE";
+                    var sequelize = models.sequelize;
+
+                    var request = {
+                        where: {
+                            idDispute : req.body.idDispute
+                        }
+                    }
+
+                    Dispute.update(attributes, request).then(function (results) {});
+
+                    //On recup les infos pour eviter de refaire un paiement si le producteur a déjà été payé
+                    sequelize.query("SELECT idPaypalTransact, dateRediPaypalTransact, statusPaypalTransact FROM dispute, disputeLigneOrder, ligneOrder, paypalTransact "
+                    +" WHERE dispute.idDispute = disputeLigneOrder.idDisputeDisputeLigneOrder AND disputeLigneOrder.idLigneOrderDisputeLigneOrder = ligneOrder.idLigneOrder "
+                    +" AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND idDispute = "+req.body.idDispute,  { type: sequelize.QueryTypes.SELECT  })
+                    .then(function(result){
+                        if(result && result.length>0){
+
+                            for (var i =0; i<result.length; i++){
+                                var newState = "";
+                                if(req.body.winner =="PRODUCER"){
+                                    if(result[i].dateRediPaypalTransact == null){
+                                        newState ="TO DO";
+                                    }else{
+                                        newState ="SUCCESS";
+                                    }
+                                }else{
+                                    if(result[i].dateRediPaypalTransact == null){
+                                        newState ="REFUND";
+                                    }
+                                }
+                                
+                                var request2 = {
+                                    where: {
+                                        idPaypalTransact : result[i].idPaypalTransact
+                                    },
+                                }
+                                var attributes2 = {};
+                                attributes2.statusPaypalTransact = newState;
+                                var PaypalTransact = models.PaypalTransact;
+
+                                PaypalTransact.update(attributes2, request2);
+                            }
+                            res.json({
+                                "code" : 0,
+                                "message" : "",
+                                "result":null
+                            });
+
+                        }else{
+                            res.json({
+                                "code" : 3,
+                                "message" : "No transact found",
+                                "result":null
+                            });
+                        }
+                    }).catch(function(err){
+                        res.json({
+                            "code" : 2,
+                            "message" : "Sequelize error",
+                            "result":null
+                        });
+                    }) 
+                }
+            })
+
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters",
+                "result":null
+            });
+        }
+    });
+
 }

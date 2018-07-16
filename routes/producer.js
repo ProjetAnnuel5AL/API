@@ -2,24 +2,17 @@ module.exports = function(app, models, TokenUtils, utils) {
     var fs = require("fs");
     var CryptoUtils = utils.CryptoUtils;
     var crpt = new CryptoUtils();
-
-
-    app.get("/testCryptoFile", function(req,res,next){
-       
-        
-        encryptor.encryptFile('test.pdf', 'encrypted.dat', key, options, function(err) {
-            encryptor.decryptFile('encrypted.dat', 'outputfile.pdf', key, options, function(err) {
-                // Encryption complete;
-              });
-        });
-    })
+    var jwt = require('jsonwebtoken');
 
     //CREATE Producer
     app.post("/producer", function(req, res, next) {
-        console.log(req.body);
+        var nameIbanFile =""
+        const uuidv4 = require('uuid/v4');
+        
         if (req.body.loginUser && req.body.lastNameProducer && req.body.firstNameProducer && req.body.emailProducer && req.body.phoneProducer 
             && req.body.birthProducer && req.body.sexProducer && req.body.addressProducer && req.body.cityProducer && req.body.cpProducer 
             && req.body.locationProducer && req.body.token && req.body.paypalProducer && req.body.ibanProducer) {
+                
             var Producer = models.Producer;
             var User = models.User;
             var idUser = null;
@@ -36,15 +29,13 @@ module.exports = function(app, models, TokenUtils, utils) {
                     });
                     
                 } else {
-                    
-                    var nameIbanFile="";
+                   
                     var avatar = "default";
                     var extension;
 
-
-
                     if(req.body.ibanProducer.name!=""){
-                        nameIbanFile = req.body.ibanProducer.name;
+                       
+                        nameIbanFile = uuidv4()+".pdf";
                     }
 
                     if(req.body.avatarProducer.name!=""){
@@ -94,14 +85,21 @@ module.exports = function(app, models, TokenUtils, utils) {
                                 fs.mkdirSync(filePath2)
                             }
                             var oldPathIban = req.body.ibanProducer.path;
-                            var newPathIban = filePath2 + req.body.ibanProducer.name;
+                            var newPathIban = filePath2 + nameIbanFile;
 
                             fs.readFile(oldPathIban, function (err, data) {
                                 console.log('File read!');
                     
                                 // Write the file
                                 fs.writeFile(newPathIban, data, function (err) {
-
+                                    var ext = newPathIban.split('.');
+                                    var nameCrypt ="";
+                                    for (var i =0; i<ext.length-1; i++){
+                                        nameCrypt += ext[i];
+                                    }
+                                    crpt.encrypteFileAES(nameCrypt)
+                                        
+                                    
                                 });
                     
                                 // Delete the file
@@ -142,11 +140,21 @@ module.exports = function(app, models, TokenUtils, utils) {
                             });
                         }
 
+                        var payload = {
+                            admin: 1,
+                            id: idUser
+                        };
+                        var token = jwt.sign(payload, "kukjhifksd489745dsf87d79+62dsfAD_-=", {
+                            expiresIn : 60*60*24
+                        });
+
+                        
                         res.json({
                             "code" : 0,
                             "message" : "producer",
                             "result": {
-                                "id" : result.idProducer
+                                "id" : result.idProducer,
+                                "token" : token
                             },
                             
                         });
@@ -396,6 +404,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             var idUser;
             var idProducer;
             var Producer = models.Producer;
+            var oldIbanProducer="";
+            const uuidv4 = require('uuid/v4');
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) { 
                 idUser = result.idUser;
                 if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser) == false) {
@@ -408,6 +418,17 @@ module.exports = function(app, models, TokenUtils, utils) {
                 } else {
                     Producer.find({where: { idUserProducer : idUser}}).then(function(result){
                         idProducer = result.idProducer
+                        var extOldIban = result.ibanProducer.split('.');
+                       
+                        for (var i =0; i<extOldIban.length-1; i++){
+                            oldIbanProducer += extOldIban[i];
+                        }
+                        if(req.body.ibanProducer.name!=""){
+                           
+                            fs.unlink("ressources/ibanProducer/"+oldIbanProducer+".dat");
+                        }
+                       
+                        
                     })
                     var request = {
                         where: {
@@ -437,6 +458,13 @@ module.exports = function(app, models, TokenUtils, utils) {
                     long = LatLong[1];
 
                     
+                    if(req.body.ibanProducer.name!=""){
+                       
+                        var nameIbanFile=  uuidv4()+".pdf";;
+                        attributes.ibanProducer =  nameIbanFile;;
+                       
+                    }
+                    
                     attributes.lastNameProducer = crpt.encryptAES(req.body.lastNameProducer);
                     attributes.firstNameProducer = crpt.encryptAES(req.body.firstNameProducer);
                     attributes.emailProducer = crpt.encryptAES(req.body.emailProducer);
@@ -455,7 +483,40 @@ module.exports = function(app, models, TokenUtils, utils) {
                     Producer.update(attributes, request).then(function(results){
                         
                         
+                        if(req.body.ibanProducer.name!=""){
+                            filePath2 = "ressources/ibanProducer/";
+                            if (!fs.existsSync(filePath2)) {
+                                fs.mkdirSync(filePath2)
+                            }
+                            var oldPathIban = req.body.ibanProducer.path;
+                            var newPathIban = filePath2 + nameIbanFile;
+
+                            fs.readFile(oldPathIban, function (err, data) {
+                                console.log('File read!');
+                    
+                                // Write the file
+                                fs.writeFile(newPathIban, data, function (err) {
+                                    var ext = newPathIban.split('.');
+                                    var nameCrypt ="";
+                                    for (var i =0; i<ext.length-1; i++){
+                                        nameCrypt += ext[i];
+                                    }
+                                    crpt.encrypteFileAES(nameCrypt)
+                                        
+                                    
+                                });
+                    
+                                // Delete the file
+                                fs.unlink(oldPathIban, function (err) {
+                                    console.log('File deleted!');
+                                });
+                            });
+
+                        }
+
                         var filePath=null;
+
+
                         if(req.body.avatarProducer.name!=""){
                             filePath = "ressources/producerAvatar/"+idProducer+"/";
                             if (!fs.existsSync(filePath)) {
@@ -573,5 +634,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             });
         }
     })
+
+
+
 
 }

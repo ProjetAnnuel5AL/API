@@ -75,7 +75,8 @@ var options = { algorithm: 'aes256' };
 
 CryptoUtils.prototype.encrypteFileAES = function (fileName){
 	return encryptor.encryptFile(fileName+'.pdf', fileName+'.dat', key, options, function(err) {
-		//delete non encrypted
+		var fs = require("fs");
+		fs.unlink(fileName+'.pdf');
 	})
 }
 
