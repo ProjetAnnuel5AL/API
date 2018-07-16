@@ -358,16 +358,16 @@ module.exports = function(app, models, TokenUtils, utils) {
               if(result){
                 var filePath = null;
                 filePath = "ressources/groupAvatar/" + req.body.idGroup + "/";
-                empty(filePath, true, (o) => {
-                  if (o.error) console.error(err);
-                  //console.log(o.removed);
-                  //console.log(o.failed);
-                });
-                  res.json({
-                    "code": 0,
-                    "message": "",
-                    "result": result
+                if (fs.existsSync(filePath)) {
+                  empty(filePath, true, (o) => {
+                    if (o.error) console.error(err);
                   });
+                }
+                res.json({
+                  "code": 0,
+                  "message": "",
+                  "result": result
+                });
               }else{
                   res.json({
                       "code" : 3,
