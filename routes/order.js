@@ -3,6 +3,7 @@ module.exports = function (app, models, TokenUtils, utils) {
     var config = require("config"); 
     var utf8 = require('utf8');
     var fs = require("fs");
+    var PdfGeneratorUtils = utils.PdfGeneratorUtils;
 
     var configPaypal;
     var log =true;
@@ -362,76 +363,6 @@ module.exports = function (app, models, TokenUtils, utils) {
         }
     })
 
-    app.get("/order/getBillFromUser", function (req, res, next) { 
-        if(req.body.loginUser && req.body.token && req.body.idOrder){
-            var sequelize = models.sequelize;
-            var idUser;
-            var CryptoUtils = utils.CryptoUtils;
-            var crpt = new CryptoUtils();
-            TokenUtils.findIdUser(req.body.loginUser).then( function(result) {
-                idUser = result.idUser;  
-                if (TokenUtils.verifUserOrderToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser, req.body.idOrder ) == false) {
-                    res.json({
-                        "code" : 6,
-                        "message" : "Failed to authenticate token"
-                    });
-                } else {  
-                    //"SELECT idOrder, dateOrder, totalOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser FROM `order`, ligneOrder, paypalTransact, producer, user WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser WHERE order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder
-                    sequelize.query("SELECT idOrder, dateOrder, totalOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, shippingCostLigneOrder, "
-                    +"deliveryTimeLigneOrder , quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, loginUser, "
-                    +"idDeliveryLigneOrder, nameDelivery FROM `order`, ligneOrder, paypalTransact, producer, user, delivery WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder "
-                    +"AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer "
-                    +"AND producer.idUserProducer = user.idUser AND delivery.idDelivery = ligneOrder.idDeliveryLigneOrder AND order.idUserOrder = "+idUser+" AND idOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
-                        if(results && results.length>0){
-
-                            //On déchiffre les infos avant de send
-                            for(var i =0; i<results.length; i++){
-                                results[i].lastNameProducer = utf8.decode(crpt.decryptAES(results[i].lastNameProducer));
-                                results[i].firstNameProducer = utf8.decode(crpt.decryptAES(results[i].firstNameProducer));
-                            }
-
-                            var PdfGeneratorUtils = utils.PdfGeneratorUtils;
-                            PdfGeneratorUtils.PDFBillUser();
-                            res.json({
-                                "code": 2,
-                                "message": "Sequelize error",
-                                "error": err
-                            });
-                        }else{
-                            res.json({
-                                "code": 1,
-                                "message": "No order",
-                                
-                            });
-                        }
-                    }).catch(function (err) {
-                        res.json({
-                            "code": 2,
-                            "message": "Sequelize error",
-                            "error": err
-                        });
-                    });
-                }
-            }).catch(function (err) {
-                
-                res.json({
-                    "code": 2,
-                    "message": "Sequelize error",
-                    "error": err
-                });
-            });  
-
-        }else{
-            res.json({
-                "code" : 1,
-                "message" : "Missing required parameters"
-            });
-        }
-
-        
-    })
-
-
     app.get("/order/getOdrersFromProducer", function (req, res, next) { 
         if(req.body.loginUser && req.body.token){
             var orders;
@@ -531,7 +462,7 @@ module.exports = function (app, models, TokenUtils, utils) {
     });
    
   
-    app.get("/order/getOrderDetailsFromProducer", function (req, res, next) { 
+    app.get("/order/getBillFromUser", function (req, res, next) { 
         if(req.body.loginUser && req.body.token && req.body.idOrder){
             var sequelize = models.sequelize;
             var idUser;
@@ -630,5 +561,71 @@ module.exports = function (app, models, TokenUtils, utils) {
             });
         }
     });
+    app.get("/order/generateBill/idOrder/idProducer", function(req, res, next) {
+        var CryptoUtils = utils.CryptoUtils;
+        var crpt = new CryptoUtils();
+        if(req.query.idOrder && req.query.token && req.query.producerId){
+            var userId = TokenUtils.getIdAndType(req.query.token).id;
+            if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+                res.json({
+                    "code" : 6,
+                    "message" : "Failed to authenticate token"
+                });
+            } else {  
+                var query = "SELECT idOrder, dateOrder, totalOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, shippingCostLigneOrder, "
+                    +"deliveryTimeLigneOrder , quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, addressProducer, lastNameUser, cityProducer, firstNameUser, emailUser, loginUser, "
+                    +"idDeliveryLigneOrder, nameDelivery FROM `order`, ligneOrder, paypalTransact, producer, user, delivery WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder "
+                    +"AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer "
+                    +"AND user.idUser = "+userId+" AND delivery.idDelivery = ligneOrder.idDeliveryLigneOrder AND ligneOrder.idProducerLigneOrder = "+req.query.producerId+" AND idOrder = "+req.query.idOrder+";";
 
+                var sequelize = models.sequelize;
+                sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
+                .then(function(result){
+                    if(result && result.length>0){
+                        var customer = {
+                            name: utf8.decode(crpt.decryptAES(result[0].firstNameUser)) + " " + utf8.decode(crpt.decryptAES(result[0].lastNameUser)),
+                            email: utf8.decode(crpt.decryptAES(result[0].emailUser))
+                        };
+                        var producerAddress = utf8.decode(crpt.decryptAES(result[0].addressProducer)).split(',');
+                        var producer = {
+                            name: utf8.decode(crpt.decryptAES(result[0].firstNameProducer)) + " " + utf8.decode(crpt.decryptAES(result[0].lastNameProducer)),
+                            address: producerAddress[0],
+                            city: utf8.decode(crpt.decryptAES(result[0].cityProducer))
+                        };
+                        var items = [];
+                        for(i=0; i<result.length; i++){
+                            if(result[i].unitLigneOrder != 'Unité'){
+                                result[i].quantiteLigneOrder = result[i].quantiteLigneOrder + " (" + result[i].unitLigneOrder+(")");
+                            }
+                            items[i] = {amount: result[i].totalOrder, unitPrice: result[i].prixUnitaireLigneOrder, name: result[i].productLigneOrder, description: result[i].titleLigneOrder, quantity: result[i].quantiteLigneOrder};
+                        }
+                        var orderDate = result[0].dateOrder
+                        var orderId = result[0].idOrder;
+                        PdfGeneratorUtils.PDFBillUser(customer, items, producer, orderId, orderDate, res);
+                    
+                    }else{
+                    res.json({
+                        "code" : 3,
+                        "message" : "Item not found",
+                        "result": null
+                    });
+                    }
+                
+                }).catch(function(err){
+                    console.log(err);
+                    res.json({
+                        "code" : 2,
+                        "message" : "Sequelize error",
+                        "error" : err
+                    });
+                });
+            }
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters",
+                "result": null
+            });
+        }
+    });
 };
