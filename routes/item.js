@@ -754,5 +754,4 @@ module.exports = function (app, models, TokenUtils, utils) {
         });
     }
   });
-
 }

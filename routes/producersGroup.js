@@ -139,6 +139,10 @@ module.exports = function(app, models, TokenUtils, utils) {
     }
   });
   app.get("/producersGroup/founder/userId/", function(req, res, next) {
+    if(req.query.token && req.query.loginUser){
+      req.body.token= req.query.token;
+      req.body.loginUser =  req.query.loginUser;
+    }
     if(req.body.token, req.body.loginUser){
       var idUser;
       TokenUtils.findIdUser(req.body.loginUser).then(function (result) {
@@ -156,7 +160,7 @@ module.exports = function(app, models, TokenUtils, utils) {
       
       sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
         .then(function(result){
-            if(result){
+            if(result && result.length>0){
               res.json({
                 "code":0,
                 "message":null,
@@ -165,7 +169,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             }else{
               res.json({
                 "code" : 3,
-                "message" : "Item not found"
+                "message" : "Item not found",
+                "result": null
               });
             }
            
@@ -238,14 +243,7 @@ module.exports = function(app, models, TokenUtils, utils) {
   });
 
   app.get("/producersGroup/search", function(req, res, next) {
-    if(req.query.lat && req.query.long && req.body.token){
-      var userId = TokenUtils.getIdAndType(req.body.token).id;
-      if (TokenUtils.verifSimpleToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
-        res.json({
-          "code": 6,
-          "message": "Failed to authenticate token"
-        });
-      }
+    if(req.query.lat && req.query.long){
       var query = "SELECT grp.*, (select count(id) from producersGroupMember where idGroup = grp.id AND deletedAt IS NULL) "+
         "as countMembers, ( 6371 * acos( cos( radians("+req.query.lat+") ) * cos( radians( grp.latGroup ) )"+
         "* cos( radians(grp.longGroup) - radians("+req.query.long+")) + sin(radians("+req.query.lat+"))"+ 
@@ -269,7 +267,8 @@ module.exports = function(app, models, TokenUtils, utils) {
             }else{
               res.json({
                 "code" : 3,
-                "message" : "Item not found"
+                "message" : "Item not found",
+                "result": null
               });
             }
            
@@ -278,30 +277,24 @@ module.exports = function(app, models, TokenUtils, utils) {
             res.json({
                 "code" : 2,
                 "message" : "Sequelize error",
-                "error" : err
+                "result": null
             });
         });
     }else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null
       });
     }
   });
 
   app.get("/producersGroup/idGroup/", function(req, res, next) {
-    if(req.query.idGroup && req.query.token){
-      var userId = TokenUtils.getIdAndType(req.query.token).id;
-      if (TokenUtils.verifSimpleToken(req.query.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
-        res.json({
-          "code": 6,
-          "message": "Failed to authenticate token"
-        });
-      }else{
+    if(req.query.idGroup){
         var utf8 = require('utf8');
         var id = req.query.idGroup;
         var coop;
-        var query = 'SELECT grp.*, usr.loginUser, prd.lastNameProducer, prd.firstNameProducer, prd.cpProducer, prd.avatarProducer, '
+        var query = 'SELECT grp.*, usr.loginUser, prd.idProducer, prd.lastNameProducer, prd.firstNameProducer, prd.cpProducer, prd.avatarProducer, '
         +'prd.descriptionProducer, (select count(id) from producersGroupMember where idGroup = grp.id AND deletedAt IS NULL) as countMembers'
         +' FROM producersGroup grp, producer prd, user usr where usr.idUser = prd.idUserProducer AND grp.deletedAt IS NULL AND prd.idUserProducer=grp.founderUserId AND grp.id = '+id+' ;';
         var sequelize = models.sequelize;
@@ -323,22 +316,23 @@ module.exports = function(app, models, TokenUtils, utils) {
             }else{
                 res.json({
                     "code" : 3,
-                    "message" : "Member not found"
+                    "message" : "Member not found",
+                    "result": null
                 });
             }
         }).catch(function(err){    
             console.log(err);
             res.json({
               "code": 2,
-              "message": "Sequelize error"
-
+              "message": "Sequelize error",
+              "result": null
             });
-          });
-      }
+        });
     }else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null
       });
     }
   });
@@ -377,22 +371,24 @@ module.exports = function(app, models, TokenUtils, utils) {
               }else{
                   res.json({
                       "code" : 3,
-                      "message" : "Producers group not found"
+                      "message" : "Producers group not found",
+                      "result": null
                   });
               }
             }).catch(function (err) {
               console.log(err);
               res.json({
                 "code": 2,
-                "message": "Sequelize error"
-
+                "message": "Sequelize error",
+                "result": null
               });
             });
         }
         }else {
       res.json({
         "code": 1,
-        "message": "Missing required parameters"
+        "message": "Missing required parameters",
+        "result": null
       });
     }
     });

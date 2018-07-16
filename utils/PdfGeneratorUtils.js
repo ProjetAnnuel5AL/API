@@ -1,65 +1,25 @@
 var PDFDocument = require("pdfkit");
 var fs = require("fs");
+const pdfInvoice = require('./PdfGeneratorEngineUtils');
 
-var PDFBillUser = function(order) {
-    var doc = new PDFDocument();
-
-    var writeStream = fs.createWriteStream('filename.pdf');
-    doc.pipe(writeStream);
-    doc.text("")
-
-    //line to the middle
-    doc.lineCap('butt')
-    .moveTo(270, 90)
-    .lineTo(270, 230)
-    .stroke()
-
-    row(doc, 90);
-    row(doc, 110);
-    row(doc, 130);
-    row(doc, 150);
-    row(doc, 170);
-    row(doc, 190);
-    row(doc, 210);
-
-    textInRowFirst(doc, 'Nombre o razón social', 100);
-    textInRowFirst(doc, 'RUT', 120);
-    textInRowFirst(doc, 'Dirección', 140);
-    textInRowFirst(doc, 'Comuna', 160);
-    textInRowFirst(doc, 'Ciudad', 180);
-    textInRowFirst(doc, 'Telefono', 200);
-    textInRowFirst(doc, 'e-mail', 220);
-    doc.end();
-
-    writeStream.on('finish', function () {
-    // do stuff with the PDF file
-    return res.status(200).json({
-        ok: "ok"
-    });
-
-    });
+var PDFBillUser = function(customer, items, producer, orderId, orderDate, res) {
+    const document = pdfInvoice({
+      company: {
+        phone: '(+33) 106863729',
+        email: 'lechampalamaison@gmail.com',
+        address: '242 rue faubourg saint antoine',
+        city: '75001, Paris, France',
+        name: 'Le champ à la maison.',
+      },
+      customer: customer,
+      items: items,
+      producer: producer,
+      orderId: orderId,
+      orderDate : orderDate
+    })
+    document.generate()
+    document.pdfkitDoc.pipe(res);
 };
-
-function textInRowFirst(doc, text, heigth) {
-    doc.y = heigth;
-    doc.x = 30;
-    doc.fillColor('black')
-    doc.text(text, {
-      paragraphGap: 5,
-      indent: 5,
-      align: 'justify',
-      columns: 1,
-    });
-    return doc
-  }
-  
-  
-  function row(doc, heigth) {
-    doc.lineJoin('miter')
-      .rect(30, heigth, 500, 20)
-      .stroke()
-    return doc
-  }
 
 module.exports={
     "PDFBillUser" : PDFBillUser,
