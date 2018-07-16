@@ -607,6 +607,9 @@ module.exports = function (app, models, TokenUtils, utils) {
                             if(result[i].unitLigneOrder != 'Unité'){
                                 result[i].quantiteLigneOrder = result[i].quantiteLigneOrder + " (" + result[i].unitLigneOrder+(")");
                             }
+                            if(result[i].titleLigneOrder.length>18){
+                                result[i].titleLigneOrder = result[i].titleLigneOrder.substring(0,18)+'...';
+                            }
                             items[i] = {amount: result[i].priceLine, shippingCost: result[i].shippingCostLigneOrder, unitPrice: result[i].prixUnitaireLigneOrder, name: result[i].productLigneOrder, description: result[i].titleLigneOrder, quantity: result[i].quantiteLigneOrder};
                         }
                         var orderDate = result[0].dateOrder

@@ -57,14 +57,10 @@ module.exports = function(app, models, TokenUtils, utils) {
   });
   app.get("/producersGroupEvent/idGroup/", function(req, res, next) {
     if (req.query.idGroup) {
-      var ProducersGroupEvent = models.ProducersGroupEvent;
-      var request = {
-        attributes: ['idEvent', 'idGroup', 'nameEvent', 'adressEvent', 'cityEvent', 'locationEvent', 'latEvent', 'longEvent', 'descriptionEvent', 'dateEvent'],
-        where: {
-          idGroup: req.query.idGroup
-        }
-      };
-      ProducersGroupEvent.findAll(request).then(function (result) {
+      var query = 'SELECT (select count(*) from producersGroupEventParticipant gpep where gpep.deletedAt IS NULL AND gpep.idEvent=grpEvent.idEvent) as countParticipants, grpEvent.* from producersGroupEvent grpEvent where grpEvent.deletedAt IS NULL AND grpEvent.idGroup ='+req.query.idGroup+';';
+      var sequelize = models.sequelize;
+      sequelize.query(query,{ type: sequelize.QueryTypes.SELECT  })
+      .then(function(result){
         if (result) {
           res.json({
             "code": 0,
@@ -130,4 +126,51 @@ module.exports = function(app, models, TokenUtils, utils) {
         }
     }
   });
+  app.delete("/producersGroupEvent/idEvent", function(req, res, next) {
+        if(req.body.idEvent && req.body.token){
+        var userId = TokenUtils.getIdAndType(req.body.token).id;
+        if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", userId) == false) {
+          res.json({
+            "code": 6,
+            "message": "Failed to authenticate token",
+            "result": null,
+          });
+        }else{
+          var idEvent = req.body.idEvent;
+          var ProducersGroupEvent = models.ProducersGroupEvent;
+          ProducersGroupEvent.destroy({
+          where: {
+            idEvent: idEvent
+          } 
+          }).then(function(result){
+              if(result){
+                  res.json({
+                    "code": 0,
+                    "message": "",
+                    "result": result
+                  });
+              }else{
+                  res.json({
+                      "code" : 3,
+                      "message" : "Producers group not found",
+                      "result": null
+                  });
+              }
+            }).catch(function (err) {
+              console.log(err);
+              res.json({
+                "code": 2,
+                "message": "Sequelize error",
+                "result": null
+              });
+            });
+        }
+        }else {
+      res.json({
+        "code": 1,
+        "message": "Missing required parameters",
+        "result": null
+      });
+    }
+    });
 }

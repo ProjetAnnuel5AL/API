@@ -13,7 +13,7 @@ var FR = {
     chargeStatus: 'Status de paiement',
     chargeFor: 'Client: ',
     thanks: 'Merci pour votre commande!',
-    refundInfo: 'Vous disposez d\'un délai de rétractation de 15 jours après l\'achat. \nAfin d\'obtenir votre rembrousement, une demande peut-être effectuée sur lechampalamaison.fr dans\nVos commandes - détail de la commande - signaler un problème. \nCette clause ne s\'applique pas aux produits périssables',
+    refundInfo: 'Vous disposez d\'un délai de rétractation de 15 jours après l\'achat. \nAfin d\'obtenir votre rembrousement, une demande peut-être effectuée sur lechampalamaison.fr dans\nVos commandes - détail de la commande - signaler un problème. \nCette clause ne s\'applique pas aux produits périssables.',
     producer: 'Producteur:',
     order: 'Commande',
     description: 'Nom',
