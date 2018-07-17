@@ -331,6 +331,7 @@ module.exports = function (app, models, TokenUtils, utils) {
     }
   });
 
+  
   app.get("/item", function(req, res, next) {
     if (req.body.idItem || req.query.idItem){
       if(req.query.idItem){
