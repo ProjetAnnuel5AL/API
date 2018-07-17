@@ -2,6 +2,7 @@
  
 ssh ubuntu@lechampalamaison.fr <<EOF
   cd /home/projetAnnuel/API
+  git stash
   git pull
   npm install --production
   forever restartall
