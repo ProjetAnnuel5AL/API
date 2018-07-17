@@ -8,6 +8,8 @@ INSERT INTO projetannuel5a.category VALUES(5,'Boisson alcoolisée', SYSDATE(), S
 INSERT INTO projetannuel5a.category VALUES(6,'Céréale', SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.category VALUES(7,'Viande', SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.category VALUES(8,'Pain', SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.category VALUES(9,'Charcuterie', SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.category VALUES(10,'Poisson', SYSDATE(), SYSDATE(), null);
 
 -- Products
 
@@ -35,6 +37,12 @@ INSERT INTO projetannuel5a.product VALUES(21,  'Canard', 7, SYSDATE(), SYSDATE()
 INSERT INTO projetannuel5a.product VALUES(22, 'Brioche', 8, SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.product VALUES(23, 'Pain blanc', 8, SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.product VALUES(24, 'Pain complet', 8,SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.product VALUES(25, 'Saucisson', 9, SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.product VALUES(26, 'Chorizo', 9, SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.product VALUES(27, 'Jambon de parme', 9,SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.product VALUES(29, 'Sardine', 10, SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.product VALUES(30, 'Saumon', 10,SYSDATE(), SYSDATE(), null);
+
 
 -- Units
 
@@ -42,7 +50,7 @@ INSERT INTO projetannuel5a.unit VALUES(1, 'Unité', SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.unit VALUES(2, 'Kg', SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.unit VALUES(3, 'Litres', SYSDATE(), SYSDATE(), null);
 
--- motif
+-- Motives
 
 INSERT INTO projetannuel5a.motif VALUES(1, "Commande non reçu", "ORDER", "Je n'ai pas reçu ma commande", SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.motif VALUES(2, "Commande incomplète", "ORDER","La commande que j'ai reçu est incomplète", SYSDATE(), SYSDATE(), null);
@@ -60,6 +68,7 @@ INSERT INTO projetannuel5a.motif VALUES(13, "Contenu violent ou abject", "PRODUC
 INSERT INTO projetannuel5a.motif VALUES(14, "Contenu offensant ou haineux", "PRODUCERGROUP", "", SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.motif VALUES(15, "Spam ou contenu trompeur", "PRODUCERGROUP", "", SYSDATE(), SYSDATE(), null);
 
+-- Deliveries
 
 INSERT INTO projetannuel5a.delivery VALUES(1, "Chronopost", "https://www.chronopost.fr/fr/particulier/suivez-votre-colis", SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.delivery VALUES(2, "TNT", "https://www.tnt.fr/public/suivi_colis/recherche/index.do", SYSDATE(), SYSDATE(), null);
