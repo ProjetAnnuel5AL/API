@@ -39,6 +39,8 @@ var port=process.env.PORT || 8888;
 if (process.env.NODE_ENV === "test")
     port = 8083;
 
+console.log("test : " + process.env.NODE_ENV);
+
 var server = app.listen(port, function() {
     console.log("Server started port "+port+"...");
 });
