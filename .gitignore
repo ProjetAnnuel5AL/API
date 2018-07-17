@@ -58,5 +58,7 @@ typings/
 .env
 
 ressources/producerAvatar/*
+ressources/groupAvatar/*
 config/development.json
 ressources/itemPhotos/*
+config/

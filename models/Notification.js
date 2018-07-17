@@ -10,7 +10,7 @@ module.exports = sequelize.import("Notification", function(sequelize, Datatypes)
 		idUser : {
 			type : Datatypes.INTEGER
 		},
-    // "choice" ou "info", dans la cas d'info, l'url n'est pas necessaire (L'url correspond au choix "Oui")
+    	//"choice" ou "info", dans la cas d'info, l'url n'est pas necessaire (L'url correspond au choix "Oui")
 		type : {
 			type : Datatypes.STRING
 		},

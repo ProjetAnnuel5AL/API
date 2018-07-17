@@ -9,8 +9,8 @@ require("./env.js");
 
 var bodyParser = require("body-parser");
 
-var urlApi = "http://vps536743.ovh.net:8888";
-var urlSite = "http://vps536743.ovh.net"
+var urlApi = "http://localhost:8888";
+var urlSite = "http://localhost:8082"
 
 
 module.exports = app;
@@ -29,6 +29,7 @@ app.use(
     })
 );
 
+
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/ressources"));
 require("./routes")(app, models, TokenUtils, utils, urlSite, urlApi);
@@ -36,7 +37,7 @@ require("./routes")(app, models, TokenUtils, utils, urlSite, urlApi);
 var port=process.env.PORT || 8888;
 
 if (process.env.NODE_ENV === "test")
-    port = 8082;
+    port = 8083;
 
 var server = app.listen(port, function() {
     console.log("Server started port "+port+"...");

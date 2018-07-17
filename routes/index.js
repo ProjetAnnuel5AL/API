@@ -14,7 +14,14 @@ module.exports = function(app, models, TokenUtils, utils, urlSite, urlApi) {
 	require("./product")(app, models);
 	require("./producersGroup")(app, models, TokenUtils, utils);
 	require("./producersGroupMember")(app, models, TokenUtils, utils);
+	require("./producersGroupEvent")(app, models, TokenUtils, utils);
+	require("./producersGroupSubscriber")(app, models, TokenUtils, utils);
+	require("./producersGroupEventParticipant")(app, models, TokenUtils, utils);
 	require("./notification")(app, models, TokenUtils, utils);
 	require("./paypalTransact")(app, models, TokenUtils, utils);
 	require("./order")(app, models, TokenUtils, utils);
+	require("./motif")(app, models);
+	require("./dispute")(app, models, TokenUtils, utils, urlApi, urlSite);
+	require("./report")(app, models);
+	require("./delivery")(app, models);
 };

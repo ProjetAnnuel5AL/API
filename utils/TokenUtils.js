@@ -1,8 +1,8 @@
 var models=require("../models");
 var jwt = require('jsonwebtoken');
 
-//UserType: 0
-//ProducerType: 1
+//UserType: 1
+//ProducerType: 3
 //AdminType: 2
 var secret = "kukjhifksd489745dsf87d79+62dsfAD_-=";
 
@@ -23,7 +23,7 @@ var findIdUser = function(login) {
 };
 
 var getIdAndType = function(token){
-    return jwt.verify(token,secret, function(err, decoded) {
+    return jwt.verify(token, secret, function(err, decoded) {
         if (err) {
             return false;
         }else{
@@ -97,7 +97,7 @@ var verifProducerToken = function(token, secret, idUser){
 };
 
 var verifAdminToken = function(token, secret, idUser){
-    return jwt.verify(token,secret, function(err, decoded) {
+    return jwt.verify(token, secret, function(err, decoded) {
         if (err) {
             return false;
         }else{

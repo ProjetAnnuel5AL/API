@@ -68,4 +68,20 @@ CryptoUtils.prototype.decryptAES = function(encoded) {
 	return plaintext;
 }
 
+//POUR LES FICHIERS
+var encryptor = require('file-encryptor');
+var key = 'My Super Secret Key';
+var options = { algorithm: 'aes256' };
+
+CryptoUtils.prototype.encrypteFileAES = function (fileName){
+	return encryptor.encryptFile(fileName+'.pdf', fileName+'.dat', key, options, function(err) {
+		var fs = require("fs");
+		fs.unlink(fileName+'.pdf');
+	})
+}
+
+CryptoUtils.prototype.decryptFileAES = function (fileName){
+	return encryptor.decryptFile(fileName+'.dat', fileName+'.pdf', key, options, function(err) {});
+}
+
 module.exports=CryptoUtils;

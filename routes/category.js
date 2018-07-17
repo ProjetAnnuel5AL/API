@@ -4,7 +4,8 @@ module.exports = function(app, models) {
         
         var Category = models.Category;
         var request = {
-            attributes: ["idCategory", "nameCategory"],  
+            attributes: ["idCategory", "nameCategory"],
+            order: ['nameCategory']  
         };
         Category.findAll(request).then(function(result){
             if(result){
@@ -22,5 +23,4 @@ module.exports = function(app, models) {
             }
         });
     });
-
 };

@@ -33,6 +33,15 @@ module.exports = sequelize.import("ligneorder", function(sequelize, Datatypes) {
         },
         prixUnitaireLigneOrder : {
             type : Datatypes.FLOAT,
+        },
+        shippingCostLigneOrder : {
+            type : Datatypes.FLOAT,
+        },
+        deliveryTimeLigneOrder : {
+            type : Datatypes.STRING,
+        },
+        idDeliveryLigneOrder : {
+            type : Datatypes.INTEGER,
         }
 	}, {
         charset: 'utf8',
