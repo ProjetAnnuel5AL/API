@@ -1,6 +1,7 @@
 #!/bin/sh
  
 ssh ubuntu@lechampalamaison.fr <<EOF
+  whoami
   cd /home/projetAnnuel/API
   git stash
   git pull
