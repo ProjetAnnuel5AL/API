@@ -9,8 +9,8 @@ require("./env.js");
 
 var bodyParser = require("body-parser");
 
-var urlApi = "http://localhost:8888";
-var urlSite = "http://localhost:8082"
+var urlApi = "https://api.lechampalamaison.fr:44331";
+var urlSite = "https://lechampalamaison.fr";
 
 
 module.exports = app;
