@@ -9,8 +9,8 @@ require("./env.js");
 
 var bodyParser = require("body-parser");
 
-var urlApi = "http://vps536743.ovh.net:8888";
-var urlSite = "http://vps536743.ovh.net:8082"
+var urlApi = "http://localhost:8888";
+var urlSite = "http://localhost:8082"
 
 
 module.exports = app;
