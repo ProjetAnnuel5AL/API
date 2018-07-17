@@ -40,6 +40,7 @@ INSERT INTO projetannuel5a.product VALUES(24, 'Pain complet', 8,SYSDATE(), SYSDA
 INSERT INTO projetannuel5a.product VALUES(25, 'Saucisson', 9, SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.product VALUES(26, 'Chorizo', 9, SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.product VALUES(27, 'Jambon de parme', 9,SYSDATE(), SYSDATE(), null);
+INSERT INTO projetannuel5a.product VALUES(28, 'Daurade', 10, SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.product VALUES(29, 'Sardine', 10, SYSDATE(), SYSDATE(), null);
 INSERT INTO projetannuel5a.product VALUES(30, 'Saumon', 10,SYSDATE(), SYSDATE(), null);
 
