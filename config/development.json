@@ -3,7 +3,7 @@
     "username": "root",
     "password": "azanlo2018",
     "database": "projetannuel5a",
-    "host": "51.68.42.6",
+    "host": "51.38.36.241",
     "dialect": "mysql",
     "logging": false,
     "paypalClientId" : "AabAT8gUN4V6XU9PkYH2YuAvx9rp29KOZV29lZoCbFzJBD-987JgMyKWTUEwd4dkpx94_wPgKsL1SNMv",
