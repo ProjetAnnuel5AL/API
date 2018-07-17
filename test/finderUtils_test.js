@@ -16,15 +16,15 @@ describe("user",function(){
     afterEach(function () {
         //console.log('afterEach run!');
     });
+  
+  
 
-
-    describe("finderUtils CheckEmailUser ",function(){
-
+   /* describe("finderUtils CheckEmailUser ",function(){
         it("should return null", function(done){ 
             var FinderUtils = utils.FinderUtils;
             FinderUtils.CheckEmailUser("").expect(null,done)
         });
  
-    });
+    });*/
 
 });
