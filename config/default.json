@@ -1,6 +1,6 @@
 {
   "development": {
-    "username": "root",
+    "username": "admin",
     "password": "azanlo2018",
     "database": "projetannuel5a",
     "host": "51.68.42.6",
@@ -12,7 +12,7 @@
 
   },
   "production": {
-    "username": "root",
+    "username": "admin",
     "password": "azanlo2018",
     "database": "projetannuel5a",
     "host": "51.68.42.6",
@@ -23,7 +23,7 @@
     "paypalUrl" : "https://api.sandbox.paypal.com"
   },
   "test": {
-    "username": "root",
+    "username": "admin",
     "password": "azanlo2018",
     "database": "projetannuel5a_test",
     "host": "51.68.42.6",

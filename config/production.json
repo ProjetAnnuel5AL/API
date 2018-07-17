@@ -1,6 +1,6 @@
 {
   "production": {
-    "username": "root",
+    "username": "admin",
     "password": "azanlo2018",
     "database": "projetannuel5a",
     "host": "51.68.42.6",
