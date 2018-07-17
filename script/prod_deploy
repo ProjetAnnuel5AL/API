@@ -1,6 +1,6 @@
 #!/bin/sh
  
-ssh ubuntu@lechampalamaison.fr <<EOF
+ssh jenkins@lechampalamaison.fr <<EOF
   whoami
   cd /home/projetAnnuel/API
   git stash
