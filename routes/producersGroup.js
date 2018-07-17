@@ -102,7 +102,7 @@ module.exports = function(app, models, TokenUtils, utils) {
           "result": null,
         });
       }
-      var query = 'SELECT grp.*, (select count(id) from producersGroupMember where idGroup = grp.id AND deletedAt IS NULL) as countMembers FROM producersGroup grp, producersGroupMember mbr where mbr.idGroup = grp.id AND grp.deletedAt IS NULL AND mbr.idUser = '+idUser+' ;';
+      var query = 'SELECT grp.*, (select count(id) from producersGroupMember where idGroup = grp.id AND deletedAt IS NULL) as countMembers FROM producersGroup grp, producersGroupMember mbr where mbr.idGroup = grp.id AND mbr.deletedAt IS NULL AND grp.deletedAt IS NULL AND mbr.idUser = '+idUser+' ;';
       var sequelize = models.sequelize;
         
       
