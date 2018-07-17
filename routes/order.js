@@ -714,7 +714,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                 });
             } else {  
                 var query = "SELECT idOrder, dateOrder, totalOrder, (quantiteLigneOrder*prixUnitaireLigneOrder+shippingCostLigneOrder) as priceLine, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, titleLigneOrder, shippingCostLigneOrder, "
-                    +"deliveryTimeLigneOrder , quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, addressProducer, lastNameUser, cityProducer, firstNameUser, emailUser, loginUser, "
+                    +"deliveryTimeLigneOrder , quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idProducer, emailProducer, lastNameProducer, firstNameProducer, addressProducer, lastNameOrder, cityProducer, firstNameOrder, emailUser, loginUser, "
                     +"idDeliveryLigneOrder, nameDelivery FROM `order`, ligneOrder, paypalTransact, producer, user, delivery WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder "
                     +"AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND ligneOrder.idProducerLigneOrder = producer.idProducer "
                     +"AND user.idUser = "+userId+" AND delivery.idDelivery = ligneOrder.idDeliveryLigneOrder AND ligneOrder.idProducerLigneOrder = "+req.query.producerId+" AND idOrder = "+req.query.idOrder+";";
@@ -724,7 +724,7 @@ module.exports = function (app, models, TokenUtils, utils) {
                 .then(function(result){
                     if(result && result.length>0){
                         var customer = {
-                            name: utf8.decode(crpt.decryptAES(result[0].firstNameUser)) + " " + utf8.decode(crpt.decryptAES(result[0].lastNameUser)),
+                            name: utf8.decode(crpt.decryptAES(result[0].firstNameOrder)) + " " + utf8.decode(crpt.decryptAES(result[0].lastNameOrder)),
                             email: utf8.decode(crpt.decryptAES(result[0].emailUser))
                         };
                         var producerAddress = utf8.decode(crpt.decryptAES(result[0].addressProducer)).split(',');
