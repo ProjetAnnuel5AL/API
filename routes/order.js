@@ -328,6 +328,8 @@ module.exports = function (app, models, TokenUtils, utils) {
             var idUser;
             var CryptoUtils = utils.CryptoUtils;
             var crpt = new CryptoUtils();
+            var sequelize = models.sequelize;
+            var Notification = models.Notification;
             TokenUtils.findIdUser(req.body.loginUser).then( function(result) {
                 idUser = result.idUser;  
                 if (TokenUtils.verifUserOrderToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser, req.body.idOrder ) == false) { 
@@ -346,6 +348,31 @@ module.exports = function (app, models, TokenUtils, utils) {
                     var attributes = {};
                     attributes.statusPaypalTransact ="TO DO";
                     PaypalTransact.update(attributes, request).then(function (results) { 
+                        
+                        //On regarde si plus aucune ligne est en pending pour la commande
+                        sequelize.query("SELECT idLigneOrder FROM ligneOrder, paypalTransact WHERE ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact AND statusPaypalTransact = \"PENDING\" ",  { type: sequelize.QueryTypes.SELECT })
+                        .then(function(result){
+                            if (result && result.length ==0){
+                                //on recup tous les id producteurs 
+                                sequelize.query("SELECT DISTINCT(idProducerLigneOrder) as idProducerLigneOrder, loginUser FROM ligneOrder, producer, user WHERE user.idUser = producer.idProducer AND producer.idProducer = ligneOrder.idProducerLigneOrder AND idOrderLigneOrder = "+req.body.idOrder, { type: sequelize.QueryTypes.SELECT })
+                                .then(function(result){
+                                    if(result && result.length>0){
+                                        for(j =0; j<result.length; j++){
+                                            Notification.create({
+                                                "idUser": idUser,
+                                                "title": "Evaluer "+result[j].loginUser,
+                                                "description": "Les produits de "+ result[j].loginUser + " vous ont plus ? Evaluez le !",
+                                                "url": "/letComment/"+result[j].idProducerLigneOrder,
+                                                "type": "choice"
+                                            })
+                                        }
+                                    }
+                                    
+                                })
+                            }else if(!result){
+
+                            }
+                        })
                         res.json({
                             "code" : 0,
                             "message" : "statut updated"
@@ -571,6 +598,110 @@ module.exports = function (app, models, TokenUtils, utils) {
             });
         }
     });
+
+
+    app.get("/order/getOrderDetailsFromProducer", function (req, res, next) { 
+        if(req.body.loginUser && req.body.token && req.body.idOrder){
+            var sequelize = models.sequelize;
+            var idUser;
+            var CryptoUtils = utils.CryptoUtils;
+            var crpt = new CryptoUtils();
+            var idProducer;
+            var Producer = models.Producer;
+            TokenUtils.findIdUser(req.body.loginUser).then( function(result) {
+                idUser = result.idUser;  
+                if (TokenUtils.verifProducerToken(req.body.token, "kukjhifksd489745dsf87d79+62dsfAD_-=", result.idUser, req.body.idOrder ) == false) {
+                    res.json({
+                        "code" : 6,
+                        "message" : "Failed to authenticate token"
+                    });
+                } else {  
+                    var request = {
+                        attributes: ["idProducer"],
+                        where: {
+                            idUserProducer : result.idUser
+                        },
+                        
+                    };
+
+                    Producer.find(request).then(function(result){
+                        if(result){
+                            idProducer = result.idProducer;
+                            sequelize.query("SELECT idOrder, dateOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, "
+                            +"titleLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact, idItemLigneOrder, "
+                            +" lastNameOrder, firstNameOrder, sexOrder, addressOrder, cityOrder, cpOrder, shippingCostLigneOrder, deliveryTimeLigneOrder, idDeliveryLigneOrder "
+                            +" FROM `order`, ligneOrder, paypalTransact, producer, user, delivery "
+                            +"WHERE `order`.idOrder = ligneOrder.idOrderLigneOrder AND ligneOrder.idLigneOrder = paypalTransact.idLigneOrderPaypalTransact "
+                            +" AND ligneOrder.idProducerLigneOrder = producer.idProducer AND producer.idUserProducer = user.idUser AND delivery.idDelivery = ligneOrder.idDeliveryLigneOrder AND idProducerLigneOrder = "+idProducer 
+                            +" AND idOrder = "+req.body.idOrder + " GROUP BY  titleLigneOrder, idOrder, dateOrder, idLigneOrder, unitLigneOrder, categoryLigneOrder, productLigneOrder, quantiteLigneOrder, prixUnitaireLigneOrder, statusPaypalTransact,  lastNameOrder, firstNameOrder, sexOrder, addressOrder, cityOrder, cpOrder", { type: sequelize.QueryTypes.SELECT  }).then(function (results) {
+                                if(results && results.length>0){
+
+                                    //On déchiffre les infos avant de send
+                                    
+                                    results[0].lastNameOrder = utf8.decode(crpt.decryptAES(results[0].lastNameOrder));
+                                    results[0].firstNameOrder = utf8.decode(crpt.decryptAES(results[0].firstNameOrder));
+                                    results[0].sexOrder = utf8.decode(crpt.decryptAES(results[0].sexOrder));
+                                    results[0].addressOrder = utf8.decode(crpt.decryptAES(results[0].addressOrder));
+                                    results[0].cityOrder = utf8.decode(crpt.decryptAES(results[0].cityOrder));
+                                    results[0].cpOrder = utf8.decode(crpt.decryptAES(results[0].cpOrder));
+                                    
+                                    res.json({
+                                        "code": 0,
+                                        "message": null,
+                                        "result": results,
+                                    });
+                                }else{
+                                    res.json({
+                                        "code": 1,
+                                        "message": "No order",
+                                        "result": null
+                                        
+                                    });
+                                }
+                            }).catch(function (err) {
+                                //console.log(err)
+                                res.json({
+                                    "code": 2,
+                                    "message": "Sequelize error",
+                                    "result": null
+                                });
+                            });
+                        }else{
+                            res.json({
+                                "code" : 6,
+                                "message" : "Failed to authenticate token",
+                                "result": null
+                            });
+                        }
+                    }).catch(function (err) {
+                       
+                        res.json({
+                            "code": 2,
+                            "message": "Sequelize error",
+                            "result": null
+                        });
+                    }); 
+                }
+            }).catch(function (err) {
+                
+                res.json({
+                    "code": 2,
+                    "message": "Sequelize error",
+                    "result": null
+                });
+            });  
+
+        }else{
+            res.json({
+                "code" : 1,
+                "message" : "Missing required parameters",
+                "result": null
+            });
+        }
+    });
+
+
+
     app.get("/order/generateBill/idOrder/idProducer", function(req, res, next) {
         var CryptoUtils = utils.CryptoUtils;
         var crpt = new CryptoUtils();
